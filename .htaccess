@@ -1,0 +1,18 @@
+DirectoryIndex wsit_index.php
+
+RewriteEngine On
+RewriteBase /methofresh.com/
+
+# Serve files that live under public/assets (e.g. product images) directly.
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# If the requested file/directory actually exists, serve it directly.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route everything else to the front controller.
+RewriteRule ^ wsit_index.php [QSA,L]
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

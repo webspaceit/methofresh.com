@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="20"/>
+  <defs>
+    <linearGradient id="rbag" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fefce8"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+    <linearGradient id="rtop" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="348" rx="88" ry="14" fill="#00000012"/>
+  <!-- Bag body -->
+  <path d="M112 168 Q108 185 105 230 Q102 282 108 318 Q116 342 200 344 Q284 342 292 318 Q298 282 295 230 Q292 185 288 168 Z" fill="url(#rbag)" stroke="#d97706" stroke-width="2.5"/>
+  <!-- Bag top -->
+  <path d="M112 168 Q120 148 160 140 Q200 134 240 140 Q280 148 288 168 Q265 158 200 158 Q135 158 112 168 Z" fill="url(#rtop)" stroke="#d97706" stroke-width="2"/>
+  <!-- Tie knot -->
+  <ellipse cx="200" cy="140" rx="24" ry="14" fill="#b45309"/>
+  <path d="M185 132 Q180 112 172 102 Q178 112 188 128 Z" fill="#92400e"/>
+  <path d="M215 132 Q220 112 228 102 Q222 112 212 128 Z" fill="#92400e"/>
+  <!-- Label -->
+  <rect x="130" y="185" width="140" height="90" rx="6" fill="white" opacity="0.55"/>
+  <rect x="142" y="196" width="116" height="9" rx="4.5" fill="#d97706" opacity="0.65"/>
+  <rect x="148" y="212" width="104" height="8" rx="4" fill="#d97706" opacity="0.45"/>
+  <rect x="152" y="226" width="96" height="8" rx="4" fill="#d97706" opacity="0.35"/>
+  <!-- Rice grains scattered -->
+  <ellipse cx="155" cy="290" rx="10" ry="5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(-20,155,290)"/>
+  <ellipse cx="178" cy="278" rx="10" ry="5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(10,178,278)"/>
+  <ellipse cx="200" cy="295" rx="10" ry="5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(-5,200,295)"/>
+  <ellipse cx="222" cy="280" rx="10" ry="5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(25,222,280)"/>
+  <ellipse cx="245" cy="292" rx="10" ry="5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(-15,245,292)"/>
+  <ellipse cx="168" cy="314" rx="9" ry="4.5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(15,168,314)"/>
+  <ellipse cx="200" cy="320" rx="9" ry="4.5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(-8,200,320)"/>
+  <ellipse cx="232" cy="314" rx="9" ry="4.5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2" transform="rotate(20,232,314)"/>
+</svg>

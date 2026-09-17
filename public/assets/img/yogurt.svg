@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdfa" rx="24"/>
+  <ellipse cx="200" cy="330" rx="90" ry="16" fill="#00000015"/>
+  <!-- Cup -->
+  <path d="M130 150 L150 310 Q200 330 250 310 L270 150 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="4"/>
+  <!-- Lid rim -->
+  <ellipse cx="200" cy="150" rx="75" ry="20" fill="#38bdf8"/>
+  <ellipse cx="200" cy="145" rx="70" ry="16" fill="#0284c7"/>
+  <!-- Label badge -->
+  <rect x="160" y="200" width="80" height="50" rx="10" fill="#e0f2fe"/>
+  <circle cx="200" cy="225" r="14" fill="#38bdf8"/>
+</svg>

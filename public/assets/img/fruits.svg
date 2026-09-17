@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="20"/>
+  <defs>
+    <radialGradient id="fmg" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="55%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </radialGradient>
+    <radialGradient id="fly" cx="38%" cy="32%" r="60%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="355" rx="130" ry="13" fill="#00000012"/>
+
+  <!-- MANGO (left-center) -->
+  <path d="M145 115 Q210 112 238 162 Q262 205 248 258 Q234 300 200 310 Q166 300 148 258 Q128 205 138 162 Q148 132 145 115 Z" fill="url(#fmg)"/>
+  <ellipse cx="175" cy="175" rx="32" ry="22" fill="white" opacity="0.22" transform="rotate(-20,175,175)"/>
+  <path d="M168 118 Q172 95 176 80 Q180 66 177 78 Q173 92 171 114" fill="none" stroke="#92400e" stroke-width="9" stroke-linecap="round"/>
+  <path d="M174 90 Q190 70 208 76 Q194 82 178 98 Z" fill="#16a34a"/>
+
+  <!-- BANANA (right) -->
+  <path d="M268 95 Q304 108 316 148 Q326 182 316 220 Q306 248 290 250 Q274 245 268 218 Q260 188 265 152 Q268 122 268 95 Z" fill="#fef08a"/>
+  <path d="M268 95 Q266 80 268 72 Q272 80 270 95 Z" fill="#92400e"/>
+  <path d="M290 250 Q296 264 294 270 Q288 262 288 250 Z" fill="#92400e"/>
+  <path d="M276 105 Q296 112 310 140" fill="none" stroke="#d97706" stroke-width="2" opacity="0.4"/>
+
+  <!-- LYCHEES (bottom center) -->
+  <circle cx="148" cy="295" r="42" fill="url(#fly)" opacity="0.9"/>
+  <circle cx="200" cy="285" r="48" fill="url(#fly)"/>
+  <circle cx="252" cy="295" r="42" fill="url(#fly)" opacity="0.9"/>
+  <!-- Texture -->
+  <circle cx="190" cy="270" r="7" fill="#fb7185" opacity="0.28"/>
+  <circle cx="205" cy="265" r="7" fill="#fb7185" opacity="0.24"/>
+  <circle cx="220" cy="272" r="7" fill="#fb7185" opacity="0.28"/>
+  <circle cx="188" cy="285" r="7" fill="#fb7185" opacity="0.24"/>
+  <circle cx="200" cy="290" r="7" fill="#fb7185" opacity="0.28"/>
+  <circle cx="215" cy="286" r="6" fill="#fb7185" opacity="0.22"/>
+  <!-- Stem -->
+  <path d="M200 238 Q202 222 204 212" fill="none" stroke="#92400e" stroke-width="6" stroke-linecap="round"/>
+  <path d="M204 218 Q218 204 230 210 Q218 215 207 226 Z" fill="#16a34a"/>
+  <!-- Shine on front lychee -->
+  <ellipse cx="184" cy="272" rx="12" ry="8" fill="white" opacity="0.2" transform="rotate(-20,184,272)"/>
+</svg>

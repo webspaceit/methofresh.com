@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="24"/>
+  <ellipse cx="200" cy="340" rx="80" ry="16" fill="#00000015"/>
+  <!-- Thick stalk -->
+  <path d="M180 220 L170 330 Q200 340 230 330 L220 220 Z" fill="#86efac" stroke="#16a34a" stroke-width="4"/>
+  <!-- Broccoli heads -->
+  <circle cx="150" cy="180" r="45" fill="#15803d"/>
+  <circle cx="250" cy="180" r="45" fill="#15803d"/>
+  <circle cx="200" cy="140" r="50" fill="#166534"/>
+  <circle cx="160" cy="150" r="40" fill="#16a34a"/>
+  <circle cx="240" cy="150" r="40" fill="#16a34a"/>
+  <circle cx="200" cy="170" r="50" fill="#22c55e"/>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="20"/>
+  <defs>
+    <radialGradient id="mg" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="45%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </radialGradient>
+    <radialGradient id="mblush" cx="70%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="332" rx="92" ry="16" fill="#00000012"/>
+  <!-- Body — mango kidney shape -->
+  <path d="M200 105 Q280 102 315 160 Q348 215 328 272 Q308 325 268 338 Q230 348 200 338 Q155 335 128 305 Q95 268 98 218 Q102 158 145 125 Q168 108 200 105 Z" fill="url(#mg)"/>
+  <!-- Blush -->
+  <ellipse cx="278" cy="195" rx="55" ry="42" fill="url(#mblush)"/>
+  <!-- Shine -->
+  <ellipse cx="158" cy="172" rx="35" ry="24" fill="white" opacity="0.28" transform="rotate(-20,158,172)"/>
+  <!-- Stem -->
+  <path d="M200 108 Q206 78 212 60 Q218 44 214 58 Q210 74 208 104" fill="none" stroke="#92400e" stroke-width="10" stroke-linecap="round"/>
+  <!-- Leaf -->
+  <path d="M210 75 Q232 52 252 58 Q238 65 220 82 Z" fill="#38a169"/>
+  <path d="M210 75 Q225 56 242 60 Q230 68 218 80 Z" fill="#48bb78"/>
+</svg>

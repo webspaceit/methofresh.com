@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="20"/>
+  <defs>
+    <linearGradient id="dmlb" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d1fae5"/>
+      <stop offset="100%" stop-color="#a7f3d0"/>
+    </linearGradient>
+    <radialGradient id="deg1" cx="38%" cy="32%" r="58%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#d4915a"/>
+    </radialGradient>
+    <radialGradient id="deg2" cx="38%" cy="32%" r="58%">
+      <stop offset="0%" stop-color="#fde8c0"/>
+      <stop offset="100%" stop-color="#b87040"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="355" rx="128" ry="14" fill="#00000012"/>
+
+  <!-- MILK CARTON (left) -->
+  <rect x="62" y="160" width="118" height="178" rx="7" fill="url(#dmlb)" stroke="#6ee7b7" stroke-width="2.5"/>
+  <polygon points="62,160 121,118 121,160" fill="#99f6e4" stroke="#6ee7b7" stroke-width="2"/>
+  <polygon points="180,160 121,118 121,160" fill="#a7f3d0" stroke="#6ee7b7" stroke-width="2"/>
+  <rect x="103" y="98" width="36" height="24" rx="7" fill="#f87171" stroke="#ef4444" stroke-width="1.5"/>
+  <rect x="72" y="182" width="98" height="96" rx="5" fill="white" opacity="0.65"/>
+  <path d="M121 202 Q130 216 130 225 Q130 238 121 241 Q112 238 112 225 Q112 216 121 202 Z" fill="#60a5fa"/>
+  <rect x="80" y="256" width="82" height="7" rx="3.5" fill="#6ee7b7" opacity="0.7"/>
+  <rect x="86" y="268" width="70" height="6" rx="3" fill="#a7f3d0" opacity="0.6"/>
+  <rect x="130" y="170" width="10" height="88" rx="5" fill="white" opacity="0.2"/>
+
+  <!-- EGGS (right, cluster of 3) -->
+  <ellipse cx="268" cy="248" rx="50" ry="65" fill="url(#deg2)" opacity="0.9"/>
+  <ellipse cx="312" cy="252" rx="48" ry="62" fill="url(#deg2)" opacity="0.85"/>
+  <ellipse cx="290" cy="235" rx="55" ry="72" fill="url(#deg1)"/>
+  <ellipse cx="272" cy="205" rx="16" ry="22" fill="white" opacity="0.28" transform="rotate(-15,272,205)"/>
+  <ellipse cx="252" cy="224" rx="10" ry="15" fill="white" opacity="0.2" transform="rotate(-15,252,224)"/>
+
+  <!-- BUTTER block (bottom center) -->
+  <rect x="110" y="325" width="180" height="45" rx="6" fill="#fef08a" stroke="#d97706" stroke-width="2"/>
+  <rect x="116" y="330" width="168" height="35" rx="4" fill="#fefce8" opacity="0.55"/>
+  <rect x="125" y="337" width="150" height="7" rx="3.5" fill="#d97706" opacity="0.38"/>
+  <rect x="138" y="349" width="124" height="6" rx="3" fill="#d97706" opacity="0.28"/>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fff7ed" rx="20"/>
+  <defs>
+    <linearGradient id="lbowl" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="350" rx="105" ry="15" fill="#00000012"/>
+  <!-- Bowl outer -->
+  <path d="M90 235 Q90 320 200 338 Q310 320 310 235 Z" fill="#fdba74" stroke="#ea580c" stroke-width="2.5"/>
+  <!-- Bowl rim -->
+  <ellipse cx="200" cy="235" rx="110" ry="28" fill="#fed7aa" stroke="#ea580c" stroke-width="2.5"/>
+  <!-- Lentils in bowl -->
+  <ellipse cx="162" cy="242" rx="9" ry="6" fill="#dc2626" stroke="#9a1a1a" stroke-width="1.2" transform="rotate(-20,162,242)"/>
+  <ellipse cx="182" cy="238" rx="9" ry="6" fill="#ea580c" stroke="#9a3412" stroke-width="1.2" transform="rotate(10,182,238)"/>
+  <ellipse cx="202" cy="244" rx="9" ry="6" fill="#dc2626" stroke="#9a1a1a" stroke-width="1.2" transform="rotate(-5,202,244)"/>
+  <ellipse cx="222" cy="240" rx="9" ry="6" fill="#ea580c" stroke="#9a3412" stroke-width="1.2" transform="rotate(22,222,240)"/>
+  <ellipse cx="240" cy="243" rx="8" ry="5.5" fill="#b91c1c" stroke="#7f1d1d" stroke-width="1.2" transform="rotate(-15,240,243)"/>
+  <ellipse cx="172" cy="255" rx="9" ry="6" fill="#ea580c" stroke="#9a3412" stroke-width="1.2" transform="rotate(15,172,255)"/>
+  <ellipse cx="200" cy="258" rx="9" ry="6" fill="#dc2626" stroke="#9a1a1a" stroke-width="1.2" transform="rotate(-10,200,258)"/>
+  <ellipse cx="228" cy="255" rx="8" ry="5.5" fill="#ea580c" stroke="#9a3412" stroke-width="1.2" transform="rotate(18,228,255)"/>
+  <!-- Spilled lentils below bowl -->
+  <ellipse cx="130" cy="300" rx="8" ry="5" fill="#ea580c" stroke="#9a3412" stroke-width="1" transform="rotate(-25,130,300)"/>
+  <ellipse cx="270" cy="302" rx="8" ry="5" fill="#dc2626" stroke="#9a1a1a" stroke-width="1" transform="rotate(20,270,302)"/>
+  <ellipse cx="152" cy="318" rx="7" ry="4.5" fill="#b91c1c" stroke="#7f1d1d" stroke-width="1" transform="rotate(10,152,318)"/>
+  <ellipse cx="248" cy="315" rx="7" ry="4.5" fill="#ea580c" stroke="#9a3412" stroke-width="1" transform="rotate(-12,248,315)"/>
+  <!-- Spoon handle hint -->
+  <rect x="280" y="165" width="12" height="92" rx="6" fill="#d97706" transform="rotate(30,286,211)"/>
+  <ellipse cx="268" cy="215" rx="18" ry="12" fill="#fbbf24" transform="rotate(30,268,215)"/>
+</svg>

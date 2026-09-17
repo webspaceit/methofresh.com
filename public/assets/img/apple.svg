@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fef2f2" rx="24"/>
+  <ellipse cx="200" cy="330" rx="90" ry="16" fill="#00000015"/>
+  <!-- Stem & Leaf -->
+  <path d="M200 110 Q210 65 225 50" stroke="#78350f" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M205 85 Q240 70 250 90 Q230 105 205 85 Z" fill="#22c55e"/>
+  <!-- Apple Body -->
+  <path d="M200 125 C140 100 100 160 100 220 C100 290 160 320 200 310 C240 320 300 290 300 220 C300 160 260 100 200 125 Z" fill="#dc2626" stroke="#b91c1c" stroke-width="4"/>
+  <ellipse cx="160" cy="180" rx="25" ry="35" fill="#f87171" opacity="0.6" transform="rotate(-20,160,180)"/>
+</svg>

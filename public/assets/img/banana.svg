@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="20"/>
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="345" rx="80" ry="14" fill="#00000012"/>
+  <!-- Bunch stem -->
+  <path d="M178 82 Q192 68 210 72 Q218 82 212 95" fill="none" stroke="#92400e" stroke-width="11" stroke-linecap="round"/>
+  <!-- Back-left banana -->
+  <path d="M148 108 Q108 128 95 175 Q88 210 100 248 Q110 272 125 268 Q140 262 148 235 Q158 205 162 168 Q166 138 158 112 Z" fill="#d97706" opacity="0.7"/>
+  <!-- Back-right banana -->
+  <path d="M252 108 Q292 128 305 175 Q312 210 300 248 Q290 272 275 268 Q260 262 252 235 Q242 205 238 168 Q234 138 242 112 Z" fill="#d97706" opacity="0.7"/>
+  <!-- Front center banana -->
+  <path d="M200 96 Q158 112 145 162 Q136 198 148 242 Q160 278 200 288 Q240 278 252 242 Q264 198 255 162 Q242 112 200 96 Z" fill="url(#bg1)"/>
+  <!-- Ridge lines -->
+  <path d="M200 105 Q162 122 152 165 Q145 198 156 238" fill="none" stroke="#ca8a04" stroke-width="2.5" opacity="0.4"/>
+  <path d="M200 105 Q238 122 248 165 Q255 198 244 238" fill="none" stroke="#ca8a04" stroke-width="2.5" opacity="0.4"/>
+  <!-- Tips -->
+  <path d="M148 242 Q142 260 144 270 Q150 260 154 244 Z" fill="#92400e"/>
+  <path d="M252 242 Q258 260 256 270 Q250 260 246 244 Z" fill="#92400e"/>
+  <path d="M200 285 Q196 298 198 306 Q202 298 204 286 Z" fill="#92400e"/>
+  <!-- Shine -->
+  <ellipse cx="182" cy="172" rx="12" ry="35" fill="white" opacity="0.18" transform="rotate(-8,182,172)"/>
+</svg>

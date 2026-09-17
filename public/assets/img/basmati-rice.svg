@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f8fafc" rx="24"/>
+  <ellipse cx="200" cy="330" rx="95" ry="16" fill="#00000015"/>
+  <!-- Sack bag -->
+  <path d="M130 160 C120 260 110 310 200 320 C290 310 280 260 270 160 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="4"/>
+  <ellipse cx="200" cy="160" rx="70" ry="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="4"/>
+  <ellipse cx="200" cy="155" rx="60" ry="15" fill="#ffffff"/>
+  <!-- Badge -->
+  <rect x="160" y="210" width="80" height="50" rx="8" fill="#0284c7"/>
+  <path d="M175 235 H225" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+</svg>

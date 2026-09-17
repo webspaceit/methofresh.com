@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="20"/>
+  <defs>
+    <radialGradient id="cg1" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#68d391"/>
+      <stop offset="100%" stop-color="#276749"/>
+    </radialGradient>
+    <radialGradient id="cg2" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#48bb78"/>
+      <stop offset="100%" stop-color="#22543d"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="335" rx="85" ry="15" fill="#00000015"/>
+  <!-- Left lobe -->
+  <path d="M148 170 Q108 148 112 200 Q116 248 148 278 Q170 295 182 270 Q175 240 172 200 Z" fill="url(#cg2)"/>
+  <!-- Right lobe -->
+  <path d="M252 170 Q292 148 288 200 Q284 248 252 278 Q230 295 218 270 Q225 240 228 200 Z" fill="url(#cg2)"/>
+  <!-- Center lobe -->
+  <path d="M165 135 Q200 112 235 135 Q255 165 255 220 Q255 280 200 305 Q145 280 145 220 Q145 165 165 135 Z" fill="url(#cg1)"/>
+  <!-- Stem -->
+  <rect x="193" y="88" width="14" height="42" rx="7" fill="#276749"/>
+  <!-- Leaves -->
+  <path d="M200 108 Q182 78 162 76 Q174 88 194 108 Z" fill="#38a169"/>
+  <path d="M200 108 Q218 78 238 76 Q226 88 206 108 Z" fill="#48bb78"/>
+  <!-- Shine on center -->
+  <ellipse cx="175" cy="185" rx="14" ry="28" fill="white" opacity="0.2" transform="rotate(-10,175,185)"/>
+  <!-- Bottom tip -->
+  <ellipse cx="200" cy="302" rx="22" ry="10" fill="#22543d"/>
+</svg>

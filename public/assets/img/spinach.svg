@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="24"/>
+  <ellipse cx="200" cy="340" rx="90" ry="14" fill="#00000015"/>
+  <!-- Stems -->
+  <path d="M200 330 Q195 240 170 140" stroke="#86efac" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M200 330 Q210 240 240 150" stroke="#86efac" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M200 330 Q200 200 200 100" stroke="#86efac" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <!-- Leaves -->
+  <path d="M170 140 C110 120 110 200 170 240 C210 210 200 140 170 140 Z" fill="#15803d"/>
+  <path d="M240 150 C300 130 300 210 240 250 C200 220 210 150 240 150 Z" fill="#16a34a"/>
+  <path d="M200 90 C140 80 140 180 200 230 C260 180 260 80 200 90 Z" fill="#22c55e"/>
+  <path d="M200 100 Q200 160 200 220" stroke="#bbf7d0" stroke-width="3" fill="none"/>
+</svg>

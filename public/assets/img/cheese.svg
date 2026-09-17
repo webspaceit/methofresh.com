@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="24"/>
+  <ellipse cx="200" cy="320" rx="100" ry="18" fill="#00000015"/>
+  <!-- Wedge -->
+  <path d="M110 240 L280 150 L310 240 Z" fill="#fbbf24" stroke="#d97706" stroke-width="4"/>
+  <path d="M110 240 L310 240 L280 280 L110 270 Z" fill="#f59e0b" stroke="#d97706" stroke-width="4"/>
+  <!-- Cheese holes -->
+  <circle cx="180" cy="220" r="12" fill="#d97706"/>
+  <circle cx="240" cy="200" r="16" fill="#d97706"/>
+  <circle cx="220" cy="250" r="8" fill="#b45309"/>
+</svg>

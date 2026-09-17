@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fff1f2" rx="24"/>
+  <ellipse cx="200" cy="335" rx="75" ry="16" fill="#00000015"/>
+  <!-- Berry Body -->
+  <path d="M200 130 C130 130 120 220 160 290 Q200 335 240 290 C280 220 270 130 200 130 Z" fill="#e11d48" stroke="#be123c" stroke-width="4"/>
+  <!-- Seeds -->
+  <circle cx="170" cy="180" r="3" fill="#fef08a"/>
+  <circle cx="200" cy="170" r="3" fill="#fef08a"/>
+  <circle cx="230" cy="180" r="3" fill="#fef08a"/>
+  <circle cx="180" cy="220" r="3" fill="#fef08a"/>
+  <circle cx="220" cy="220" r="3" fill="#fef08a"/>
+  <circle cx="200" cy="260" r="3" fill="#fef08a"/>
+  <!-- Top leaves -->
+  <path d="M200 130 L160 100 L180 125 L200 90 L220 125 L240 100 Z" fill="#16a34a"/>
+</svg>

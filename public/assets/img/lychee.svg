@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fff1f2" rx="20"/>
+  <defs>
+    <radialGradient id="lyg1" cx="38%" cy="32%" r="60%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </radialGradient>
+    <radialGradient id="lyg2" cx="38%" cy="32%" r="60%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="100%" stop-color="#9f1239"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="345" rx="112" ry="16" fill="#00000015"/>
+  <!-- Back left lychee -->
+  <circle cx="135" cy="235" r="62" fill="url(#lyg2)" opacity="0.88"/>
+  <!-- Back right lychee -->
+  <circle cx="265" cy="232" r="58" fill="url(#lyg2)" opacity="0.88"/>
+  <!-- Texture on back -->
+  <circle cx="118" cy="218" r="8" fill="#9f1239" opacity="0.28"/>
+  <circle cx="142" cy="210" r="7" fill="#9f1239" opacity="0.22"/>
+  <circle cx="120" cy="238" r="7" fill="#9f1239" opacity="0.22"/>
+  <circle cx="155" cy="228" r="6" fill="#9f1239" opacity="0.18"/>
+  <circle cx="248" cy="215" r="8" fill="#7f1d3a" opacity="0.28"/>
+  <circle cx="272" cy="218" r="7" fill="#7f1d3a" opacity="0.22"/>
+  <circle cx="256" cy="235" r="7" fill="#7f1d3a" opacity="0.22"/>
+  <!-- Front main lychee -->
+  <circle cx="200" cy="225" r="75" fill="url(#lyg1)"/>
+  <!-- Bumpy texture front -->
+  <circle cx="178" cy="200" r="10" fill="#fb7185" opacity="0.32"/>
+  <circle cx="200" cy="193" r="10" fill="#fb7185" opacity="0.28"/>
+  <circle cx="222" cy="200" r="10" fill="#fb7185" opacity="0.28"/>
+  <circle cx="165" cy="218" r="9" fill="#fb7185" opacity="0.28"/>
+  <circle cx="188" cy="215" r="9" fill="#fb7185" opacity="0.24"/>
+  <circle cx="212" cy="216" r="9" fill="#fb7185" opacity="0.28"/>
+  <circle cx="235" cy="220" r="9" fill="#fb7185" opacity="0.24"/>
+  <circle cx="175" cy="236" r="9" fill="#fb7185" opacity="0.24"/>
+  <circle cx="200" cy="240" r="10" fill="#fb7185" opacity="0.28"/>
+  <circle cx="225" cy="236" r="9" fill="#fb7185" opacity="0.24"/>
+  <!-- Stem and leaf -->
+  <path d="M200 152 Q203 128 206 112 Q211 96 208 110 Q204 126 203 150" fill="none" stroke="#92400e" stroke-width="8" stroke-linecap="round"/>
+  <path d="M205 124 Q225 100 242 106 Q226 112 210 130 Z" fill="#16a34a"/>
+  <path d="M205 124 Q228 104 244 110 Q228 116 212 132 Z" fill="#22c55e"/>
+  <!-- Shine -->
+  <ellipse cx="172" cy="203" rx="20" ry="13" fill="white" opacity="0.22" transform="rotate(-25,172,203)"/>
+</svg>

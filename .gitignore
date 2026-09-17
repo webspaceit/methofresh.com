@@ -1,0 +1,25 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Local configuration (contains credentials)
+/app/config/wsit_config.php
+
+# User uploads (runtime content)
+/public/assets/img/uploads/*
+!/public/assets/img/uploads/.gitkeep
+
+# Local tooling / editors
+/.kilo/
+/.idea/
+/.vscode/
+
+# Environment & logs
+.env
+.env.*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

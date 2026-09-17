@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="24"/>
+  <ellipse cx="200" cy="330" rx="110" ry="18" fill="#00000015"/>
+  <!-- Outer leaves -->
+  <path d="M100 240 Q130 160 170 140 Q130 220 120 280 Z" fill="#15803d"/>
+  <path d="M300 240 Q270 160 230 140 Q270 220 280 280 Z" fill="#16a34a"/>
+  <path d="M130 300 Q180 280 200 320 Q160 330 130 300 Z" fill="#15803d"/>
+  <path d="M270 300 Q220 280 200 320 Q240 330 270 300 Z" fill="#16a34a"/>
+  <!-- Curd floret clusters -->
+  <circle cx="200" cy="180" r="50" fill="#fef08a"/>
+  <circle cx="160" cy="190" r="40" fill="#fef9c3"/>
+  <circle cx="240" cy="190" r="40" fill="#fef9c3"/>
+  <circle cx="170" cy="230" r="45" fill="#fef08a"/>
+  <circle cx="230" cy="230" r="45" fill="#fef08a"/>
+  <circle cx="200" cy="220" r="50" fill="#ffffff"/>
+  <circle cx="170" cy="200" r="30" fill="#ffffff"/>
+  <circle cx="230" cy="200" r="30" fill="#ffffff"/>
+</svg>

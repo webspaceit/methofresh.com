@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="20"/>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="355" rx="130" ry="14" fill="#00000012"/>
+
+  <!-- CARROT (left) -->
+  <path d="M95 120 Q138 122 140 152 Q142 178 115 280 Q112 290 115 280 Q88 178 90 152 Z" fill="#fb923c"/>
+  <path d="M97 148 Q118 151 139 148" fill="none" stroke="#c2410c" stroke-width="2" opacity="0.4"/>
+  <path d="M96 168 Q118 172 139 168" fill="none" stroke="#c2410c" stroke-width="2" opacity="0.35"/>
+  <path d="M96 188 Q118 192 139 188" fill="none" stroke="#c2410c" stroke-width="2" opacity="0.3"/>
+  <path d="M80 112 Q68 82 58 72 Q70 84 82 106 Z" fill="#16a34a"/>
+  <path d="M90 106 Q82 74 80 60 Q86 76 92 102 Z" fill="#22c55e"/>
+  <path d="M100 102 Q98 68 100 54 Q104 70 102 100 Z" fill="#16a34a"/>
+  <path d="M110 106 Q118 74 120 60 Q114 76 108 102 Z" fill="#22c55e"/>
+  <path d="M120 112 Q132 82 142 72 Q130 84 118 106 Z" fill="#16a34a"/>
+
+  <!-- TOMATO (center) -->
+  <defs>
+    <radialGradient id="vtg" cx="38%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="100%" stop-color="#c53030"/>
+    </radialGradient>
+  </defs>
+  <circle cx="220" cy="230" r="88" fill="url(#vtg)"/>
+  <ellipse cx="195" cy="195" rx="28" ry="19" fill="white" opacity="0.18" transform="rotate(-20,195,195)"/>
+  <path d="M220 144 Q224 122 230 110 Q235 100 232 110 Q228 122 226 141" fill="none" stroke="#276749" stroke-width="8" stroke-linecap="round"/>
+  <path d="M220 144 Q202 116 182 112 Q194 124 212 142 Z" fill="#38a169"/>
+  <path d="M220 144 Q238 116 258 112 Q246 124 228 142 Z" fill="#48bb78"/>
+  <path d="M220 144 Q198 130 185 140 Q196 136 214 144 Z" fill="#276749"/>
+  <path d="M220 144 Q242 130 255 140 Q244 136 226 144 Z" fill="#38a169"/>
+
+  <!-- CAPSICUM (right) -->
+  <path d="M318 148 Q295 138 290 168 Q285 198 292 232 Q298 255 312 258 Q326 255 332 232 Q338 200 334 168 Q330 142 318 148 Z" fill="#48bb78"/>
+  <path d="M318 144 Q322 128 326 134 Q324 140 320 146 Z" fill="#276749"/>
+  <ellipse cx="308" cy="195" rx="7" ry="18" fill="white" opacity="0.2" transform="rotate(-10,308,195)"/>
+
+  <!-- ONION (bottom left) -->
+  <path d="M88 270 Q82 295 88 318 Q96 335 132 338 Q168 335 174 318 Q180 295 174 270 Q166 258 132 256 Q98 258 88 270 Z" fill="#e9b8f0"/>
+  <path d="M108 256 Q112 242 120 246 Q124 252 118 258" fill="none" stroke="#68d391" stroke-width="7" stroke-linecap="round"/>
+  <path d="M132 252 Q132 238 134 232 Q136 242 134 254" fill="none" stroke="#48bb78" stroke-width="7" stroke-linecap="round"/>
+  <path d="M156 256 Q152 242 144 246 Q140 252 146 258" fill="none" stroke="#68d391" stroke-width="7" stroke-linecap="round"/>
+</svg>

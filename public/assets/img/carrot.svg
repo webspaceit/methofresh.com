@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fff7ed" rx="20"/>
+  <defs>
+    <linearGradient id="carg" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <radialGradient id="carsh" cx="35%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#fdba74" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#fdba74" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="348" rx="70" ry="14" fill="#00000012"/>
+  <!-- Carrot body -->
+  <path d="M155 105 Q248 108 252 148 Q255 185 200 330 Q196 342 200 330 Q145 185 148 148 Z" fill="url(#carg)"/>
+  <!-- Ring lines -->
+  <path d="M158 138 Q205 142 248 138" fill="none" stroke="#c2410c" stroke-width="2.5" opacity="0.4"/>
+  <path d="M155 168 Q204 173 250 168" fill="none" stroke="#c2410c" stroke-width="2.5" opacity="0.38"/>
+  <path d="M155 198 Q204 204 250 198" fill="none" stroke="#c2410c" stroke-width="2.5" opacity="0.34"/>
+  <path d="M158 228 Q204 234 248 228" fill="none" stroke="#c2410c" stroke-width="2.5" opacity="0.28"/>
+  <path d="M163 258 Q204 264 242 258" fill="none" stroke="#c2410c" stroke-width="2.5" opacity="0.22"/>
+  <path d="M170 285 Q204 290 232 285" fill="none" stroke="#c2410c" stroke-width="2" opacity="0.18"/>
+  <!-- Highlight -->
+  <ellipse cx="175" cy="165" rx="18" ry="45" fill="url(#carsh)"/>
+  <ellipse cx="172" cy="160" rx="7" ry="20" fill="white" opacity="0.18" transform="rotate(-8,172,160)"/>
+  <!-- Leaves -->
+  <path d="M172 108 Q150 68 128 56 Q144 72 164 100 Z" fill="#16a34a"/>
+  <path d="M182 100 Q165 58 158 42 Q170 62 184 96 Z" fill="#22c55e"/>
+  <path d="M200 96 Q196 52 198 36 Q204 55 202 94 Z" fill="#16a34a"/>
+  <path d="M218 100 Q235 58 242 42 Q230 62 216 96 Z" fill="#22c55e"/>
+  <path d="M228 108 Q250 68 272 56 Q256 72 236 100 Z" fill="#16a34a"/>
+</svg>

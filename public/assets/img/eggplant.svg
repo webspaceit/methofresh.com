@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#faf5ff" rx="24"/>
+  <ellipse cx="200" cy="330" rx="90" ry="16" fill="#00000015"/>
+  <!-- Body -->
+  <path d="M200 110 C150 160 120 240 140 290 C160 330 240 330 260 290 C280 240 250 160 200 110 Z" fill="#581c87" stroke="#3b0764" stroke-width="3"/>
+  <ellipse cx="175" cy="240" rx="18" ry="40" fill="#a855f7" opacity="0.4" transform="rotate(-15,175,240)"/>
+  <!-- Calyx & Stem -->
+  <path d="M200 110 Q205 70 220 50" stroke="#15803d" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <path d="M200 110 L170 140 L190 120 L200 150 L210 120 L230 140 Z" fill="#16a34a"/>
+</svg>

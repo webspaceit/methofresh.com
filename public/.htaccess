@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# If the requested file/directory actually exists, serve it directly.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route everything else to the front controller.
+RewriteRule ^ wsit_index.php [QSA,L]
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

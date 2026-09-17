@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f0fdf4" rx="24"/>
+  <ellipse cx="200" cy="330" rx="90" ry="16" fill="#00000015"/>
+  <!-- Tea tin can -->
+  <rect x="140" y="140" width="120" height="170" rx="16" fill="#15803d" stroke="#166534" stroke-width="4"/>
+  <rect x="135" y="115" width="130" height="30" rx="8" fill="#ca8a04"/>
+  <!-- Leaf icon on tin -->
+  <path d="M200 200 C170 200 170 250 200 260 C230 250 230 200 200 200 Z" fill="#86efac"/>
+  <path d="M200 205 V255" stroke="#15803d" stroke-width="3"/>
+</svg>

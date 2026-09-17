@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fef9ff" rx="20"/>
+  <defs>
+    <radialGradient id="og" cx="38%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#e9b8f0"/>
+      <stop offset="60%" stop-color="#b794c4"/>
+      <stop offset="100%" stop-color="#805ad5"/>
+    </radialGradient>
+    <radialGradient id="oh" cx="35%" cy="28%" r="40%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="200" cy="338" rx="90" ry="16" fill="#00000012"/>
+  <!-- Body -->
+  <path d="M200 135 Q295 142 308 220 Q315 275 280 308 Q248 332 200 334 Q152 332 120 308 Q85 275 92 220 Q105 142 200 135 Z" fill="url(#og)"/>
+  <!-- Layer lines -->
+  <path d="M200 148 Q285 158 295 218 Q298 260 270 290" fill="none" stroke="#9f7aea" stroke-width="3" opacity="0.35"/>
+  <path d="M200 162 Q272 172 280 218 Q282 252 258 278" fill="none" stroke="#9f7aea" stroke-width="2.5" opacity="0.25"/>
+  <!-- Shine -->
+  <ellipse cx="163" cy="198" rx="32" ry="22" fill="url(#oh)"/>
+  <!-- Neck -->
+  <ellipse cx="200" cy="136" rx="30" ry="12" fill="#b794c4"/>
+  <!-- Stems -->
+  <path d="M186 126 Q180 96 174 78" fill="none" stroke="#68d391" stroke-width="10" stroke-linecap="round"/>
+  <path d="M200 122 Q200 90 202 72" fill="none" stroke="#48bb78" stroke-width="10" stroke-linecap="round"/>
+  <path d="M214 126 Q220 96 226 78" fill="none" stroke="#68d391" stroke-width="10" stroke-linecap="round"/>
+  <!-- Roots -->
+  <path d="M172 330 Q165 348 160 358" stroke="#d6bcfa" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M200 334 Q200 350 200 362" stroke="#d6bcfa" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M228 330 Q235 348 240 358" stroke="#d6bcfa" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fef2f2" rx="24"/>
+  <ellipse cx="200" cy="330" rx="105" ry="16" fill="#00000015"/>
+  <!-- Slice -->
+  <path d="M80 200 C110 320 290 320 320 200 Z" fill="#15803d"/>
+  <path d="M90 200 C120 305 280 305 310 200 Z" fill="#fecaca"/>
+  <path d="M100 200 C125 290 275 290 300 200 Z" fill="#ef4444"/>
+  <!-- Seeds -->
+  <circle cx="150" cy="225" r="4" fill="#1e293b"/>
+  <circle cx="200" cy="240" r="4" fill="#1e293b"/>
+  <circle cx="250" cy="225" r="4" fill="#1e293b"/>
+  <circle cx="175" cy="255" r="4" fill="#1e293b"/>
+  <circle cx="225" cy="255" r="4" fill="#1e293b"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fefce8" rx="24"/>
+  <ellipse cx="200" cy="340" rx="75" ry="16" fill="#00000015"/>
+  <!-- Leaves top -->
+  <path d="M200 140 Q180 70 140 40 Q180 80 190 140 Z" fill="#15803d"/>
+  <path d="M200 140 Q220 70 260 40 Q220 80 210 140 Z" fill="#16a34a"/>
+  <path d="M200 130 Q200 50 200 30 Q205 60 205 130 Z" fill="#22c55e"/>
+  <!-- Body -->
+  <rect x="140" y="140" width="120" height="170" rx="55" fill="#eab308" stroke="#ca8a04" stroke-width="4"/>
+  <!-- Cross hatches -->
+  <path d="M150 170 L250 270 M150 210 L240 300 M160 145 L255 240 M250 170 L150 270 M250 210 L160 300 M240 145 L145 240" stroke="#a16207" stroke-width="3" opacity="0.6"/>
+</svg>
