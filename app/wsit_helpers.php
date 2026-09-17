@@ -28,7 +28,18 @@ function app_debug(): bool
 
 function app_config(): array
 {
-    return require dirname(__DIR__) . '/app/config/wsit_config.php';
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+    $cfg = require dirname(__DIR__) . '/app/config/wsit_config.php';
+    // Load production overrides if present (never commit this file to git)
+    $override = dirname(__DIR__) . '/app/config/wsit_config.production.php';
+    if (file_exists($override)) {
+        $prod = require $override;
+        $cfg = array_replace_recursive($cfg, $prod);
+    }
+    return $cfg;
 }
 
 function config(string|null $key = null, mixed $default = null): mixed
@@ -86,7 +97,37 @@ function base_url_path(): string
     if (PHP_SAPI === 'cli') {
         return '';
     }
+
+    // On a proper vhost (e.g. methofresh.com pointing to /public),
+    // SCRIPT_NAME is /public/wsit_index.php → dirname = /public which is wrong.
+    // Use the config base_url to derive the correct sub-path instead.
+    $configUrl = (string) config('app.base_url', '');
+    if ($configUrl !== '') {
+        $parsed = parse_url($configUrl);
+        $configHost = ($parsed['host'] ?? '');
+        $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        // Strip port from server host for comparison
+        $serverHost = explode(':', $serverHost)[0];
+        // If config host matches current host, use the config path as base
+        if ($configHost !== '' && ($configHost === $serverHost || $serverHost === 'localhost')) {
+            $path = rtrim($parsed['path'] ?? '', '/');
+            // Remove /public suffix — the vhost document root points there
+            if (str_ends_with($path, '/public')) {
+                $path = substr($path, 0, -7);
+            }
+            return $path;
+        }
+        // Production: different host (e.g. methofresh.com) — base path is root
+        if ($configHost !== '' && $configHost !== $serverHost) {
+            return '';
+        }
+    }
+
     $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    // Remove /public suffix when running from a vhost pointing at /public
+    if (str_ends_with($scriptDir, '/public')) {
+        $scriptDir = substr($scriptDir, 0, -7);
+    }
     return rtrim($scriptDir, '/');
 }
 

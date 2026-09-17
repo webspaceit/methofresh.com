@@ -4,6 +4,7 @@
 
 # Local configuration (contains credentials)
 /app/config/wsit_config.php
+/app/config/wsit_config.production.php
 
 # User uploads (runtime content)
 /public/assets/img/uploads/*
