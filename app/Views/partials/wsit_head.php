@@ -14,8 +14,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap"></noscript>
-<link rel="preload" as="font" href="https://fonts.gstatic.com/s/hindsiliguri/v1/K5mXaAaT8G62IuqN4rIzj1jvn6A0X-g.woff2" crossorigin>
-<link rel="preload" as="font" href="https://fonts.gstatic.com/s/notosansbengali/v16/r5Yodf1kK-2LrIQaT5fC6Igp9Tprq5T6s1qng2kC.woff2" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
 <script>
     tailwind.config = {
