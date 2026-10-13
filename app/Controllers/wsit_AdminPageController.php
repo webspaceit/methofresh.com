@@ -26,7 +26,7 @@ class wsit_AdminPageController extends wsit_Controller
         return $this->view('admin/pages/wsit_index', [
             'pageTitle' => trans('admin_pages') . ' | ' . trans('admin'),
             'pages'     => $this->pageModel->all(),
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function create(): string
@@ -34,7 +34,7 @@ class wsit_AdminPageController extends wsit_Controller
         return $this->view('admin/pages/wsit_form', [
             'pageTitle' => trans('admin_add_page') . ' | ' . trans('admin'),
             'page'      => null,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function edit(int $id): string
@@ -46,7 +46,7 @@ class wsit_AdminPageController extends wsit_Controller
         return $this->view('admin/pages/wsit_form', [
             'pageTitle' => trans('admin_edit_page') . ' | ' . trans('admin'),
             'page'      => $page,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function store(wsit_Request $request): void

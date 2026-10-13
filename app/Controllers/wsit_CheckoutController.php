@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\wsit_Controller;
 use App\Core\wsit_Request;
 use App\Core\wsit_Validator;
+use App\Models\wsit_CheckoutVisit;
 use App\Models\wsit_Order;
 use App\Models\wsit_OrderItem;
 use App\Models\wsit_Product;
@@ -35,7 +36,8 @@ class wsit_CheckoutController extends wsit_Controller
         }
 
         $user = current_user();
-        $shipping = $this->cartController->shippingFor(guest_cart_subtotal());
+        $subtotal = guest_cart_subtotal();
+        $shipping = $this->cartController->shippingFor($subtotal);
 
         $activeMethods = active_payment_methods();
         if (empty($activeMethods)) {
@@ -51,14 +53,25 @@ class wsit_CheckoutController extends wsit_Controller
             ];
         }
 
+        // Checkout funnel log — reaching this page is the event the admin
+        // dashboard tracks ("who went as far as checkout"), with a snapshot
+        // of the cart they arrived with. Best-effort: analytics must never
+        // break checkout itself.
+        try {
+            (new wsit_CheckoutVisit())->logVisit($user, $cart);
+        } catch (\Throwable) {
+        }
+
         return $this->view('checkout/wsit_index', [
             'pageTitle'      => trans('checkout'),
             'cart'           => $cart,
-            'subtotal'       => guest_cart_subtotal(),
-            'discount'       => $this->cartController->couponDiscount(guest_cart_subtotal()),
+            'subtotal'       => $subtotal,
+            'discount'       => $this->cartController->couponDiscount($subtotal),
             'shipping'       => $shipping,
             'user'           => $user,
             'paymentMethods' => $activeMethods,
+            'shippingCfg'    => shipping_config(),
+            'shippingWeight' => cart_total_weight(),
         ]);
     }
 
@@ -113,7 +126,40 @@ class wsit_CheckoutController extends wsit_Controller
 
         $subtotal = guest_cart_subtotal();
         $discount = $this->cartController->couponDiscount($subtotal);
-        $shipping = $this->cartController->shippingFor($subtotal);
+
+        // Shipping — authoritative server-side recomputation from the admin
+        // config: the submitted method must be active AND serve the entered
+        // city; the charge is base + per_kg × cart weight (free threshold
+        // applied). The client-side preview is never trusted.
+        $shipCfg = shipping_config();
+        $shipping = 0.0;
+        $shippingMethodName = null;
+        if (!empty($shipCfg['enabled'])) {
+            $availableMethods = shipping_available_methods($data['city']);
+            if ($availableMethods === []) {
+                if (shipping_available_methods(null) !== []) {
+                    // Methods exist, but none of them serves this address.
+                    $this->flash('error', trans('shipping_unavailable'));
+                    $this->redirect('/checkout');
+                }
+                // No active methods at all → delivery is free, no choice.
+            } else {
+                $selectedId = trim((string)$request->input('shipping_method', ''));
+                $chosenMethod = null;
+                foreach ($availableMethods as $candidate) {
+                    if ($candidate['id'] === $selectedId) {
+                        $chosenMethod = $candidate;
+                        break;
+                    }
+                }
+                if ($chosenMethod === null) {
+                    $this->flash('error', trans('shipping_method_invalid'));
+                    $this->redirect('/checkout');
+                }
+                $shipping = shipping_method_charge($chosenMethod, $subtotal, cart_total_weight(), $shipCfg['free_over']);
+                $shippingMethodName = shipping_method_name($chosenMethod);
+            }
+        }
         $total = $subtotal - $discount + $shipping;
 
         $activeMethods = active_payment_methods();
@@ -147,6 +193,7 @@ class wsit_CheckoutController extends wsit_Controller
             'shipping_address' => $data['address'],
             'shipping_city'    => $data['city'],
             'shipping_postal'  => $data['postal_code'] !== '' ? $data['postal_code'] : null,
+            'shipping_method'  => $shippingMethodName,
             'notes'            => $data['notes'] !== '' ? $data['notes'] : null,
         ];
 
@@ -174,6 +221,13 @@ class wsit_CheckoutController extends wsit_Controller
             throw $e;
         }
 
+        // This session just converted — flag its checkout visit(s) so the
+        // funnel can separate real orders from abandoned checkouts.
+        try {
+            (new wsit_CheckoutVisit())->markConverted();
+        } catch (\Throwable) {
+        }
+
         $orderNumber = $orderData['order_number'];
 
         $_SESSION['cart'] = [];
@@ -185,7 +239,7 @@ class wsit_CheckoutController extends wsit_Controller
 
     public function success(string $orderNumber): string
     {
-        $order = $this->orderModel->findByNumber($orderNumber);
+        $order = $this->orderModel->findWithItemsByNumber($orderNumber);
         if ($order === null) {
             $this->flash('error', trans('order_not_found'));
             $this->redirect('/');

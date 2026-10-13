@@ -23,6 +23,7 @@ use App\Controllers\wsit_AdminProductController;
 use App\Controllers\wsit_AdminCategoryController;
 use App\Controllers\wsit_AdminPageController;
 use App\Controllers\wsit_PageController;
+use App\Controllers\wsit_SitemapController;
 
 $router = app()->router;
 
@@ -33,9 +34,11 @@ $router->get('/products',                [wsit_ProductController::class, 'index'
 $router->get('/products/load-more',      [wsit_ProductController::class, 'loadMore']);
 $router->get('/products/{slug}',         [wsit_ProductController::class, 'show']);
 $router->get('/search/suggest',          [wsit_ProductController::class, 'suggest']);
+$router->post('/search/log',            [wsit_ProductController::class, 'logClick']);
 $router->get('/categories',              [wsit_CategoryController::class, 'index']);
 $router->get('/categories/{slug}',       [wsit_CategoryController::class, 'show']);
 $router->get('/pages/{slug}',            [wsit_PageController::class, 'show']);
+$router->get('/sitemap.xml',            [wsit_SitemapController::class, 'index']);
 
 // ---- Cart ----
 $router->get('/cart',                    [wsit_CartController::class, 'index']);
@@ -74,10 +77,15 @@ $router->post('/mf-dashboard/settings/logo',               [wsit_AdminController
 $router->post('/mf-dashboard/settings/favicon',            [wsit_AdminController::class, 'updateFavicon']);
 $router->post('/mf-dashboard/settings/captcha',            [wsit_AdminController::class, 'updateContactCaptcha']);
 $router->post('/mf-dashboard/settings/contact-email',      [wsit_AdminController::class, 'updateContactEmail']);
+$router->post('/mf-dashboard/settings/announcement',       [wsit_AdminController::class, 'updateAnnouncement']);
+$router->post('/mf-dashboard/settings/nav-menu',            [wsit_AdminController::class, 'updateNavMenu']);
+$router->post('/mf-dashboard/settings/cities',             [wsit_AdminController::class, 'updateCheckoutCities']);
+$router->post('/mf-dashboard/settings/facebook-pixel',     [wsit_AdminController::class, 'updateFacebookPixel']);
 $router->get('/mf-dashboard/homepage',                     [wsit_AdminController::class, 'homepage']);
 $router->post('/mf-dashboard/homepage',                    [wsit_AdminController::class, 'updateHomepage']);
 $router->get('/mf-dashboard/orders',                       [wsit_AdminController::class, 'orders']);
 $router->get('/mf-dashboard/orders/search',                [wsit_AdminController::class, 'ordersJson']);
+$router->get('/mf-dashboard/search',                       [wsit_AdminController::class, 'searchJson']);
 $router->get('/mf-dashboard/orders/{id}',                  [wsit_AdminController::class, 'orderShow']);
 $router->post('/mf-dashboard/orders/{id}/status',          [wsit_AdminController::class, 'updateStatus']);
 $router->get('/mf-dashboard/products',                     [wsit_AdminProductController::class, 'index']);
@@ -108,10 +116,29 @@ $router->get('/mf-dashboard/footer',                       [wsit_AdminController
 $router->post('/mf-dashboard/footer',                      [wsit_AdminController::class, 'updateFooter']);
 $router->get('/mf-dashboard/payment-methods',              [wsit_AdminController::class, 'paymentMethods']);
 $router->post('/mf-dashboard/payment-methods',             [wsit_AdminController::class, 'updatePaymentMethods']);
+$router->get('/mf-dashboard/shipping',                     [wsit_AdminController::class, 'shippingMethods']);
+$router->post('/mf-dashboard/shipping',                    [wsit_AdminController::class, 'updateShippingMethods']);
+$router->get('/mf-dashboard/customers',                    [wsit_AdminController::class, 'customers']);
+$router->get('/mf-dashboard/delivery-tracking',            [wsit_AdminController::class, 'deliveryTracking']);
+$router->get('/mf-dashboard/support',                      [wsit_AdminController::class, 'support']);
 $router->post('/mf-dashboard/translate',                   [wsit_AdminController::class, 'translate']);
 
 // ---- Errors ----
 $router->get('/404',                               [wsit_ErrorController::class, 'notFound']);
 $router->get('/403',                               [wsit_ErrorController::class, 'forbidden']);
+
+// Admin pages must never be served from browser cache — otherwise a stale
+// cached copy of a dashboard/orders page (e.g. an older layout) keeps showing
+// even after a deploy. No output has been sent yet, so headers are still safe.
+$reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$base = base_url_path();
+if ($base !== '' && str_starts_with($reqPath, $base . '/')) {
+    $reqPath = substr($reqPath, strlen($base));
+}
+if (str_starts_with($reqPath, '/mf-dashboard')) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+}
 
 $app->run();

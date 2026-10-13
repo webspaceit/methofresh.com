@@ -23,7 +23,7 @@ $heroCount = count($heroRows);
     <?= csrf_field() ?>
 
     <!-- Tagline -->
-    <div class="bg-white rounded-2xl border border-stone-200 p-5 space-y-3">
+    <div class="bg-card rounded-2xl border border-honey-600/15 p-5 space-y-3">
         <div>
             <h2 class="font-bold text-stone-900"><?= e(trans('admin_tagline')) ?></h2>
             <p class="text-xs text-stone-500 mt-0.5"><?= e(trans('admin_tagline_hint')) ?></p>
@@ -48,7 +48,7 @@ $heroCount = count($heroRows);
     </div>
 
     <!-- Hero slides -->
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-3">
             <div>
                 <h2 class="font-bold text-stone-900"><?= e(trans('admin_hero')) ?></h2>
@@ -84,7 +84,7 @@ $heroCount = count($heroRows);
     <!-- Homepage blocks -->
     <?php foreach ($blockOrder as $block): ?>
     <?php $bid = $block['id']; ?>
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-3">
             <h2 class="font-bold text-stone-900"><?= e($blockNames[$bid] ?? $bid) ?></h2>
             <label class="flex items-center gap-2 text-xs font-semibold text-stone-600 cursor-pointer">
@@ -122,6 +122,105 @@ $heroCount = count($heroRows);
             </p>
         </div>
         <?php endif; ?>
+    </div>
+    <?php endforeach; ?>
+
+    <!-- Story Image Upload -->
+    <?php
+    $currentStoryImage = trim((string) site_setting('story_image', ''));
+    ?>
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
+        <div class="px-5 py-4 border-b border-stone-100">
+            <h2 class="font-bold text-stone-900 flex items-center gap-2">
+                <span class="text-lg">📖</span>
+                <?= e(trans('admin_story_image')) ?>
+            </h2>
+            <p class="text-xs text-stone-500 mt-0.5"><?= e(trans('admin_story_image_hint')) ?></p>
+        </div>
+        <div class="p-5">
+            <div class="flex items-start gap-4">
+                <div class="flex-1">
+                    <input type="file" name="story_image_file" accept="image/png,image/jpeg,image/webp,image/gif"
+                           data-preview-target="#story-image-preview" onchange="storyImagePreview(this)"
+                           class="w-full text-sm text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-100">
+                    <?php if ($currentStoryImage !== ''): ?>
+                    <label class="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-red-600 cursor-pointer">
+                        <input type="checkbox" name="remove_story_image" value="1" class="w-4 h-4 text-red-600 focus:ring-red-500 rounded">
+                        <?= e(trans('admin_story_image_remove')) ?>
+                    </label>
+                    <?php endif; ?>
+                </div>
+                <div class="shrink-0">
+                    <img id="story-image-preview"
+                         src="<?= $currentStoryImage !== '' ? e(image_url($currentStoryImage, 'Story', 640)) : '' ?>"
+                         alt=""
+                         class="h-24 w-36 rounded-lg border border-stone-200 object-cover <?= $currentStoryImage !== '' ? '' : 'hidden' ?>">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Homepage Content Sections -->
+    <?php
+    // Fields that are emoji/icon/number only — show as single-language inputs (EN value used for both locales).
+    $monoFields = [
+        'land_value_1_icon', 'land_value_2_icon', 'land_value_3_icon', 'land_value_4_icon',
+        'land_why_1_icon',   'land_why_2_icon',   'land_why_3_icon',   'land_why_4_icon',
+        'land_how_1_num',    'land_how_2_num',     'land_how_3_num',
+        'land_testimonial_1_stars', 'land_testimonial_2_stars', 'land_testimonial_3_stars',
+    ];
+    $contentSections = homepage_sections()['sections'] ?? [];
+    $fieldLabels     = homepage_sections()['field_labels'] ?? [];
+    $homeContent = [];
+    try {
+        $homeContent = json_decode((string) site_setting('home_content', ''), true) ?? [];
+    } catch (\Throwable $e) {}
+    ?>
+    <?php foreach ($contentSections as $sectionId => $section): ?>
+    <?php
+        $sectionLabel = $section['label_key'] ?? trans($section['label_key']);
+    ?>
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
+        <div class="px-5 py-4 border-b border-stone-100">
+            <h2 class="font-bold text-stone-900 flex items-center gap-2">
+                <?php if (!empty($section['icon'])): ?><span class="text-lg"><?= e($section['icon']) ?></span><?php endif; ?>
+                <?= e($sectionLabel) ?>
+            </h2>
+        </div>
+        <div class="p-5 grid sm:grid-cols-2 gap-4">
+            <?php foreach ($section['fields'] as $fieldKey): ?>
+            <?php
+                $val   = $homeContent[$fieldKey] ?? [];
+                $valEn = $val['en'] ?? homepage_section($fieldKey, 'en');
+                $valBn = $val['bn'] ?? homepage_section($fieldKey, 'bn');
+                $isMono = in_array($fieldKey, $monoFields, true);
+                $fieldLabel = $fieldLabels[$fieldKey] ?? $fieldKey;
+            ?>
+            <?php if ($isMono): ?>
+            <!-- Emoji / number / stars — single input (locale-neutral) -->
+            <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e($fieldLabel) ?></label>
+                <input type="text" name="home_content[<?= e($fieldKey) ?>][en]" value="<?= e($valEn) ?>"
+                       maxlength="20"
+                       class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <!-- mirror EN value to BN so both locales stay in sync -->
+                <input type="hidden" name="home_content[<?= e($fieldKey) ?>][bn]" value="<?= e($valEn) ?>">
+            </div>
+            <?php else: ?>
+            <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e($fieldLabel) ?> (EN)</label>
+                <input type="text" name="home_content[<?= e($fieldKey) ?>][en]" value="<?= e($valEn) ?>"
+                       class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none mb-2">
+                <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e($fieldLabel) ?> (BN)</label>
+                <div class="flex items-center gap-2">
+                    <input type="text" name="home_content[<?= e($fieldKey) ?>][bn]" value="<?= e($valBn) ?>"
+                           class="flex-1 rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    <?php $src = '[name="home_content[' . $fieldKey . '][en]"]'; $tgt = '[name="home_content[' . $fieldKey . '][bn]"]'; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
     </div>
     <?php endforeach; ?>
 
@@ -174,6 +273,13 @@ $heroCount = count($heroRows);
 
 function heroSlidePreview(input) {
     var target = document.querySelector(input ? input.getAttribute('data-preview-target') : null);
+    if (!target || !input.files || !input.files[0]) return;
+    target.src = URL.createObjectURL(input.files[0]);
+    target.classList.remove('hidden');
+}
+
+function storyImagePreview(input) {
+    var target = document.getElementById('story-image-preview');
     if (!target || !input.files || !input.files[0]) return;
     target.src = URL.createObjectURL(input.files[0]);
     target.classList.remove('hidden');

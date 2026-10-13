@@ -15,7 +15,7 @@
     <!-- ==========================================
          1. CASH ON DELIVERY (COD)
          ========================================== -->
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden shadow-xs">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-4 bg-stone-50/60">
             <div class="flex items-center gap-3">
                 <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-2xl">💵</span>
@@ -78,7 +78,7 @@
     <!-- ==========================================
          2. BKASH
          ========================================== -->
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden shadow-xs">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-4 bg-pink-50/50">
             <div class="flex items-center gap-3">
                 <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-pink-100 text-2xl">📱</span>
@@ -166,10 +166,10 @@
     <!-- ==========================================
          3. NAGAD
          ========================================== -->
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
-        <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-4 bg-orange-50/50">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden shadow-xs">
+        <div class="px-5 py-4 border-b border-honey-600/15 flex items-center justify-between gap-4 bg-honey-100/40">
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-2xl">💳</span>
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-honey-100 text-2xl">💳</span>
                 <div>
                     <h2 class="font-bold text-stone-900 text-base"><?= e(trans('payment_method_nagad')) ?></h2>
                     <p class="text-xs text-stone-500">Nagad Mobile Banking</p>
@@ -253,7 +253,7 @@
     <!-- ==========================================
          4. ROCKET (DBBL)
          ========================================== -->
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden shadow-xs">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-4 bg-purple-50/50">
             <div class="flex items-center gap-3">
                 <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-2xl">🚀</span>
@@ -340,7 +340,7 @@
     <!-- ==========================================
          5. BANK TRANSFER
          ========================================== -->
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden shadow-xs">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between gap-4 bg-sky-50/50">
             <div class="flex items-center gap-3">
                 <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-2xl">🏦</span>

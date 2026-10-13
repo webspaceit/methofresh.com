@@ -6,7 +6,7 @@ declare(strict_types=1);
 // Bootstrap: load autoloader, helpers, config, run the application.
 // ---------------------------------------------------------------------------
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__) . '/app/autoload.php';
 
 require_once dirname(__DIR__) . '/app/wsit_helpers.php';
 

@@ -37,11 +37,11 @@ $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
         <input type="hidden" name="status" value="<?= e($status) ?>">
         <input type="text" name="q" id="adminQ" value="<?= e($search) ?>" placeholder="<?= e(trans('admin_search')) ?>"
                class="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
-        <button type="submit" class="rounded-xl bg-stone-800 hover:bg-stone-900 text-white px-4 py-2 text-sm font-semibold"><?= e(trans('nav_search')) ?></button>
+        <button type="submit" class="rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 text-sm font-semibold"><?= e(trans('nav_search')) ?></button>
     </form>
 </div>
 
-<div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+<div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-left text-xs text-stone-500 border-b border-stone-100 uppercase">

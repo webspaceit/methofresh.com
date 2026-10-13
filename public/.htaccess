@@ -1,10 +1,14 @@
+# Front controller for the /public directory (used when the document root is
+# project root and the app is reached through /public/...).
+#
+# Do not add "RewriteBase" here: a hardcoded base breaks the same file when the
+# directory is served at a different URL prefix.
 RewriteEngine On
 
-# If the requested file/directory actually exists, serve it directly.
+# Route everything else to the front controller.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Route everything else to the front controller.
+RewriteCond %{REQUEST_URI} !/wsit_index\.php$
 RewriteRule ^ wsit_index.php [QSA,L]
 
 <IfModule mod_headers.c>

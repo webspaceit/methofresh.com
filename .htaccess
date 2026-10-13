@@ -1,16 +1,40 @@
+# ---------------------------------------------------------------------------
+# Front controller.
+#
+# This file must work BOTH at a domain root (production: https://methofresh.com/)
+# and inside a sub-directory of the document root (local dev:
+# http://localhost/methofresh.com/).
+#
+# NEVER hardcode "RewriteBase" here. A RewriteBase that does not match the live
+# URL prefix makes the rewrite target repeat itself, and Apache then aborts every
+# rewritten URL with:
+#     500 Internal Server Error
+#     AH00124: Request exceeded the limit of 10 internal redirects
+# which takes down the whole dashboard, login, products and every /assets/ image.
+# ---------------------------------------------------------------------------
+
 DirectoryIndex wsit_index.php
 
 RewriteEngine On
-RewriteBase /methofresh.com/
 
-# Serve files that live under public/assets (e.g. product images) directly.
+# ---------------------------------------------------------------------------
+# Never expose project internals over HTTP (config, code, schema, tooling).
+# The front controller and real files stay reachable; only these paths 403.
+# ---------------------------------------------------------------------------
+RewriteRule ^(?:app|database|vendor)(?:/|$) - [F,L]
+RewriteRule ^composer\.(?:json|lock)$ - [F,L]
+RewriteRule ^\.(?!well-known(?:/|$)) - [F,L]
+
+# Serve uploaded product images / assets that live under public/assets.
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 
-# If the requested file/directory actually exists, serve it directly.
+# Route everything that is not a real file or directory to the front
+# controller. The last condition guarantees the front controller can never
+# rewrite onto itself, which would spin into an internal redirect loop.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Route everything else to the front controller.
+RewriteCond %{REQUEST_URI} !/wsit_index\.php$
 RewriteRule ^ wsit_index.php [QSA,L]
 
 <IfModule mod_headers.c>

@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Crawl-budget-friendly: skip assets we don't need indexed.
+Disallow: /mf-dashboard
+Disallow: /cart/add
+Disallow: /cart/update
+Disallow: /cart/remove
+Disallow: /cart/clear
+Disallow: /cart/coupon
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+Disallow: /order/success
+Disallow: /search/suggest
+Disallow: /search/log
+Disallow: /contact/submit
+Disallow: /contact/captcha
+
+# Sitemap
+Sitemap: /sitemap.xml

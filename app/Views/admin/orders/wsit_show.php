@@ -30,7 +30,7 @@ $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
     </div>
 
     <div class="grid md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-2xl border border-stone-200 p-5 col-span-2">
+        <div class="bg-card rounded-2xl border border-honey-600/15 p-5 col-span-2">
             <h2 class="font-bold text-sm mb-3 text-stone-900"><?= e(trans('shipping_address')) ?></h2>
             <p class="text-sm font-semibold"><?= e(customer_display_name($order['shipping_name'], $order['shipping_email'] ?? null)) ?></p>
             <p class="text-sm text-stone-500"><?= e($order['shipping_address']) ?></p>
@@ -53,7 +53,7 @@ $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
                 <?php endif; ?>
             </div>
         </div>
-        <div class="bg-white rounded-2xl border border-stone-200 p-5">
+        <div class="bg-card rounded-2xl border border-honey-600/15 p-5">
             <h2 class="font-bold text-sm mb-3 text-stone-900"><?= e(trans('admin_update_status')) ?></h2>
             <form method="post" action="<?= e(locale_url('/mf-dashboard/orders/' . $order['id'] . '/status')) ?>">
                 <?= csrf_field() ?>
@@ -67,7 +67,7 @@ $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto mb-6">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto mb-6">
         <table class="w-full text-sm">
             <thead>
                 <tr class="text-left text-xs text-stone-500 border-b border-stone-100 uppercase">
@@ -95,13 +95,13 @@ $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
         </table>
     </div>
 
-    <div class="bg-white rounded-2xl border border-stone-200 p-5 max-w-sm ml-auto">
+    <div class="bg-card rounded-2xl border border-honey-600/15 p-5 max-w-sm ml-auto">
         <div class="space-y-1.5 text-sm">
             <div class="flex justify-between"><span class="text-stone-500"><?= e(trans('subtotal')) ?></span><span><?= e(format_price((float)$order['subtotal'])) ?></span></div>
             <?php if ((float)$order['discount'] > 0): ?>
             <div class="flex justify-between text-green-600"><span><?= e(trans('discount')) ?></span><span>-<?= e(format_price((float)$order['discount'])) ?></span></div>
             <?php endif; ?>
-            <div class="flex justify-between"><span class="text-stone-500"><?= e(trans('shipping')) ?></span><span><?= (float)$order['shipping'] > 0 ? e(format_price((float)$order['shipping'])) : e(trans('shipping_free')) ?></span></div>
+            <div class="flex justify-between"><span class="text-stone-500"><?= e(trans('shipping')) ?></span><span><?= (float)$order['shipping'] > 0 ? e(format_price((float)$order['shipping'])) : e(trans('shipping_free')) ?><?php if (!empty($order['shipping_method'])): ?> <span class="text-xs text-stone-400">(<?= e($order['shipping_method']) ?>)</span><?php endif; ?></span></div>
             <div class="flex justify-between font-bold border-t border-stone-100 pt-2 text-base"><span><?= e(trans('grand_total')) ?></span><span class="text-brand-700"><?= e(format_price((float)$order['total'])) ?></span></div>
         </div>
     </div>

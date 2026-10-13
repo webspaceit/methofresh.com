@@ -173,6 +173,7 @@ class wsit_CartController extends wsit_Controller
             $item['slug'] = $product['slug'];
             $item['image'] = $product['image'];
             $item['stock'] = (int)$product['stock'];
+            $item['weight'] = (float)($product['weight'] ?? 0);
             $item['current_price'] = $priceInfo['current'];
             $item['unit_price'] = (float)$product['price'];
             $item['sale_price'] = $priceInfo['sale'];
@@ -199,11 +200,37 @@ class wsit_CartController extends wsit_Controller
         return round($subtotal * ((int)$coupon['percent'] / 100), 2);
     }
 
-    public function shippingFor(float $subtotal): float
+    /**
+     * Shipping estimate/charge from the admin configuration.
+     *
+     * $city null     → locality unknown (cart page) — first active method.
+     * $methodId given → that method when it serves the city, else the first.
+     *
+     * Falls back to the original hardcoded behaviour (৳60, free at ৳500)
+     * until a configuration is saved, and returns 0 when charges are off or
+     * no method applies.
+     */
+    public function shippingFor(float $subtotal, ?string $city = null, ?string $methodId = null): float
     {
-        if ($subtotal >= 500) {
+        $cfg = shipping_config();
+        if (!$cfg['enabled']) {
             return 0.0;
         }
-        return 60.0;
+        $methods = shipping_available_methods($city);
+        if ($methods === []) {
+            return 0.0;
+        }
+
+        $method = $methods[0];
+        if ($methodId !== null && $methodId !== '') {
+            foreach ($methods as $candidate) {
+                if ($candidate['id'] === $methodId) {
+                    $method = $candidate;
+                    break;
+                }
+            }
+        }
+
+        return shipping_method_charge($method, $subtotal, cart_total_weight(), $cfg['free_over']);
     }
 }

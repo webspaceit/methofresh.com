@@ -19,7 +19,7 @@ $footer = [
         <a href="<?= e(locale_url('/')) ?>" target="_blank" class="text-sm font-semibold text-brand-700 hover:underline"><?= e(trans('admin_view_website')) ?> →</a>
     </div>
 
-    <form method="post" action="<?= e(locale_url('/mf-dashboard/footer')) ?>" class="bg-white rounded-2xl border border-stone-200 p-6 space-y-5">
+    <form method="post" action="<?= e(locale_url('/mf-dashboard/footer')) ?>" class="bg-card rounded-2xl border border-honey-600/15 p-6 space-y-5">
         <?= csrf_field() ?>
 
         <div>

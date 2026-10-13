@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="20"/>
+  <defs>
+    <linearGradient id="jbody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="200" cy="352" rx="130" ry="15" fill="#00000014"/>
+  <path d="M132 150 Q128 175 128 225 Q128 300 132 336 Q142 352 200 352 Q258 352 268 336 Q272 300 272 225 Q272 175 268 150 Z" fill="url(#jbody)" stroke="#92400e" stroke-width="2.5"/>
+  <path d="M128 336 Q142 352 200 352 Q258 352 268 336 L268 265 Q200 285 128 265 Z" fill="#92400e" opacity="0.18"/>
+  <path d="M254 160 Q130 175 130 225 L270 225 Q270 175 254 160 Z" fill="#fbbf24" opacity="0.32"/>
+  <path d="M122 166 Q128 150 132 150 Q140 134 162 130 Q180 127 200 127 Q220 127 238 130 Q260 134 268 150 Q272 150 278 166 L270 180 L130 180 Z" fill="#92400e"/>
+  <ellipse cx="200" cy="128" rx="70" ry="14" fill="#92400e" stroke="#78350f" stroke-width="2"/>
+  <rect x="158" y="198" width="84" height="72" rx="8" fill="white" opacity="0.6"/>
+  <rect x="168" y="212" width="64" height="9" rx="4.5" fill="#78350f" opacity="0.8"/>
+  <rect x="172" y="228" width="56" height="7" rx="3.5" fill="#78350f" opacity="0.55"/>
+  <rect x="175" y="241" width="50" height="6" rx="3" fill="#78350f" opacity="0.4"/>
+  <path d="M140 160 Q150 148 164 146" fill="none" stroke="#166534" stroke-width="6" stroke-linecap="round"/>
+  <path d="M160 150 Q170 142 186 144 Q176 152 166 156 Z" fill="#16a34a"/>
+</svg>

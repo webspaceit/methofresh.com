@@ -1,28 +1,24 @@
-<?php $captcha = $captcha ?? null; $captchaEnabled = $captchaEnabled ?? true; ?>
-<div class="bg-stone-50 min-h-screen">
+<?php
+$captcha = $captcha ?? null;
+$captchaEnabled = $captchaEnabled ?? true;
+?>
+<section class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Breadcrumb + page title, matching Products / Categories / Cart -->
+    <nav class="text-xs text-stone-400 mb-2 flex items-center gap-1.5 flex-wrap">
+        <a href="<?= e(locale_url('/')) ?>" class="hover:text-brand-700 transition"><?= e(trans('nav_home')) ?></a>
+        <span>/</span>
+        <span class="text-stone-700 font-semibold"><?= e(trans('contact')) ?></span>
+    </nav>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-brand-800 tracking-tight"><?= e(trans('contact')) ?></h1>
+    <p class="text-sm text-stone-500 mt-1"><?= e(trans('contact_subtitle')) ?></p>
 
-    <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
-        <div class="max-w-2xl mx-auto">
-
-            <div class="text-center mb-8">
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-stone-900"><?= e(trans('contact')) ?></h1>
-                <p class="mt-3 text-stone-500"><?= e(trans('contact_subtitle')) ?></p>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 sm:p-8">
-                <?php include views_path('contact/wsit_form.php'); ?>
-            </div>
-
-            <div class="mt-8 bg-white rounded-2xl border border-stone-200 shadow-sm p-6 sm:p-8">
-                <h2 class="text-lg font-bold text-stone-800 mb-3"><?= e(trans('contact_info')) ?></h2>
-                <div class="space-y-2 text-sm text-stone-600">
-                    <p>✉️ <a href="mailto:support@methofresh.com" class="text-brand-600 hover:underline">support@methofresh.com</a></p>
-                    <p>📞 +880 1711-111111</p>
-                    <p>🏢 House 12, Road 5, Dhanmondi, Dhaka — Bangladesh</p>
-                </div>
-            </div>
-
+    <div class="mt-6 lg:grid lg:grid-cols-[1fr,380px] gap-8 items-start">
+        <!-- Contact form -->
+        <div class="bg-card rounded-2xl border border-honey-600/15 shadow-sm p-6 sm:p-8">
+            <?php include views_path('contact/wsit_form.php'); ?>
         </div>
-    </div>
 
-</div>
+        <!-- Contact info (real data from Settings → Footer) -->
+        <?php include views_path('contact/wsit_info_card.php'); ?>
+    </div>
+</section>

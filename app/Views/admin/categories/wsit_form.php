@@ -11,7 +11,7 @@ $formAction = $isEdit
         <a href="<?= e(locale_url('/mf-dashboard/categories')) ?>" class="text-sm font-semibold text-brand-700 hover:underline">← <?= e(trans('admin_back')) ?></a>
     </div>
 
-    <form method="post" action="<?= e($formAction) ?>" enctype="multipart/form-data" class="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
+    <form method="post" action="<?= e($formAction) ?>" enctype="multipart/form-data" class="bg-card rounded-2xl border border-honey-600/15 p-6 space-y-4">
         <?= csrf_field() ?>
 
         <div class="grid sm:grid-cols-2 gap-4">

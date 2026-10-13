@@ -98,13 +98,22 @@ class wsit_App
 
             $this->router->dispatch($this->request);
         } catch (PDOException $e) {
+            // The visitor only gets a generic message when debug mode is off,
+            // so the real driver message must always reach the server log.
+            error_log('[methofresh] Database error: ' . $e->getMessage());
+
             if (app_debug()) {
                 echo '<pre>' . htmlspecialchars($e->getMessage()) . '</pre>';
             } else {
                 http_response_code(500);
-                echo 'Database error. Could not establish connection.';
+                echo self::isConnectionError($e)
+                    ? 'Database error. Could not establish connection.'
+                    : 'Database error. The request could not be completed.'
+                        . ' (Reference: ' . (int) ($e->errorInfo[1] ?? 0) . ')';
             }
         } catch (\Throwable $e) {
+            error_log('[methofresh] ' . $e->getFile() . ':' . $e->getLine() . ' ' . $e->getMessage());
+
             if (app_debug()) {
                 echo '<pre style="background:#1f2937;color:#f87171;padding:1rem;border-radius:8px;">'
                     . 'Error: ' . htmlspecialchars($e->getMessage())
@@ -116,5 +125,26 @@ class wsit_App
                 echo '<h1>500 - Internal Server Error</h1>';
             }
         }
+    }
+
+    /**
+     * Whether a PDO failure happened while connecting / authenticating, as
+     * opposed to a query run against an already established connection.
+     *
+     * Lets the visitor see the accurate message instead of blaming the
+     * connection for e.g. a missing table.
+     */
+    private static function isConnectionError(PDOException $e): bool
+    {
+        // The PDO constructor leaves errorInfo empty when it cannot connect.
+        if (empty($e->errorInfo)) {
+            return true;
+        }
+
+        return in_array(
+            (int) ($e->errorInfo[1] ?? 0),
+            [1044, 1045, 1049, 2002, 2003, 2005, 2006, 2013],
+            true
+        );
     }
 }

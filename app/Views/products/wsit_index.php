@@ -28,7 +28,7 @@ $toItem = min($total, $page * $perPage);
         </nav>
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-brand-800 tracking-tight">
                     <?php if ($activeCategory): ?>
                         <?= e($activeCategory['name']) ?>
                     <?php elseif ($search !== ''): ?>
@@ -52,16 +52,16 @@ $toItem = min($total, $page * $perPage);
 
             <!-- Quick Pagination & View Info in Top Header -->
             <?php if ($pages > 1): ?>
-            <div class="flex items-center gap-2 self-start md:self-auto bg-stone-100/80 px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600">
+            <div class="flex items-center gap-2 self-start md:self-auto bg-cream px-3 py-1.5 rounded-xl border border-honey-600/15 text-xs font-semibold text-stone-600">
                 <span><?= str_replace([':total', ':current'], [format_number($pages), format_number($page)], e(trans('page_of'))) ?></span>
                 <div class="flex items-center gap-1 ml-2">
                     <?php if ($page > 1): ?>
-                    <a href="<?= e($buildFilterUrl(['page' => $page - 1])) ?>" class="p-1 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 hover:text-brand-700 transition" title="<?= e(trans('previous')) ?>">
+                    <a href="<?= e($buildFilterUrl(['page' => $page - 1])) ?>" class="p-1 rounded-lg bg-card border border-honey-600/15 hover:bg-cream hover:text-brand-700 transition" title="<?= e(trans('previous')) ?>">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                     </a>
                     <?php endif; ?>
                     <?php if ($page < $pages): ?>
-                    <a href="<?= e($buildFilterUrl(['page' => $page + 1])) ?>" class="p-1 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 hover:text-brand-700 transition" title="<?= e(trans('next')) ?>">
+                    <a href="<?= e($buildFilterUrl(['page' => $page + 1])) ?>" class="p-1 rounded-lg bg-card border border-honey-600/15 hover:bg-cream hover:text-brand-700 transition" title="<?= e(trans('next')) ?>">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </a>
                     <?php endif; ?>
@@ -73,39 +73,39 @@ $toItem = min($total, $page * $perPage);
 
     <!-- Active Filter Tags (if any) -->
     <?php if ($hasActiveFilters): ?>
-    <div class="mb-6 flex flex-wrap items-center gap-2 bg-stone-50 p-3 rounded-2xl border border-stone-200/80">
+    <div class="mb-6 flex flex-wrap items-center gap-2 bg-cream p-3 rounded-2xl border border-honey-600/15/80">
         <span class="text-xs font-bold text-stone-500 uppercase tracking-wider mr-1"><?= e(trans('filters')) ?>:</span>
         
         <?php if ($activeCategory): ?>
-        <span class="inline-flex items-center gap-1.5 bg-white border border-stone-200 text-stone-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
+        <span class="inline-flex items-center gap-1.5 bg-card border border-honey-600/15 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
             <span><?= e(trans('category')) ?>: <?= e($activeCategory['name']) ?></span>
             <a href="<?= e($buildFilterUrl(['cat' => null, 'category' => null])) ?>" class="text-stone-400 hover:text-red-500 font-bold">&times;</a>
         </span>
         <?php endif; ?>
 
         <?php if ($search !== ''): ?>
-        <span class="inline-flex items-center gap-1.5 bg-white border border-stone-200 text-stone-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
+        <span class="inline-flex items-center gap-1.5 bg-card border border-honey-600/15 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
             <span><?= e(trans('search_results')) ?>: "<?= e($search) ?>"</span>
             <a href="<?= e($buildFilterUrl(['q' => null])) ?>" class="text-stone-400 hover:text-red-500 font-bold">&times;</a>
         </span>
         <?php endif; ?>
 
         <?php if ($minPrice !== null || $maxPrice !== null): ?>
-        <span class="inline-flex items-center gap-1.5 bg-white border border-stone-200 text-stone-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
+        <span class="inline-flex items-center gap-1.5 bg-card border border-honey-600/15 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
             <span><?= e(trans('filter_price')) ?>: <?= e(format_price((float)($minPrice ?? 0))) ?> – <?= $maxPrice ? e(format_price((float)$maxPrice)) : '∞' ?></span>
             <a href="<?= e($buildFilterUrl(['min_price' => null, 'max_price' => null])) ?>" class="text-stone-400 hover:text-red-500 font-bold">&times;</a>
         </span>
         <?php endif; ?>
 
         <?php if ($inStock): ?>
-        <span class="inline-flex items-center gap-1.5 bg-white border border-stone-200 text-stone-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
+        <span class="inline-flex items-center gap-1.5 bg-card border border-honey-600/15 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
             <span><?= e(trans('in_stock_only')) ?></span>
             <a href="<?= e($buildFilterUrl(['in_stock' => null])) ?>" class="text-stone-400 hover:text-red-500 font-bold">&times;</a>
         </span>
         <?php endif; ?>
 
         <?php if ($saleOnly): ?>
-        <span class="inline-flex items-center gap-1.5 bg-white border border-stone-200 text-stone-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
+        <span class="inline-flex items-center gap-1.5 bg-card border border-honey-600/15 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xs">
             <span><?= e(trans('sale_only')) ?></span>
             <a href="<?= e($buildFilterUrl(['sale_only' => null])) ?>" class="text-stone-400 hover:text-red-500 font-bold">&times;</a>
         </span>
@@ -121,16 +121,16 @@ $toItem = min($total, $page * $perPage);
 
         <!-- Filters Sidebar -->
         <aside class="mb-6 lg:mb-0 lg:sticky lg:top-24 space-y-5" x-data="{ mobileOpen: false }">
-            <div class="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-5">
-                <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+            <div class="bg-card rounded-3xl border border-honey-600/15/90 shadow-sm p-5">
+                <div class="flex items-center justify-between pb-3 border-b border-honey-600/15">
                     <div class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                         </svg>
-                        <h2 class="text-base font-bold text-stone-900"><?= e(trans('filters')) ?></h2>
+                        <h2 class="text-base font-bold text-brand-800"><?= e(trans('filters')) ?></h2>
                     </div>
                     
-                    <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-1.5 text-stone-500 hover:text-stone-800 rounded-lg hover:bg-stone-100">
+                    <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-1.5 text-stone-500 hover:text-brand-800 rounded-lg hover:bg-honey-100/40">
                         <svg class="w-5 h-5 transition transform" :class="mobileOpen && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </button>
 
@@ -148,9 +148,9 @@ $toItem = min($total, $page * $perPage);
                         <ul class="space-y-1 text-sm font-medium">
                             <li>
                                 <a href="<?= e($buildFilterUrl(['cat' => null, 'category' => null])) ?>"
-                                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition <?= $categoryId === 0 ? 'bg-brand-600 text-white font-bold shadow-sm shadow-brand-600/30' : 'text-stone-700 hover:bg-stone-100' ?>">
+                                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition <?= $categoryId === 0 ? 'bg-brand-600 text-white font-bold shadow-sm shadow-brand-600/30' : 'text-stone-700 hover:bg-honey-100/40' ?>">
                                     <span><?= e(trans('all_categories')) ?></span>
-                                    <span class="text-xs px-2 py-0.5 rounded-full <?= $categoryId === 0 ? 'bg-white/20 text-white font-semibold' : 'bg-stone-100 text-stone-500' ?>">
+                                    <span class="text-xs px-2 py-0.5 rounded-full <?= $categoryId === 0 ? 'bg-card/20 text-white font-semibold' : 'bg-honey-100/40 text-stone-500' ?>">
                                         <?= e(format_number($totalAllProducts)) ?>
                                     </span>
                                 </a>
@@ -159,9 +159,9 @@ $toItem = min($total, $page * $perPage);
                             <?php $isActiveCat = ($categoryId === (int)$category['id']); ?>
                             <li>
                                 <a href="<?= e($buildFilterUrl(['cat' => $category['slug'], 'category' => null])) ?>"
-                                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition <?= $isActiveCat ? 'bg-brand-600 text-white font-bold shadow-sm shadow-brand-600/30' : 'text-stone-700 hover:bg-stone-100' ?>">
+                                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition <?= $isActiveCat ? 'bg-brand-600 text-white font-bold shadow-sm shadow-brand-600/30' : 'text-stone-700 hover:bg-honey-100/40' ?>">
                                     <span><?= e($category['name']) ?></span>
-                                    <span class="text-xs px-2 py-0.5 rounded-full <?= $isActiveCat ? 'bg-white/20 text-white font-semibold' : 'bg-stone-100 text-stone-500' ?>">
+                                    <span class="text-xs px-2 py-0.5 rounded-full <?= $isActiveCat ? 'bg-card/20 text-white font-semibold' : 'bg-honey-100/40 text-stone-500' ?>">
                                         <?= e(format_number($category['product_count'] ?? 0)) ?>
                                     </span>
                                 </a>
@@ -171,7 +171,7 @@ $toItem = min($total, $page * $perPage);
                     </div>
 
                     <!-- Price Filter section -->
-                    <div class="pt-4 border-t border-stone-100">
+                    <div class="pt-4 border-t border-honey-600/15">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3"><?= e(trans('filter_price')) ?></h3>
                         <form method="get" action="<?= e(locale_url('/products')) ?>" class="space-y-3">
                             <?php if ($categoryId > 0): ?>
@@ -191,12 +191,12 @@ $toItem = min($total, $page * $perPage);
                                 <div>
                                     <label class="text-[11px] font-semibold text-stone-500 block mb-1"><?= e(trans('min_price')) ?></label>
                                     <input type="number" name="min_price" value="<?= $minPrice !== null ? e((string)$minPrice) : '' ?>" placeholder="<?= app_locale() === 'bn' ? '০' : '0' ?>" min="0" step="5"
-                                           class="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                           class="w-full px-3 py-2 text-xs rounded-xl border border-honey-600/15 focus:ring-2 focus:ring-brand-500 focus:outline-none">
                                 </div>
                                 <div>
                                     <label class="text-[11px] font-semibold text-stone-500 block mb-1"><?= e(trans('max_price')) ?></label>
                                     <input type="number" name="max_price" value="<?= $maxPrice !== null ? e((string)$maxPrice) : '' ?>" placeholder="<?= app_locale() === 'bn' ? '১০০০' : '1000' ?>" min="0" step="5"
-                                           class="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                           class="w-full px-3 py-2 text-xs rounded-xl border border-honey-600/15 focus:ring-2 focus:ring-brand-500 focus:outline-none">
                                 </div>
                             </div>
 
@@ -207,7 +207,7 @@ $toItem = min($total, $page * $perPage);
                     </div>
 
                     <!-- Availability & Deals Section -->
-                    <div class="pt-4 border-t border-stone-100 space-y-2.5">
+                    <div class="pt-4 border-t border-honey-600/15 space-y-2.5">
                         <label class="flex items-center gap-2.5 cursor-pointer text-sm font-medium text-stone-700 select-none">
                             <input type="checkbox" onchange="window.location.href='<?= e($buildFilterUrl(['in_stock' => $inStock ? null : 1])) ?>'"
                                    <?= $inStock ? 'checked' : '' ?>
@@ -223,7 +223,7 @@ $toItem = min($total, $page * $perPage);
                     </div>
 
                     <!-- Pagination Sidebar Info -->
-                    <div class="pt-4 border-t border-stone-100 text-xs text-stone-500 flex items-center justify-between">
+                    <div class="pt-4 border-t border-honey-600/15 text-xs text-stone-500 flex items-center justify-between">
                         <span><?= str_replace([':current', ':total'], [format_number($page), format_number($pages)], e(trans('page_of'))) ?></span>
                         <span class="font-semibold text-stone-700"><?= format_number($total) ?> <?= e(trans('products_count')) ?></span>
                     </div>
@@ -234,14 +234,14 @@ $toItem = min($total, $page * $perPage);
         <!-- Main Product Section -->
         <div>
             <!-- Top Controls Toolbar (Sort, Per-Page, Search, Active Stats) -->
-            <div class="bg-white rounded-2xl border border-stone-200 p-3.5 mb-6 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div class="bg-card rounded-2xl border border-honey-600/15 p-3.5 mb-6 flex flex-wrap items-center justify-between gap-3 shadow-xs">
                 <!-- Left: Per page selector & Searchbox -->
                 <div class="flex items-center gap-3 flex-wrap flex-1 min-w-[280px]">
                     <!-- Per page selector -->
                     <div class="flex items-center gap-2 text-xs font-medium text-stone-600 shrink-0">
                         <label class="whitespace-nowrap"><?= e(trans('per_page')) ?>:</label>
                         <select onchange="window.location.href='<?= e($buildFilterUrl(['per_page' => 'PLACEHOLDER'])) ?>'.replace('PLACEHOLDER', this.value)"
-                                class="rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none cursor-pointer">
+                                class="rounded-xl border border-honey-600/15 bg-cream px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none cursor-pointer">
                             <?php foreach ([8, 12, 24, 36, 48] as $opt): ?>
                             <option value="<?= $opt ?>" <?= $perPage === $opt ? 'selected' : '' ?>><?= e(format_number($opt)) ?></option>
                             <?php endforeach; ?>
@@ -281,7 +281,7 @@ $toItem = min($total, $page * $perPage);
                                    @keydown.escape="open = false"
                                    @focus="if (results.length) open = true"
                                    placeholder="<?= e(trans('nav_search')) ?>"
-                                   class="w-full rounded-xl border border-stone-200 bg-stone-50 pl-8 pr-8 py-1.5 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                                   class="w-full rounded-xl border border-honey-600/15 bg-cream pl-8 pr-8 py-1.5 text-xs text-brand-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-card transition">
                             <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-stone-400">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
@@ -300,12 +300,12 @@ $toItem = min($total, $page * $perPage);
 
                             <!-- Live Search Suggestions Dropdown -->
                             <div x-show="open" x-cloak
-                                 class="absolute left-0 right-0 top-full mt-2 rounded-2xl border border-stone-200 bg-white shadow-2xl overflow-hidden z-50">
+                                 class="absolute left-0 right-0 top-full mt-2 rounded-2xl border border-honey-600/15 bg-card shadow-2xl overflow-hidden z-50">
                                 <template x-for="(r, i) in results" :key="r.id">
                                     <a :href="r.url" @mouseenter="active = i" @mousedown.prevent="go()"
-                                       class="flex items-center gap-3 px-3.5 py-2.5 hover:bg-stone-50 transition border-b border-stone-50 last:border-0"
-                                       :class="i === active ? 'bg-stone-50' : ''">
-                                        <img :src="r.image" :alt="r.name" class="w-8 h-8 rounded-lg object-cover bg-stone-100 shrink-0" loading="lazy">
+                                       class="flex items-center gap-3 px-3.5 py-2.5 hover:bg-cream transition border-b border-stone-50 last:border-0"
+                                       :class="i === active ? 'bg-cream' : ''">
+                                        <img :src="r.image" :alt="r.name" class="w-8 h-8 rounded-lg object-cover bg-honey-100/40 shrink-0" loading="lazy">
                                         <div class="flex-1 min-w-0">
                                             <span class="block text-xs font-semibold text-stone-900 truncate" x-text="r.name"></span>
                                             <span class="text-[11px] font-bold text-brand-700" x-text="r.price"></span>
@@ -314,7 +314,7 @@ $toItem = min($total, $page * $perPage);
                                 </template>
                                 <p x-show="ready && results.length === 0" class="px-3.5 py-2.5 text-xs text-stone-500"><?= e(trans('search_no_results')) ?></p>
                                 <a :href="resultsUrl + '?q=' + encodeURIComponent(query.trim())" x-show="results.length > 0" x-cloak
-                                   class="block px-3.5 py-2 border-t border-stone-100 text-xs font-bold text-brand-700 hover:bg-stone-50 transition"><?= e(trans('search_see_all')) ?> →</a>
+                                   class="block px-3.5 py-2 border-t border-honey-600/15 text-xs font-bold text-brand-700 hover:bg-cream transition"><?= e(trans('search_see_all')) ?> →</a>
                             </div>
                         </div>
                     </form>
@@ -324,7 +324,7 @@ $toItem = min($total, $page * $perPage);
                 <div class="flex items-center gap-2 shrink-0">
                     <label class="text-xs font-medium text-stone-600 whitespace-nowrap"><?= e(trans('sort_default')) ?>:</label>
                     <select onchange="window.location.href='<?= e($buildFilterUrl(['sort' => 'PLACEHOLDER'])) ?>'.replace('PLACEHOLDER', this.value)"
-                            class="rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none cursor-pointer">
+                            class="rounded-xl border border-honey-600/15 bg-cream px-3 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none cursor-pointer">
                         <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>><?= e(trans('sort_newest')) ?></option>
                         <option value="price_asc" <?= $sort === 'price_asc' ? 'selected' : '' ?>><?= e(trans('sort_price_low')) ?></option>
                         <option value="price_desc" <?= $sort === 'price_desc' ? 'selected' : '' ?>><?= e(trans('sort_price_high')) ?></option>
@@ -335,11 +335,11 @@ $toItem = min($total, $page * $perPage);
 
             <!-- Products Grid -->
             <?php if (empty($products)): ?>
-            <div class="text-center py-20 bg-white rounded-3xl border border-stone-200 shadow-xs">
-                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center text-4xl">
+            <div class="text-center py-20 bg-card rounded-3xl border border-honey-600/15 shadow-xs">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-honey-100/40 flex items-center justify-center text-4xl">
                     🧺
                 </div>
-                <h2 class="text-xl font-bold text-stone-800"><?= e(trans('no_products')) ?></h2>
+                <h2 class="text-xl font-bold text-brand-800"><?= e(trans('no_products')) ?></h2>
                 <p class="text-sm text-stone-500 mt-1 max-w-sm mx-auto"><?= e(trans('no_products_hint')) ?></p>
                 <a href="<?= e(locale_url('/products')) ?>" class="inline-flex items-center gap-2 mt-6 rounded-2xl bg-brand-600 text-white px-6 py-3 text-sm font-bold hover:bg-brand-700 shadow-sm transition">
                     <?= e(trans('view_all')) ?>
@@ -355,7 +355,7 @@ $toItem = min($total, $page * $perPage);
 
             <!-- Animated Loading Spinner when mouse scrolls to bottom -->
             <div id="scroll-loading-indicator" class="hidden my-8 text-center">
-                <div class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-stone-200 shadow-md text-stone-700 text-sm font-semibold animate-pulse">
+                <div class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-card border border-honey-600/15 shadow-md text-stone-700 text-sm font-semibold animate-pulse">
                     <svg class="w-5 h-5 animate-spin text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -366,7 +366,7 @@ $toItem = min($total, $page * $perPage);
 
             <!-- End of products message -->
             <div id="all-loaded-badge" class="<?= ($page >= $pages) ? 'block' : 'hidden' ?> my-8 text-center">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-100 text-stone-500 text-xs font-semibold">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-honey-100/40 text-stone-500 text-xs font-semibold">
                     <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                     <span><?= e(trans('all_products_loaded')) ?></span>
                 </div>
@@ -387,7 +387,7 @@ $toItem = min($total, $page * $perPage);
                         data-maxprice="<?= $maxPrice !== null ? e((string)$maxPrice) : '' ?>"
                         data-instock="<?= $inStock ? '1' : '0' ?>"
                         data-saleonly="<?= $saleOnly ? '1' : '0' ?>"
-                        class="inline-flex items-center gap-2 rounded-2xl border-2 border-stone-200 bg-white px-8 py-3 text-sm font-bold text-stone-700 hover:border-brand-600 hover:text-brand-700 shadow-sm transition">
+                        class="inline-flex items-center gap-2 rounded-2xl border-2 border-honey-600/15 bg-card px-8 py-3 text-sm font-bold text-stone-700 hover:border-brand-600 hover:text-brand-700 shadow-sm transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     <span><?= e(trans('load_more_products')) ?></span>
                 </button>

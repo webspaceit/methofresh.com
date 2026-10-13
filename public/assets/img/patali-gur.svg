@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#fffbeb" rx="20"/>
+  <ellipse cx="200" cy="356" rx="140" ry="14" fill="#00000014"/>
+<path d="M120 330 L240 330 L200 296 Z" fill="#b45309" stroke="#92400e" stroke-width="2"/>
+<path d="M120 330 L240 330 L200 296 Z" fill="#fde68a" opacity="0.12"/>
+<path d="M120 272 L240 272 L200 238 Z" fill="#b45309" stroke="#92400e" stroke-width="2"/>
+<path d="M120 272 L240 272 L200 238 Z" fill="#fde68a" opacity="0.12"/>
+<path d="M120 214 L240 214 L200 180 Z" fill="#b45309" stroke="#92400e" stroke-width="2"/>
+<path d="M120 214 L240 214 L200 180 Z" fill="#fde68a" opacity="0.12"/>
+  <path d="M120 330 Q200 316 240 330 Q200 344 120 330 Z" fill="#92400e" opacity="0.25"/>
+  <path d="M96 170 Q100 186 96 206 Q90 238 96 268 Q104 296 200 296 Q296 296 304 268 Q310 238 304 206 Q300 186 304 170 Q300 150 200 150 Q100 150 96 170 Z" fill="#b45309" stroke="#92400e" stroke-width="2.5"/>
+  <path d="M200 160 Q160 150 120 164 Q160 176 200 176 Q240 176 280 164 Q240 150 200 160 Z" fill="#fde68a" opacity="0.85"/>
+  <path d="M120 205 Q120 238 126 268 Q134 296 200 296 Q266 296 274 268 Q280 238 280 205 Q270 232 248 244 Q240 190 200 186 Q160 190 152 244 Q130 232 120 205 Z" fill="#92400e" opacity="0.20"/>
+  <path d="M140 122 Q150 112 176 110 Q198 108 214 114" fill="none" stroke="#166534" stroke-width="6" stroke-linecap="round"/>
+  <path d="M176 116 Q188 106 206 110 Q194 120 182 124 Z" fill="#16a34a"/>
+</svg>

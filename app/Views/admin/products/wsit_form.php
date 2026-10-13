@@ -13,7 +13,7 @@ $formAction = $isEdit
         <a href="<?= e(locale_url('/mf-dashboard/products')) ?>" class="text-sm font-semibold text-brand-700 hover:underline">← <?= e(trans('admin_back')) ?></a>
     </div>
 
-    <form method="post" action="<?= e($formAction) ?>" enctype="multipart/form-data" class="bg-white rounded-2xl border border-stone-200 p-6 space-y-5">
+    <form method="post" action="<?= e($formAction) ?>" enctype="multipart/form-data" class="bg-card rounded-2xl border border-honey-600/15 p-6 space-y-5">
         <?= csrf_field() ?>
 
         <div class="grid sm:grid-cols-2 gap-4">
@@ -52,7 +52,7 @@ $formAction = $isEdit
             </div>
         </div>
 
-        <div class="grid sm:grid-cols-3 gap-4">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_price')) ?> *</label>
                 <input type="number" step="0.01" min="0" name="price" required value="<?= e($p['price'] ?? '') ?>" class="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
@@ -64,6 +64,11 @@ $formAction = $isEdit
             <div>
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_stock')) ?></label>
                 <input type="number" min="0" name="stock" value="<?= e($p['stock'] ?? 0) ?>" class="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_weight')) ?></label>
+                <input type="number" step="0.001" min="0" name="weight" value="<?= e((string)(0 + (float)($p['weight'] ?? 0))) ?>" class="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <p class="text-[11px] text-stone-400 mt-1"><?= e(trans('admin_weight_hint')) ?></p>
             </div>
         </div>
 

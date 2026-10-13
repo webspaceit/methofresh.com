@@ -26,6 +26,14 @@ class wsit_AdminProductController extends wsit_Controller
 
     public function index(wsit_Request $request): string
     {
+        // Heal products that predate the search key (schema seeds, legacy
+        // repair scripts) so romanized search works right after install.
+        foreach ($this->productModel->staleSearchKeys() as $stale) {
+            $this->productModel->update((int)$stale['id'], [
+                'search_key' => product_search_key($stale),
+            ]);
+        }
+
         $search = trim((string)$request->query('q', ''));
         $products = $this->productModel->search($search);
 
@@ -33,7 +41,7 @@ class wsit_AdminProductController extends wsit_Controller
             'pageTitle' => trans('admin_products') . ' | ' . trans('admin'),
             'products'  => $products,
             'search'    => $search,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function searchJson(wsit_Request $request): void
@@ -56,7 +64,7 @@ class wsit_AdminProductController extends wsit_Controller
             'pageTitle' => trans('admin_add_product') . ' | ' . trans('admin'),
             'product'   => null,
             'categories'=> $categories,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function edit(int $id): string
@@ -71,7 +79,7 @@ class wsit_AdminProductController extends wsit_Controller
             'pageTitle' => trans('admin_edit_product') . ' | ' . trans('admin'),
             'product'   => $product,
             'categories'=> $categories,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function store(wsit_Request $request): void
@@ -190,6 +198,7 @@ class wsit_AdminProductController extends wsit_Controller
             'price'          => (float)$request->input('price', 0),
             'sale_price'     => $salePrice !== '' && (float)$salePrice > 0 ? (float)$salePrice : null,
             'stock'          => (int)$request->input('stock', 0),
+            'weight'         => max(0.0, (float)$request->input('weight', 0)),
             'active'         => $active === '1' ? 1 : 0,
             'featured'       => $featured === '1' ? 1 : 0,
         ];
@@ -213,14 +222,16 @@ class wsit_AdminProductController extends wsit_Controller
         }
 
         $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
-        $type = $file['type'] ?? '';
+        $tmpName = (string)($file['tmp_name'] ?? '');
+        $finfo   = new \finfo(FILEINFO_MIME_TYPE);
+        $type    = $finfo->file($tmpName) ?: ($file['type'] ?? '');
         if (!isset($allowed[$type])) {
             return null;
         }
 
         $name = 'prod_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $allowed[$type];
         $target = public_path('assets/img/' . $name);
-        if (!move_uploaded_file($file['tmp_name'], $target)) {
+        if (!move_uploaded_file($tmpName, $target)) {
             return null;
         }
         return 'assets/img/' . $name;

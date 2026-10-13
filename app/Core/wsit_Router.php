@@ -26,6 +26,15 @@ class wsit_Router
         $this->add('POST', $uri, $action);
     }
 
+    /**
+     * Register a route that must NOT receive a locale prefix (e.g. sitemap.xml,
+     * robots.txt, assets). The bare URI is the only match.
+     */
+    public function addRaw(string $method, string $uri, array $action): void
+    {
+        $this->routes[strtoupper($method)][trim($uri, '/')] = $action;
+    }
+
     public function add(string $method, string $uri, array $action): void
     {
         // Route without a locale prefix.

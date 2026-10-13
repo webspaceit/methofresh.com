@@ -6,7 +6,7 @@
     <a href="<?= e(locale_url('/mf-dashboard/categories/create')) ?>" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold">+ <?= e(trans('admin_add_category')) ?></a>
 </div>
 
-<div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+<div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto">
     <?php if (empty($categories)): ?>
     <p class="text-center text-sm text-stone-400 py-12"><?= e(trans('admin_no_items')) ?></p>
     <?php else: ?>

@@ -5,8 +5,10 @@ namespace App\Controllers;
 use App\Core\wsit_App;
 use App\Core\wsit_Controller;
 use App\Core\wsit_Request;
+use App\Models\wsit_CheckoutVisit;
 use App\Models\wsit_Order;
 use App\Models\wsit_Product;
+use App\Models\wsit_SearchLog;
 use App\Models\wsit_Setting;
 use App\Models\wsit_User;
 
@@ -16,6 +18,8 @@ class wsit_AdminController extends wsit_Controller
     private wsit_Product $productModel;
     private wsit_User $userModel;
     private wsit_Setting $settingModel;
+    private wsit_SearchLog $searchLogModel;
+    private wsit_CheckoutVisit $checkoutVisitModel;
 
     protected function before(): void
     {
@@ -29,18 +33,80 @@ class wsit_AdminController extends wsit_Controller
         $this->productModel = new wsit_Product();
         $this->userModel    = new wsit_User();
         $this->settingModel = new wsit_Setting();
+        $this->searchLogModel = new wsit_SearchLog();
+        $this->checkoutVisitModel = new wsit_CheckoutVisit();
     }
 
-    public function dashboard(): string
+    public function dashboard(wsit_Request $request): string
     {
+        $period = (string)$request->query('period', 'daily');
+        if (!in_array($period, ['daily', 'weekly', 'monthly', 'yearly'], true)) {
+            $period = 'daily';
+        }
+
+        $monthStart = date('Y-m-01 00:00:00');
+        $prevStart  = date('Y-m-01 00:00:00', strtotime('first day of last month'));
+        $todayStart = date('Y-m-d 00:00:00');
+        $yesterday  = date('Y-m-d 00:00:00', strtotime('-1 day'));
+
+        $statusCounts = $this->orderModel->statusCounts();
+
+        $monthRevenue = $this->orderModel->revenueBetween($monthStart);
+        $prevRevenue  = $this->orderModel->revenueBetween($prevStart, $monthStart);
+        $revenueChange = $prevRevenue > 0 ? round((($monthRevenue - $prevRevenue) / $prevRevenue) * 100, 1) : 0.0;
+
+        $todayOrders = $this->orderModel->countBetween($todayStart);
+        $yesterdayOrders = $this->orderModel->countBetween($yesterday);
+        $todayChange = $yesterdayOrders > 0 ? round((($todayOrders - $yesterdayOrders) / $yesterdayOrders) * 100, 1) : 0.0;
+
+        // Storefront search widget — paginated, 10 terms per page.
+        $searchPerPage = 10;
+        $searchPage = max(1, (int)$request->query('search_page', 1));
+        $searchTermsTotal = $this->searchLogModel->countTerms(30);
+        $searchPages = max(1, (int)ceil($searchTermsTotal / $searchPerPage));
+        if ($searchPage > $searchPages) {
+            $searchPage = $searchPages;
+        }
+
         return $this->view('admin/wsit_dashboard', [
-            'pageTitle'    => trans('admin_dashboard') . ' | ' . trans('admin'),
-            'revenue'      => $this->orderModel->revenue(),
-            'ordersCount'  => $this->orderModel->countAll(),
-            'productsCount'=> $this->productModel->countAll(),
-            'customers'    => $this->userModel->count(),
-            'recentOrders' => $this->orderModel->recent(6),
-        ], 'wsit_admin');
+            'pageTitle'       => trans('admin_dashboard') . ' | ' . trans('admin'),
+            'revenue'         => $this->orderModel->revenue(),
+            'ordersCount'     => $this->orderModel->countAll(),
+            'productsCount'   => $this->productModel->countAll(),
+            'customers'       => $this->userModel->count(),
+            'monthRevenue'    => $monthRevenue,
+            'revenueChange'   => $revenueChange,
+            'todayOrders'     => $todayOrders,
+            'yesterdayOrders' => $yesterdayOrders,
+            'todayChange'     => $todayChange,
+            'aov'             => $this->orderModel->averageOrderValue(),
+            'delivery'        => $this->orderModel->deliveryRate(),
+            'daily'           => $this->orderModel->dailySeries(7),
+            'chart'           => [
+                'period' => $period,
+                'daily'   => $this->orderModel->timeSeries('daily', 7),
+                'weekly'  => $this->orderModel->timeSeries('weekly', 8),
+                'monthly' => $this->orderModel->timeSeries('monthly', 12),
+                'yearly'  => $this->orderModel->timeSeries('yearly', 5),
+            ],
+            'payRaw'          => $this->orderModel->paymentMethodTotals(),
+            'statusCounts'    => $statusCounts,
+            'topProducts'     => $this->productModel->topSellers(5),
+            'regions'         => $this->orderModel->regionBreakdown(),
+            'growth'          => $this->productModel->topCategoryGrowth(30),
+            'searchStats'     => $this->searchLogModel->topTerms(30, $searchPerPage, ($searchPage - 1) * $searchPerPage),
+            'searchCount30'   => $this->searchLogModel->countSearches(30),
+            'searchCountToday'=> $this->searchLogModel->countSince(date('Y-m-d 00:00:00')),
+            'searchPage'      => $searchPage,
+            'searchPages'     => $searchPages,
+            'searchPerPage'   => $searchPerPage,
+            'searchTermsTotal'=> $searchTermsTotal,
+            'checkoutFunnel'  => $this->checkoutVisitModel->funnel(),
+            'checkoutGuests'  => $this->checkoutVisitModel->recentGuests(6),
+            'recentOrders'    => $this->orderModel->recentWithItems(6),
+            'totalOrders'     => (int)($statusCounts['pending'] + $statusCounts['processing'] + $statusCounts['shipped'] + $statusCounts['delivered'] + $statusCounts['cancelled']),
+            'pendingCount'    => (int)$statusCounts['pending'],
+        ], 'wsit_admin_material');
     }
 
     public function orders(wsit_Request $request): string
@@ -63,7 +129,7 @@ class wsit_AdminController extends wsit_Controller
             'page'      => $page,
             'pages'     => $pages,
             'total'     => $total,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function orderShow(int $id): string
@@ -78,7 +144,7 @@ class wsit_AdminController extends wsit_Controller
         return $this->view('admin/orders/wsit_show', [
             'pageTitle' => trans('admin_orders') . ' #' . $order['order_number'],
             'order'     => $order,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function ordersJson(wsit_Request $request): void
@@ -94,6 +160,48 @@ class wsit_AdminController extends wsit_Controller
             'count_label' => format_number($count) . ' ' . trans('admin_orders_count'),
             'html'        => $html,
         ]);
+    }
+
+    /**
+     * JSON for the admin header live-search dropdown. Returns locale-ready
+     * (label/badge/price already formatted) lightweight order results.
+     */
+    public function searchJson(wsit_Request $request): void
+    {
+        $q = trim((string)$request->query('q', ''));
+
+        $statusBadges = [
+            'pending'    => 'bg-amber-100 text-amber-700',
+            'processing' => 'bg-sky-100 text-sky-700',
+            'shipped'    => 'bg-indigo-100 text-indigo-700',
+            'delivered'  => 'bg-green-100 text-green-700',
+            'cancelled'  => 'bg-red-100 text-red-700',
+        ];
+        $statusLabels = [
+            'pending'    => trans('status_pending'),
+            'processing' => trans('status_processing'),
+            'shipped'    => trans('status_shipped'),
+            'delivered'  => trans('status_delivered'),
+            'cancelled'  => trans('status_cancelled'),
+        ];
+
+        $results = [];
+        if ($q !== '') {
+            foreach ($this->orderModel->searchLight($q, 8) as $row) {
+                $results[] = [
+                    'id'            => (int)$row['id'],
+                    'order_number'  => (string)$row['order_number'],
+                    'shipping_name' => (string)($row['shipping_name'] ?? ''),
+                    'shipping_phone'=> (string)($row['shipping_phone'] ?? ''),
+                    'total_label'   => '৳ ' . format_number((float)($row['total'] ?? 0)),
+                    'status'        => (string)$row['status'],
+                    'status_label'  => $statusLabels[$row['status']] ?? (string)$row['status'],
+                    'status_badge'  => $statusBadges[$row['status']] ?? 'bg-surface-container text-on-surface-variant',
+                ];
+            }
+        }
+
+        $this->json(['results' => $results]);
     }
 
     public function updateStatus(wsit_Request $request, int $id): void
@@ -122,6 +230,55 @@ class wsit_AdminController extends wsit_Controller
         $this->redirect('/mf-dashboard/orders/' . $id);
     }
 
+    public function customers(): string
+    {
+        $metrics = $this->orderModel->customerMetrics();
+
+        return $this->view('admin/wsit_customers', [
+            'pageTitle'    => trans('admin_customer_analytics') . ' | ' . trans('admin'),
+            'metrics'      => $metrics,
+            'topCustomers' => $this->orderModel->topCustomers(8),
+            'cities'       => $this->orderModel->customersByCity(8),
+        ], 'wsit_admin_material');
+    }
+
+    public function deliveryTracking(wsit_Request $request): string
+    {
+        $filter = (string)$request->query('filter', 'queue');
+        if (!in_array($filter, ['queue', 'delivered', 'all'], true)) {
+            $filter = 'queue';
+        }
+
+        $queue = ($filter === 'queue' || $filter === 'all')
+            ? $this->orderModel->deliveryQueue(15)
+            : [];
+        $delivered = ($filter === 'delivered' || $filter === 'all')
+            ? $this->orderModel->recentlyDelivered(15)
+            : [];
+
+        return $this->view('admin/wsit_delivery-tracking', [
+            'pageTitle'   => trans('admin_delivery_tracking') . ' | ' . trans('admin'),
+            'filter'      => $filter,
+            'queue'       => $queue,
+            'delivered'   => $delivered,
+            'statusCounts'=> $this->orderModel->statusCounts(),
+            'delivery'    => $this->orderModel->deliveryRate(),
+        ], 'wsit_admin_material');
+    }
+
+    public function support(): string
+    {
+        return $this->view('admin/wsit_support', [
+            'pageTitle'    => trans('admin_support') . ' | ' . trans('admin'),
+            'contactEmail' => $this->settingModel->get('contact_email', 'support@methofresh.com'),
+            'phone'        => $this->settingModel->get('footer_phone', '+880 1711-111111'),
+            'address'      => $this->settingModel->get(
+                app_locale() === 'bn' ? 'footer_address_bn' : 'footer_address_en',
+                $this->settingModel->get(app_locale() === 'bn' ? 'footer_address_en' : 'footer_address_bn', '')
+            ),
+        ], 'wsit_admin_material');
+    }
+
     public function settings(): string
     {
         $globalLocale = $this->settingModel->get('default_locale', default_locale());
@@ -130,7 +287,7 @@ class wsit_AdminController extends wsit_Controller
             'pageTitle'     => trans('admin_settings') . ' | ' . trans('admin'),
             'globalLocale'  => $globalLocale,
             'contactEmail'  => $this->settingModel->get('contact_email', 'support@methofresh.com'),
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function updateSettings(wsit_Request $request): void
@@ -143,11 +300,16 @@ class wsit_AdminController extends wsit_Controller
         $locale = $request->input('locale', 'en');
 
         if (is_locale($locale)) {
-            // Save as the site-wide global default — applies to everyone
-            // immediately, logged in or not, on every browser.
             $this->settingModel->set('default_locale', $locale);
             restore_locale($locale);
             $this->flash('success', trans('admin_settings_saved'));
+            // Redirect to the settings page under the newly selected locale URL
+            // so the URL prefix in the browser matches the saved default.
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $path   = locale_url_for($locale, '/mf-dashboard/settings');
+            header('Location: ' . $scheme . '://' . $host . $path);
+            exit;
         }
 
         $this->redirect('/mf-dashboard/settings');
@@ -160,18 +322,25 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/settings');
         }
 
-        // Remove the current logo (same endpoint, form button).
+        // Remove the current logo.
         if ($request->input('remove_logo') === '1') {
             $this->removeStoredLogo();
             $this->flash('success', trans('admin_logo_removed'));
             $this->redirect('/mf-dashboard/settings');
         }
 
+        // Always save dimensions — admin can resize without re-uploading.
+        $h = max(10, min(200, (int)$request->input('logo_height', '40')));
+        $w = max(0,  min(600, (int)$request->input('logo_width',  '0')));
+        $this->settingModel->set('logo_height', (string)$h);
+        $this->settingModel->set('logo_width',  (string)$w);
+
         $file = $request->file('logo');
         $hasFile = $file !== null && ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK;
 
         if (!$hasFile) {
-            $this->flash('error', trans('admin_logo_upload_error'));
+            // No file chosen — dimensions saved, redirect back.
+            $this->flash('success', trans('admin_logo_saved'));
             $this->redirect('/mf-dashboard/settings');
         }
 
@@ -182,8 +351,10 @@ class wsit_AdminController extends wsit_Controller
             'image/webp'    => 'webp',
             'image/svg+xml' => 'svg',
         ];
-        $mime = (string)($file['type'] ?? '');
-        $ext = $allowed[$mime] ?? null;
+        $tmpName = (string)($file['tmp_name'] ?? '');
+        $finfo   = new \finfo(FILEINFO_MIME_TYPE);
+        $mime    = $finfo->file($tmpName) ?: (string)($file['type'] ?? '');
+        $ext     = $allowed[$mime] ?? null;
 
         if ($ext === null || (int)($file['size'] ?? 0) > 2 * 1024 * 1024) {
             $this->flash('error', trans('admin_logo_upload_error'));
@@ -199,7 +370,7 @@ class wsit_AdminController extends wsit_Controller
         $name = 'logo-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
         $dest = $dir . DIRECTORY_SEPARATOR . $name;
 
-        if (!move_uploaded_file((string)$file['tmp_name'], $dest)) {
+        if (!move_uploaded_file($tmpName, $dest)) {
             $this->flash('error', trans('admin_logo_upload_error'));
             $this->redirect('/mf-dashboard/settings');
         }
@@ -253,7 +424,14 @@ class wsit_AdminController extends wsit_Controller
             'image/x-icon'             => 'ico',
             'image/vnd.microsoft.icon' => 'ico',
         ];
-        $mime = (string)($file['type'] ?? '');
+        // Use finfo for real MIME detection — browser-supplied type is unreliable on Windows.
+        $tmpName = (string)($file['tmp_name'] ?? '');
+        $finfo   = new \finfo(FILEINFO_MIME_TYPE);
+        $mime    = $finfo->file($tmpName) ?: (string)($file['type'] ?? '');
+        // .ico files may be detected as application/octet-stream by finfo; fall back to browser MIME.
+        if (!isset($allowed[$mime])) {
+            $mime = (string)($file['type'] ?? '');
+        }
         $ext = $allowed[$mime] ?? null;
 
         if ($ext === null || (int)($file['size'] ?? 0) > 1024 * 1024) {
@@ -270,7 +448,7 @@ class wsit_AdminController extends wsit_Controller
         $name = 'favicon-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
         $dest = $dir . DIRECTORY_SEPARATOR . $name;
 
-        if (!move_uploaded_file((string)$file['tmp_name'], $dest)) {
+        if (!move_uploaded_file($tmpName, $dest)) {
             $this->flash('error', trans('admin_favicon_upload_error'));
             $this->redirect('/mf-dashboard/settings');
         }
@@ -324,13 +502,65 @@ class wsit_AdminController extends wsit_Controller
         $this->redirect('/mf-dashboard/settings');
     }
 
+    public function updateAnnouncement(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        $offers = [];
+        foreach ($request->inputArray('offers') as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $item = [];
+            foreach (['offer_en', 'offer_bn', 'coupon_en', 'coupon_bn', 'code'] as $field) {
+                $item[$field] = trim((string)($row[$field] ?? ''));
+            }
+            if (implode('', $item) === '') {
+                continue; // skip rows with nothing in them
+            }
+            $offers[] = $item;
+        }
+
+        $this->settingModel->set('ann_offers', json_encode($offers, JSON_UNESCAPED_UNICODE));
+        $this->flash('success', trans('admin_announcement_saved'));
+        $this->redirect('/mf-dashboard/settings');
+    }
+
+    public function updateCheckoutCities(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        $cities = [];
+        foreach ($request->inputArray('cities') as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $en = trim((string)($row['name_en'] ?? ''));
+            $bn = trim((string)($row['name_bn'] ?? ''));
+            if ($en === '' && $bn === '') {
+                continue; // rows with nothing in them are not stored
+            }
+            $cities[] = ['name_en' => $en, 'name_bn' => $bn];
+        }
+
+        $this->settingModel->set('checkout_cities', json_encode($cities, JSON_UNESCAPED_UNICODE));
+        $this->flash('success', trans('admin_cities_saved'));
+        $this->redirect('/mf-dashboard/settings');
+    }
+
     public function homepage(): string
     {
         return $this->view('admin/wsit_homepage', [
             'pageTitle' => trans('admin_homepage') . ' | ' . trans('admin'),
             'blocks'    => homepage_blocks(),
             'heroSlides'=> hero_slides(),
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function updateHomepage(wsit_Request $request): void
@@ -341,6 +571,7 @@ class wsit_AdminController extends wsit_Controller
         }
 
         $this->saveHeroSlides($request);
+        $this->saveStoryImage($request);
 
         $this->settingModel->set('hero_speed', (string)hero_carousel_speed_clamped((string)$request->input('hero_speed', '5500')));
         $this->settingModel->set('hero_height', (string)hero_carousel_height_clamped((string)$request->input('hero_height', '540')));
@@ -355,6 +586,23 @@ class wsit_AdminController extends wsit_Controller
                 'title_en' => trim((string)$request->input($key . '_title_en', '')),
                 'title_bn' => trim((string)$request->input($key . '_title_bn', '')),
             ], JSON_UNESCAPED_UNICODE));
+        }
+
+        $homeContent = $request->inputArray('home_content');
+        $allowedKeys = array_merge(
+            ...array_values(array_map(fn($s) => $s['fields'], homepage_sections()['sections']))
+        );
+        $cleanContent = [];
+        foreach ($homeContent as $fieldKey => $value) {
+            if (!in_array($fieldKey, $allowedKeys, true) || !is_array($value)) {
+                continue;
+            }
+            $en = trim((string)($value['en'] ?? ''));
+            $bn = trim((string)($value['bn'] ?? ''));
+            $cleanContent[$fieldKey] = ['en' => $en, 'bn' => $bn];
+        }
+        if (array_key_exists('home_content', $request->all())) {
+            $this->settingModel->set('home_content', json_encode($cleanContent, JSON_UNESCAPED_UNICODE));
         }
 
         $this->flash('success', trans('admin_saved'));
@@ -443,8 +691,10 @@ class wsit_AdminController extends wsit_Controller
             'image/gif'  => 'gif',
             'image/webp' => 'webp',
         ];
-        $mime = (string)($item['type'] ?? '');
-        $ext = $allowed[$mime] ?? null;
+        $tmpName = (string)($item['tmp_name'] ?? '');
+        $finfo   = new \finfo(FILEINFO_MIME_TYPE);
+        $mime    = $finfo->file($tmpName) ?: (string)($item['type'] ?? '');
+        $ext     = $allowed[$mime] ?? null;
 
         if ($ext === null || (int)($item['size'] ?? 0) > 4 * 1024 * 1024) {
             return null;
@@ -458,11 +708,75 @@ class wsit_AdminController extends wsit_Controller
         $name = 'hero-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
         $dest = $dir . DIRECTORY_SEPARATOR . $name;
 
-        if (!move_uploaded_file((string)$item['tmp_name'], $dest)) {
+        if (!move_uploaded_file($tmpName, $dest)) {
             return null;
         }
 
         return 'assets/img/uploads/' . $name;
+    }
+
+    /**
+     * Handle the dedicated "Our Story" section image upload and removal.
+     */
+    private function saveStoryImage(wsit_Request $request): void
+    {
+        // Explicit removal requested.
+        if ($request->input('remove_story_image') === '1') {
+            $this->removeStoryImage();
+            return;
+        }
+
+        $file = $_FILES['story_image_file'] ?? null;
+        if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return; // No upload — leave existing setting untouched.
+        }
+
+        $allowed = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+        ];
+        $tmpName = (string)($file['tmp_name'] ?? '');
+        $finfo   = new \finfo(FILEINFO_MIME_TYPE);
+        $mime    = $finfo->file($tmpName) ?: (string)($file['type'] ?? '');
+        $ext     = $allowed[$mime] ?? null;
+
+        if ($ext === null || (int)($file['size'] ?? 0) > 4 * 1024 * 1024) {
+            $this->flash('error', trans('admin_story_image_upload_error'));
+            return;
+        }
+
+        $dir = public_path('assets/img/uploads');
+        if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+            return;
+        }
+
+        $name = 'story-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+        $dest = $dir . DIRECTORY_SEPARATOR . $name;
+
+        if (!move_uploaded_file($tmpName, $dest)) {
+            return;
+        }
+
+        $this->removeStoryImage(); // Delete old file before saving new path.
+        $this->settingModel->set('story_image', 'assets/img/uploads/' . $name);
+    }
+
+    /**
+     * Delete the uploaded story image file and clear its setting.
+     * Only removes files stored under assets/img/uploads/story-*.
+     */
+    private function removeStoryImage(): void
+    {
+        $current = $this->settingModel->get('story_image', '');
+        if ($current !== '' && str_starts_with($current, 'assets/img/uploads/story-')) {
+            $file = public_path($current);
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+        $this->settingModel->set('story_image', '');
     }
 
     /**
@@ -485,7 +799,7 @@ class wsit_AdminController extends wsit_Controller
     {
         return $this->view('admin/wsit_footer', [
             'pageTitle' => trans('admin_footer') . ' | ' . trans('admin'),
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function updateFooter(wsit_Request $request): void
@@ -539,6 +853,54 @@ class wsit_AdminController extends wsit_Controller
         }
 
         $this->settingModel->set('footer_quick_links', json_encode($links, JSON_UNESCAPED_UNICODE));
+    }
+
+    public function updateNavMenu(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        $raw     = $request->inputArray('nav_menu', []);
+        $removes = $request->inputArray('nav_menu_remove', []);
+        $items   = [];
+
+        foreach ($raw as $key => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            if (!empty($removes[$key])) {
+                continue;
+            }
+            $labelEn = trim((string)($item['label_en'] ?? ''));
+            $labelBn = trim((string)($item['label_bn'] ?? ''));
+            $url     = trim((string)($item['url'] ?? ''));
+            if ($labelEn === '' && $labelBn === '' && $url === '') {
+                continue;
+            }
+            $icon = trim((string)($item['icon'] ?? ''));
+            if ($icon !== '' && !nav_icon_valid($icon)) {
+                $icon = '';
+            }
+            $items[] = [
+                'label_en' => $labelEn,
+                'label_bn' => $labelBn,
+                'url'      => $url,
+                'icon'     => $icon,
+                'target'   => empty($item['target']) ? 0 : 1,
+                'enabled'  => empty($item['enabled']) ? 0 : 1,
+                'order'    => max(0, (int)($item['order'] ?? 0)),
+            ];
+        }
+
+        // Stable sort by the admin-set order number.
+        usort($items, static fn(array $a, array $b): int => $a['order'] <=> $b['order']);
+
+        $this->settingModel->set('nav_menu', json_encode($items, JSON_UNESCAPED_UNICODE));
+
+        $this->flash('success', trans('admin_saved'));
+        $this->redirect('/mf-dashboard/settings');
     }
 
     public function translate(wsit_Request $request): void
@@ -602,7 +964,6 @@ class wsit_AdminController extends wsit_Controller
             ],
         ]);
         $response = curl_exec($ch);
-        curl_close($ch);
 
         if (!is_string($response) || $response === '') {
             return '';
@@ -643,7 +1004,6 @@ class wsit_AdminController extends wsit_Controller
             CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         ]);
         $response = curl_exec($ch);
-        curl_close($ch);
 
         if (!is_string($response) || $response === '') {
             return '';
@@ -662,7 +1022,7 @@ class wsit_AdminController extends wsit_Controller
         return $this->view('admin/wsit_payment-methods', [
             'pageTitle' => trans('admin_payment_methods') . ' | ' . trans('admin'),
             'methods'   => payment_methods_config(),
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function updatePaymentMethods(wsit_Request $request): void
@@ -702,5 +1062,89 @@ class wsit_AdminController extends wsit_Controller
 
         $this->flash('success', trans('payment_methods_saved'));
         $this->redirect('/mf-dashboard/payment-methods');
+    }
+
+    public function shippingMethods(): string
+    {
+        return $this->view('admin/wsit_shipping', [
+            'pageTitle' => trans('admin_shipping_methods') . ' | ' . trans('admin'),
+            'shipping'  => shipping_config(),
+        ], 'wsit_admin_material');
+    }
+
+    public function updateShippingMethods(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/shipping');
+        }
+
+        $cleaned = [];
+        foreach ((array)$request->inputArray('methods') as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $nameEn = trim((string)($row['name_en'] ?? ''));
+            $nameBn = trim((string)($row['name_bn'] ?? ''));
+            $base   = trim((string)($row['base'] ?? ''));
+            $perKg  = trim((string)($row['per_kg'] ?? ''));
+            $areas  = trim((string)($row['areas'] ?? ''));
+            $exclude = trim((string)($row['exclude'] ?? ''));
+
+            // Rows the admin left completely blank (the "add" template) are
+            // not stored — same rule as the announcement-offer rows.
+            if ($nameEn === '' && $nameBn === '' && $base === '' && $perKg === ''
+                && $areas === '' && $exclude === '') {
+                continue;
+            }
+
+            $cleaned[] = [
+                'id'      => trim((string)($row['id'] ?? '')) !== '' ? trim((string)$row['id']) : ('m' . uniqid()),
+                'name_en' => $nameEn,
+                'name_bn' => $nameBn,
+                'enabled' => !empty($row['enabled']),
+                'base'    => max(0.0, (float)$base),
+                'per_kg'  => max(0.0, (float)$perKg),
+                'areas'   => $areas,
+                'exclude' => $exclude,
+            ];
+        }
+
+        $this->settingModel->set('shipping_config', json_encode([
+            'enabled'   => $request->input('shipping_enabled') ? 1 : 0,
+            'free_over' => max(0.0, (float)$request->input('free_over', 500)),
+            'methods'   => $cleaned,
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->flash('success', trans('admin_shipping_saved'));
+        $this->redirect('/mf-dashboard/shipping');
+    }
+
+    /**
+     * Persist the Facebook Pixel configuration (pixel ID, master switch,
+     * test mode and per-event toggles) using the dedicated model.
+     */
+    public function updateFacebookPixel(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        $pixelModel = new \App\Models\wsit_FacebookPixel();
+        $pixelModel->save([
+            'pixel_id'  => $request->input('facebook_pixel_id', ''),
+            'enabled'   => $request->input('facebook_pixel_enabled', '0') === '1' ? '1' : '0',
+            'test_mode' => $request->input('facebook_pixel_test_mode', '0') === '1' ? '1' : '0',
+            'events'    => [
+                'view_content'      => $request->input('facebook_pixel_event_view_content', '0') === '1' ? '1' : '0',
+                'add_to_cart'       => $request->input('facebook_pixel_event_add_to_cart', '0') === '1' ? '1' : '0',
+                'initiate_checkout' => $request->input('facebook_pixel_event_initiate_checkout', '0') === '1' ? '1' : '0',
+                'purchase'          => $request->input('facebook_pixel_event_purchase', '0') === '1' ? '1' : '0',
+            ],
+        ]);
+
+        $this->flash('success', trans('admin_facebook_pixel_saved'));
+        $this->redirect('/mf-dashboard/settings');
     }
 }

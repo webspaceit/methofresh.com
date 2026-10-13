@@ -23,7 +23,7 @@ $statusColors = [
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-stone-900"><?= e(trans('account')) ?></h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-brand-800"><?= e(trans('account')) ?></h1>
             <p class="text-sm text-stone-500 mt-1"><?= e(trans('account_greeting')) ?> <span class="font-semibold text-stone-700"><?= e(user_display_name($user)) ?></span></p>
         </div>
         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -44,19 +44,19 @@ $statusColors = [
         </div>
     </div>
 
-    <h2 class="font-bold text-lg text-stone-900 mb-4"><?= e(trans('order_history')) ?></h2>
+    <h2 class="font-bold text-lg text-brand-800 mb-4"><?= e(trans('order_history')) ?></h2>
 
     <?php if (empty($orders)): ?>
-    <div class="text-center py-16 bg-white rounded-3xl border border-stone-200">
+    <div class="text-center py-16 bg-card rounded-3xl border border-honey-600/15">
         <p class="text-6xl mb-4">📦</p>
-        <h3 class="font-bold text-stone-800"><?= e(trans('no_orders')) ?></h3>
+        <h3 class="font-bold text-brand-800"><?= e(trans('no_orders')) ?></h3>
         <p class="text-sm text-stone-500 mt-1"><?= e(trans('no_orders_hint')) ?></p>
     </div>
     <?php else: ?>
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr class="text-left text-xs text-stone-500 border-b border-stone-100 uppercase">
+                <tr class="text-left text-xs text-stone-500 border-b border-honey-600/15 uppercase">
                     <th class="px-4 py-3 font-semibold"><?= e(trans('order_number_col')) ?></th>
                     <th class="px-4 py-3 font-semibold"><?= e(trans('date')) ?></th>
                     <th class="px-4 py-3 font-semibold"><?= e(trans('status')) ?></th>
@@ -66,7 +66,7 @@ $statusColors = [
             </thead>
             <tbody>
                 <?php foreach ($orders as $order): ?>
-                <tr class="border-b border-stone-50 last:border-0 hover:bg-stone-50">
+                <tr class="border-b border-honey-600/15 last:border-0 hover:bg-honey-100/40">
                     <td class="px-4 py-3 font-bold text-brand-700"><?= e($order['order_number']) ?></td>
                     <td class="px-4 py-3 text-stone-500"><?= e(format_date($order['created_at'], 'd M Y')) ?></td>
                     <td class="px-4 py-3"><span class="inline-block rounded-full px-2.5 py-1 text-[11px] font-bold <?= $statusColors[$order['status']] ?? 'bg-stone-100 text-stone-600' ?>"><?= e($statusLabels[$order['status']] ?? $order['status']) ?></span></td>

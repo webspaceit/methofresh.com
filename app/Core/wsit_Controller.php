@@ -43,6 +43,11 @@ abstract class wsit_Controller
     protected function json(array $data, int $status = 200): void
     {
         http_response_code($status);
+        // Drop anything already echoed (stray whitespace, PHP notices) so the
+        // body is always a single valid JSON document.
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: application/json');
         echo json_encode($data);
         exit;

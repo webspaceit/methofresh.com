@@ -1,8 +1,8 @@
 <?php
 $priceInfo = price_display($product);
-$image = $product['image'] ?? '';
-$imgUrl = image_url($image, $product['name'] ?? '', 600);
-$inStock = (int)$product['stock'] > 0;
+$productName = $product['name'] ?? '';
+$productPrice = $priceInfo['current'];
+$currency = app_locale() === 'bn' ? 'BDT' : 'USD';
 ?>
 <section class="max-w-7xl mx-auto px-4 py-8">
     <nav class="text-xs text-stone-400 mb-6">
@@ -13,9 +13,25 @@ $inStock = (int)$product['stock'] > 0;
         <span class="text-stone-600"><?= e($product['name']) ?></span>
     </nav>
 
+    <?php if (facebook_pixel_enabled() && facebook_pixel_event_enabled('view_content')): ?>
+    <script>
+    (function () {
+        if (typeof fbq === 'function') {
+            fbq('track', 'ViewContent', {
+                content_ids: ['<?= e($product['id']) ?>'],
+                content_name: '<?= e($productName) ?>',
+                content_type: 'product',
+                currency: '<?= e($currency) ?>',
+                value: <?= (float)$productPrice ?>
+            });
+        }
+    })();
+    </script>
+    <?php endif; ?>
+
     <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
         <!-- Image -->
-        <div class="relative rounded-3xl overflow-hidden bg-stone-100 border border-stone-200 aspect-square lg:sticky lg:top-24">
+        <div class="relative rounded-3xl overflow-hidden bg-honey-100/40 border border-honey-600/15 aspect-square lg:sticky lg:top-24">
             <img src="<?= e($imgUrl) ?>" alt="<?= e($product['name']) ?>" class="w-full h-full object-cover">
             <?php if ($priceInfo['discount'] > 0): ?>
             <span class="absolute top-4 left-4 bg-red-600 text-white text-sm font-bold px-3 py-1.5 rounded-xl">-<?= e(format_number((int)$priceInfo['discount'])) ?>%</span>
@@ -27,7 +43,7 @@ $inStock = (int)$product['stock'] > 0;
             <a href="<?= e(locale_url('/categories/' . $product['category_slug'])) ?>" class="inline-block text-xs font-bold text-brand-700 uppercase tracking-wider bg-brand-50 px-3 py-1 rounded-lg">
                 <?= e($product['category_name']) ?>
             </a>
-            <h1 class="mt-3 text-2xl sm:text-3xl font-extrabold text-stone-900"><?= e($product['name']) ?></h1>
+            <h1 class="mt-3 text-2xl sm:text-3xl font-extrabold text-brand-800"><?= e($product['name']) ?></h1>
 
             <div class="mt-3 flex items-center gap-2 text-sm text-stone-500">
                 <span class="inline-flex items-center gap-1 rounded-full bg-green-50 text-green-700 px-3 py-1 text-xs font-semibold">
@@ -52,7 +68,7 @@ $inStock = (int)$product['stock'] > 0;
 
             <!-- Quantity + add to cart -->
             <div class="mt-6 flex flex-wrap items-center gap-3" x-data="{ qty: 1 }">
-                <div class="flex items-center rounded-xl border border-stone-200 bg-white">
+                <div class="flex items-center rounded-xl border border-honey-600/15 bg-cream">
                     <button @click="qty = Math.max(1, qty - 1)" class="px-4 py-3 text-lg font-bold text-stone-500 hover:text-brand-700">−</button>
                     <input type="number" x-model="qty" min="1" max="<?= (int)$product['stock'] ?>" readonly
                            class="w-14 text-center text-sm font-bold focus:outline-none bg-transparent">
@@ -60,7 +76,7 @@ $inStock = (int)$product['stock'] > 0;
                 </div>
 
                 <?php if ($inStock): ?>
-                <button @click="addToCart(<?= (int)$product['id'] ?>, qty)"
+                <button @click="if (window.store) window.store.addToCart(<?= (int)$product['id'] ?>, qty); if (window.store) window.store.trackAddToCart(<?= (int)$product['id'] ?>, qty, '<?= e($productName) ?>', <?= (float)$productPrice ?>, '<?= e($currency) ?>')"
                         class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold px-8 py-3.5 text-sm transition shadow-lg shadow-brand-600/20">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     <?= e(trans('add_to_cart')) ?>
@@ -75,8 +91,8 @@ $inStock = (int)$product['stock'] > 0;
             <p class="mt-3 text-xs text-stone-400"><?= e(trans('promo_hint')) ?></p>
 
             <!-- Description -->
-            <div class="mt-8 border-t border-stone-200 pt-6">
-                <h2 class="text-lg font-bold text-stone-900 mb-2"><?= e(trans('description')) ?></h2>
+            <div class="mt-8 border-t border-honey-600/15 pt-6">
+                <h2 class="text-lg font-bold text-brand-800 mb-2"><?= e(trans('description')) ?></h2>
                 <p class="text-sm leading-relaxed text-stone-600 whitespace-pre-line"><?= e($product['description']) ?></p>
             </div>
         </div>
@@ -85,7 +101,7 @@ $inStock = (int)$product['stock'] > 0;
     <?php if (!empty($related)): ?>
     <section class="mt-14">
         <div class="flex items-end justify-between mb-5">
-            <h2 class="text-xl sm:text-2xl font-extrabold text-stone-900"><?= e(trans('related_products')) ?></h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-brand-800"><?= e(trans('related_products')) ?></h2>
             <a href="<?= e(locale_url('/categories/' . $product['category_slug'])) ?>" class="text-sm font-semibold text-brand-700 hover:underline"><?= e(trans('view_all')) ?> →</a>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

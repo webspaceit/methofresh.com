@@ -31,7 +31,7 @@ class wsit_AdminCategoryController extends wsit_Controller
         return $this->view('admin/categories/wsit_index', [
             'pageTitle' => trans('admin_categories') . ' | ' . trans('admin'),
             'categories'=> $categories,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function create(): string
@@ -39,7 +39,7 @@ class wsit_AdminCategoryController extends wsit_Controller
         return $this->view('admin/categories/wsit_form', [
             'pageTitle' => trans('admin_add_category') . ' | ' . trans('admin'),
             'category'  => null,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function edit(int $id): string
@@ -51,7 +51,7 @@ class wsit_AdminCategoryController extends wsit_Controller
         return $this->view('admin/categories/wsit_form', [
             'pageTitle' => trans('admin_edit_category') . ' | ' . trans('admin'),
             'category'  => $category,
-        ], 'wsit_admin');
+        ], 'wsit_admin_material');
     }
 
     public function store(wsit_Request $request): void

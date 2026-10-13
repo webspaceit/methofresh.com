@@ -55,11 +55,13 @@ CREATE TABLE IF NOT EXISTS wsit_products (
     price          DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     sale_price     DECIMAL(10,2) DEFAULT NULL,
     stock          INT NOT NULL DEFAULT 0,
+    weight         DECIMAL(8,3) NOT NULL DEFAULT 0.000,
     image          VARCHAR(255) DEFAULT NULL,
     active         TINYINT(1) NOT NULL DEFAULT 1,
     featured       TINYINT(1) NOT NULL DEFAULT 0,
     new_arrival    TINYINT(1) NOT NULL DEFAULT 0,
     sold           INT NOT NULL DEFAULT 0,
+    search_key     TEXT DEFAULT NULL,
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_products_category
       FOREIGN KEY (category_id) REFERENCES wsit_categories(id) ON DELETE CASCADE,
@@ -87,6 +89,7 @@ CREATE TABLE IF NOT EXISTS wsit_orders (
     shipping_address VARCHAR(255) NOT NULL,
     shipping_city   VARCHAR(120) NOT NULL,
     shipping_postal VARCHAR(20)  DEFAULT NULL,
+    shipping_method VARCHAR(120) DEFAULT NULL,
     notes           TEXT DEFAULT NULL,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_orders_user (user_id),
@@ -150,6 +153,40 @@ CREATE TABLE IF NOT EXISTS wsit_contact_messages (
     INDEX idx_contact_read (is_read)
 ) ENGINE=InnoDB;
 
+-- ---------------------------------------------------------------------------
+-- Storefront search log (drives the admin dashboard "most searched" widget)
+-- One row per search performed on the catalog results page.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wsit_search_logs (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    query       VARCHAR(255) NOT NULL,
+    query_norm  VARCHAR(255) NOT NULL DEFAULT '',
+    locale      VARCHAR(5)  NOT NULL DEFAULT 'en',
+    hits        INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_search_logs_created (created_at),
+    INDEX idx_search_logs_query (query)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------------
+-- Checkout funnel (drives the admin dashboard "Checkout funnel" widget)
+-- One row per visitor session per 30-minute window (refreshes merge).
+-- user_id NULL = unregistered guest; converted = the session later ordered.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wsit_checkout_visits (
+    id            INT UNSIGNED  AUTO_INCREMENT PRIMARY KEY,
+    user_id       INT UNSIGNED  NULL,
+    session_hash  CHAR(64)      NOT NULL,
+    ip            VARCHAR(45)   NOT NULL DEFAULT '',
+    referrer      VARCHAR(512)  NOT NULL DEFAULT '',
+    cart_value    DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    cart_items    TEXT          NULL,   -- JSON snapshot: [{id,en,bn,qty}, ...]
+    converted     TINYINT(1)    NOT NULL DEFAULT 0,
+    created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_cv_created (created_at),
+    INDEX idx_cv_session (session_hash, created_at)
+) ENGINE=InnoDB;
+
 -- ===========================================================================
 -- SEED DATA
 -- ===========================================================================
@@ -164,8 +201,8 @@ INSERT INTO wsit_settings (`key`, `value`) VALUES ('default_locale', 'en')
 
 -- Editable footer / copyright defaults (admin -> Footer page)
 INSERT INTO wsit_settings (`key`, `value`) VALUES
-('footer_about_en',   'MethoFresh delivers fresh groceries and everyday essentials right to your doorstep, at prices that make sense.'),
-('footer_about_bn',   'মেঠোফ্রেশ আপনার দরজায় তাজা সবজি ও প্রতিদিনের প্রয়োজনীয় পণ্য পৌঁছে দেয়, যুক্তিসঙ্গত দামে।'),
+('footer_about_en',   'MethoFresh brings pure date palm gur, patali, cold-pressed mustard oil and village spices straight from the producers to your home.'),
+('footer_about_bn',   'মেঠোফ্রেশ উৎপাদকের কাছ থেকে সরাসরি আপনার বাড়িতে পৌঁছে দেয় খাঁটি খেজুরের গুড়, পাটালি, ঘানিভাঙা সরিষার তেল ও গ্রামীণ মসলা।'),
 ('footer_email',      'support@methofresh.com'),
 ('footer_phone',      '+880 1711-111111'),
 ('footer_address_en', 'House 12, Road 5, Dhanmondi, Dhaka — Bangladesh'),
@@ -177,8 +214,8 @@ INSERT INTO wsit_settings (`key`, `value`) VALUES
 -- CMS pages shown in the header menu and footer
 INSERT INTO wsit_pages (slug, title_en, title_bn, content_en, content_bn, image, menu_order, active) VALUES
 ('about', 'About Us', 'আমাদের সম্পর্কে',
- '<p>MethoFresh is a fresh grocery delivery service bringing vegetables, fruits, dairy and everyday essentials straight from trusted farms and suppliers to your doorstep.</p><p>We carefully select every item so your family gets the freshest produce at fair prices.</p>',
- '<p>মেঠোফ্রেশ একটি তাজা মুদিখানা ডেলিভারি পরিষেবা — বিশ্বস্ত খামার ও সরবরাহকারীদের থেকে শাকসবজি, ফল, দুধ ও প্রতিদিনের প্রয়োজনীয় জিনিস সরাসরি আপনার দরজায় পৌঁছে দেয়।</p><p>আমরা প্রতিটি পণ্য যত্নসহকারে বেছে নিই, যাতে আপনার পরিবার যুক্তিসঙ্গত দামে সেরা তাজা পণ্য পায়।</p>',
+ '<p>MethoFresh is a village-to-home delivery service for pure date palm gur, patali, cold-pressed mustard oil and ground spices.</p><p>Every bottle and box travels straight from the gachhi\'s clay pot and the village ghani to your doorstep — no middlemen, no adulteration, just the taste of the winter grove.</p>',
+ '<p>মেঠোফ্রেশ একটি গ্রাম-থেকে-ঘরে ডেলিভারি পরিষেবা — খাঁটি খেজুরের গুড়, পাটালি, ঘানিভাঙা সরিষার তেল ও গুঁড়া মসলা তুলে আনে উৎপাদকের কাছ থেকে।</p><p>প্রতিটি বোতল ও বাক্স গাছির মাটির হাঁড়ি আর গ্রামের ঘানি থেকে সোজা পৌঁছে যায় আপনার দরজায় — মাঝখানে কোনো ফড়িয়া নেই, নেই ভেজাল, শুধু শীতের গাছতলার স্বাদ।</p>',
  NULL, 1, 1),
 ('contact', 'Contact Us', 'যোগাযোগ',
  '<p>Have questions about an order, availability, or delivery? We are here to help.</p><p>Email: support@methofresh.com<br>Phone: +880 1711-111111</p>',
@@ -186,53 +223,36 @@ INSERT INTO wsit_pages (slug, title_en, title_bn, content_en, content_bn, image,
  NULL, 2, 1);
 
 INSERT INTO wsit_categories (slug, name_en, name_bn, description_en, description_bn, image) VALUES
-('vegetables',   'Vegetables',   'শাকসবজি',   'Fresh seasonal vegetables from local farms.', 'স্থানীয় খামার থেকে তাজা মৌসুমি শাকসবজি।', 'assets/img/cat-vegetables.jpg'),
-('fruits',       'Fruits',       'ফল',        'Juicy hand-picked fruits, ripe and ready.',  'পাকা ও সুস্বাদু হাতে বাছাই করা ফল।', 'assets/img/cat-fruits.jpg'),
-('dairy',        'Dairy & Eggs', 'দুধ ও ডিম', 'Farm-fresh milk, eggs and dairy products.',   'খামারের তাজা দুধ, ডিম ও দুগ্ধজাত পণ্য।', 'assets/img/cat-dairy.jpg'),
-('staples',      'Staples',      'নিত্যদিন',  'Rice, lentils, oil and kitchen essentials.',  'চাল, ডাল, তেল ও রান্নাঘরের নিত্যদিনের জিনিস।', 'assets/img/cat-staples.jpg');
+('gur',          'Date Palm Gur', 'খেজুরের গুড়', 'Unrefined date palm gur — liquid, dense jhola and premium nolen gur.', 'ভেজালবিহীন খেজুরের গুড় — তরল, ঝোলা ও প্রিমিয়াম নলেন গুড়।', 'gur.svg'),
+('patali',       'Patali',        'পাটালি',      'Pressed date palm jaggery cakes, sweetened by the winter dew.', 'শীতের শিশিরে মধুর হয়ে ওঠা, চাপে বসানো খেজুরের পাটালি গুড়।', 'patali.svg'),
+('mustard-oil',  'Mustard Oil',   'সরিষার তেল',  'Cold-pressed kachi ghani mustard oil from village ghanis.', 'গ্রামের ঘানিভাঙা খাঁটি সরিষার তেল।', 'mustard-oil.svg'),
+('spices',       'Spices',        'মসলা',        'Stone-ground pure spice powders, packed right at the source.', 'উৎপাদকের কাছ থেকে চাক্কিভাঙা খাঁটি গুঁড়া মসলা।', 'spices.svg');
 
-INSERT INTO wsit_products (category_id, slug, sku, name_en, name_bn, description_en, description_bn, price, sale_price, stock, image, active, featured, sold) VALUES
-(1, 'fresh-tomatoes',          'VEG-001', 'Fresh Tomatoes',          'তাজা টমেটো',            'Plump, juicy ripe tomatoes. Ideal for salads and curries.', 'রসালো পাকা টমেটো। সালাদ ও তরকারির জন্য উপযুক্ত।', 45.00, 35.00, 120, 'assets/img/tomato.jpg', 1, 1, 340),
-(1, 'green-capsicum',          'VEG-002', 'Green Capsicum',          'সবুজ ক্যাপসিকাম',       'Crunchy green capsicum, nutrient packed.', 'কুড়মুড়ে সবুজ ক্যাপসিকাম, পুষ্টিতে ভরপুর।', 60.00, NULL, 80, 'assets/img/capsicum.jpg', 1, 1, 210),
-(1, 'red-onion',               'VEG-003', 'Red Onion',               'লাল পেঁয়াজ',            'Sweet red onions, freshly harvested.', 'মিষ্টি স্বাদের লাল পেঁয়াজ, সদ্য খামার থেকে।', 55.00, 50.00, 300, 'assets/img/onion.jpg', 1, 0, 500),
-(2, 'mango-himsagar',          'FRU-001', 'Himsagar Mango',          'হিমসাগর আম',             'Smooth, fiber-free sweet Himsagar mango. Bengal favorite.', 'রেশমী, আঁশহীন মিষ্টি হিমসাগর আম। বাংলার প্রিয়।', 220.00, 180.00, 60, 'assets/img/mango.jpg', 1, 1, 420),
-(2, 'cavendish-banana',        'FRU-002', 'Cavendish Banana',        'ক্যাভেন্ডিশ কলা',        'Energy-rich Cavendish bananas, bunch fresh.', 'শক্তির উৎস ক্যাভেন্ডিশ কলা, তাজা কাঁদি।', 35.00, NULL, 200, 'assets/img/banana.jpg', 1, 0, 380),
-(3, 'farm-eggs-6pcs',          'DAI-001', 'Farm Eggs (6 pcs)',       'ফার্মের ডিম (৬টি)',      'Protein-rich brown farm eggs, 6 pieces tray.', 'প্রোটিনসমৃদ্ধ বাদামি ফার্মের ডিম, ৬টি।', 78.00, 70.00, 150, 'assets/img/eggs.jpg', 1, 1, 460),
-(3, 'full-cream-milk-1l',      'DAI-002', 'Full Cream Milk (1L)',    'ফুল ক্রিম দুধ (১ লিটার)', 'Pure full cream pasteurized milk.', 'খাঁটি ফুল ক্রিম পাস্তুরিত দুধ।', 95.00, NULL, 90, 'assets/img/milk.jpg', 1, 0, 300),
-(4, 'minicate-rice-5kg',       'STP-001', 'Minicate Rice (5kg)',     'মিনিকেট চাল (৫ কেজি)',  'Aromatic local Minicate rice, 5 kg bag.', 'সুগন্ধি দেশি মিনিকেট চাল, ৫ কেজি ব্যাগ।', 650.00, 620.00, 40, 'assets/img/rice.jpg', 1, 1, 150),
-(4, 'red-lentils-1kg',         'STP-002', 'Red Lentils (1kg)',       'মসুর ডাল (১ কেজি)',     'Clean premium red lentils, 1 kg pack.', 'পরিষ্কার প্রিমিয়াম মসুর ডাল, ১ কেজি প্যাক।', 140.00, NULL, 100, 'assets/img/lentils.jpg', 1, 0, 260),
-(1, 'carrot',                  'VEG-004', 'Carrots',                 'গাজর',                   'Crunchy orange carrots, rich in vitamin A.', 'কুড়মুড়ে কমলা গাজর, ভিটামিন এ সমৃদ্ধ।', 40.00, 36.00, 95, 'assets/img/carrot.jpg', 1, 1, 290),
-(2, 'lychee-bombai',           'FRU-003', 'Bombai Lychee',           'বোম্বাই লিচু',           'Sweet juicy Bombai lychees, premium gift grade.', 'মিষ্টি রসালো বোম্বাই লিচু, প্রিমিয়াম গ্রেড।', 180.00, NULL, 50, 'assets/img/lychee.jpg', 1, 1, 175),
-(4, 'mustard-oil-1l',          'STP-003', 'Mustard Oil (1L)',        'সরিষার তেল (১ লিটার)',  'Cold-pressed pungent mustard oil, 1 litre.', 'ঠান্ডা চাপা সরিষার তেল, তীব্র স্বাদ, ১ লিটার।', 210.00, NULL, 70, 'assets/img/oil.jpg', 1, 0, 220),
-(1, 'fresh-cucumber',          'VEG-005', 'Fresh Cucumber',          'তাজা সাদফল',             'Crisp, cool cucumbers with tender skin.', 'সুগন্ধি কুরকুরে সাদফল, প্রাচীন ছাল।', 35.00, 28.00, 110, 'assets/img/cucumber.jpg', 1, 1, 185),
-(1, 'bottle-gourd',            'VEG-006', 'Bottle Gourd',            'লালার শাক',              'Fresh bottle gourd, tender and mild.', 'তাজা লালার শাক, কোমল ও মাইথুনি।', 48.00, NULL, 75, 'assets/img/bottle-gourd.jpg', 1, 0, 140),
-(1, 'cauliflower',             'VEG-007', 'Fresh Cauliflower',       'ফুলকচ্ছপি',            'White cauliflower florets, perfectly firm.', 'সাদা ফুলকচ্ছপির টুকরা, ভালো দৃঢ়।', 70.00, 60.00, 55, 'assets/img/cauliflower.jpg', 1, 1, 210),
-(1, 'spinach-palak',           'VEG-008', 'Spinach (Palak)',         'পালংশাক',               'Dark green leafy spinach, iron rich.', 'গাঢ় সবুজ পালংশাক, আয়রণ সমৃদ্ধ।', 40.00, 32.00, 130, 'assets/img/spinach.jpg', 1, 0, 300),
-(1, 'broccoli',                'VEG-009', 'Fresh Broccoli',          'ব্রকোলি',                'Nutritious green broccoli crowns, fresh-cut.', 'পুষ্টিকর সবুজ ব্রকোলির মুকুল, তাজা।', 130.00, 95.00, 40, 'assets/img/broccoli.jpg', 1, 1, 165),
-(1, 'purple-eggplant',         'VEG-010', 'Purple Eggplant',         'বাংলা বাদাঁকি',         'Glossy purple eggplant, firm and fresh.', 'চমদার বাদামি রংধনু বাদাঁকি, দৃঢ় ও তাজা।', 55.00, NULL, 65, 'assets/img/eggplant.jpg', 1, 0, 190),
-(2, 'ripe-papaya',             'FRU-004', 'Ripe Papaya',             ' পাকা থাইটি',           'Sweet ripe papaya, tender flesh.', 'মিষ্টি পাকা থাইটি, কোমল মাংস।', 55.00, 45.00, 50, 'assets/img/papaya.jpg', 1, 1, 130),
-(2, 'pineapple',               'FRU-005', 'Fresh Pineapple',         'আনানাস',                'Juicy golden pineapple, crown fresh.', 'রসালো সোনালি আনানাস, স্রোত তাজা।', 110.00, 95.00, 35, 'assets/img/pineapple.jpg', 1, 1, 175),
-(2, 'watermelon',              'FRU-006', 'Seedless Watermelon',     ' বীজহীন তরমুজ',        'Cool, refreshing seedless watermelon.', 'শীতল তাজা বীজহীন তরমুজ।', 48.00, 38.00, 45, 'assets/img/watermelon.jpg', 1, 0, 220),
-(2, 'guava',                   'FRU-007', 'Pink Guava',              'গুয়াবা',                'Sweet-tart pink guava, fragrant and tasty.', 'মিষ্টি-টার্ট গুলাবি গুয়াবা, সুগন্ধি ও স্বাদিষ্ট।', 90.00, 75.00, 60, 'assets/img/guava.jpg', 1, 0, 160),
-(2, 'red-apple',               'FRU-008', 'Red Apple',               'রেড আপেল',             'Crisp red apples, sweet and juicy.', 'কুড়মুড়ে লাল আপেল, মিষ্টি ও রসালো।', 200.00, 180.00, 40, 'assets/img/apple.jpg', 1, 0, 110),
-(2, 'strawberry',              'FRU-009', 'Fresh Strawberries',      'স্ট্রবেরি',            'Plump red strawberries, farm fresh.', 'গোলমেল লাল স্ট্রবেরি, ফার্ম তাজা।', 260.00, NULL, 25, 'assets/img/strawberry.jpg', 1, 1, 145),
-(3, 'plain-yogurt-500g',       'DAI-003', 'Plain Yogurt (500g)',     'সাদা দই (৫০০ গ্রা)',    'Creamy plain yogurt, probiotic rich.', 'ক্রিমি সাদা দই, প্রবায়োটিক সমৃদ্ধ।', 48.00, 42.00, 85, 'assets/img/yogurt.jpg', 1, 1, 195),
-(3, 'salted-butter-500g',      'DAI-004', 'Salted Butter (500g)',     'লবণযুক্ত বাটার (৫০০ গ্রা)', 'Premium salted butter, creamy texture.', 'প্রিমিয়াম লবণযুক্ত বাটার, ক্রিমি টেক্সচার।', 200.00, NULL, 45, 'assets/img/butter.jpg', 1, 0, 135),
-(3, 'pure-ghee-500ml',         'DAI-005', 'Pure Ghee (500ml)',       'খাঁটি ঘি (৫০০ মিলি)',  'Aromatic pure ghee, clarified butter.', 'সুগন্ধি খাঁটি ঘি, স্পষ্ট বাটার।', 300.00, 280.00, 40, 'assets/img/ghee.jpg', 1, 1, 275),
-(3, 'cheddar-cheese-200g',     'DAI-006', 'Cheddar Cheese (200g)',    'চেডার চিজ (২০০ গ্রা)',  'Aged cheddar cheese, sharp flavor.', 'প্রৌঢ় চেডার চিজ, তীব্র স্বাদ।', 280.00, NULL, 25, 'assets/img/cheese.jpg', 1, 0, 115),
-(4, 'basmati-rice-5kg',        'STP-004', 'Basmati Rice (5kg)',      'বাসমতী চাল (৫ কেজি)',  'Premium long-grain aromatic basmati rice.', 'প্রিমিয়াম দীর্ঘ শস্য সুগন্ধি বাসমতী চাল।', 950.00, 880.00, 35, 'assets/img/basmati-rice.jpg', 1, 1, 290),
-(4, 'white-sugar-2kg',         'STP-005', 'White Sugar (2kg)',       'সাদা চিনি (২ কেজি)',  'Fine granulated white sugar, 2 kg pack.', 'ফাইন গ্র্যানুলেটেড সাদা চিনি, ২ কেজি প্যাক।', 110.00, NULL, 75, 'assets/img/sugar.jpg', 1, 0, 225),
-(4, 'wheat-flour-5kg',         'STP-006', 'Wheat Flour (5kg)',       'গম ময়া (৫ কেজি)',     'Stone-ground whole wheat flour, 5 kg.', 'স্টোন-গ্রাউন্ড পূর্ণ গম ময়া, ৫ কেজি।', 280.00, 250.00, 60, 'assets/img/flour.jpg', 1, 0, 180),
-(4, 'veggie-noodles-4pack',    'STP-007', 'Veggie Noodles (4 pack)',  'সবুজি নুডলস (৪ প্যাক)', 'Quick-cook vegetable noodles, 4-pack.', 'দ্রুত রান্নার সবুজি নুডলস, ৪ প্যাক।', 135.00, NULL, 90, 'assets/img/noodles.jpg', 1, 1, 155),
-(4, 'black-tea-250g',          'STP-008', 'Black Tea (250g)',        'কালো চা (২৫০ গ্রা)',   'Premium Ceylon black tea leaves.', 'প্রিমিয়াম সিলোন কালো চা পাতা।', 120.00, 105.00, 70, 'assets/img/tea.jpg', 1, 0, 240);
+INSERT INTO wsit_products (category_id, slug, sku, name_en, name_bn, description_en, description_bn, price, sale_price, stock, image, active, featured, new_arrival, sold) VALUES
+(1, 'liquid-gur-1kg',      'GUR-001', 'Liquid Date Palm Gur (1kg)',  'খেজুরের তরল গুড় (১ কেজি)',  'Smooth liquid nolen gur straight from the clay pot — aged for a deep, earthy sweetness.', 'মাটির হাঁড়ি থেকে সোজা নামিয়ে আনা মসৃণ তরল নলেন গুড় — গভীর, মাটির মিষ্টিতে পাকা।', 450.00, 420.00, 60, 'gur-liquid.svg', 1, 1, 1, 22),
+(1, 'jholar-gur-1kg',      'GUR-002', 'Jhola Gur (1kg)',            'ঝোলা গুড় (১ কেজি)',        'Dense, slow-boiled jhola gur — the classic winter breakfast companion for pati-shapta.', 'আস্তে আরেকটু ঘন করে ফোটানো ঝোলা গুড় — পাটিসাপটার অকৃত্রিম সঙ্গী।', 480.00, NULL, 45, 'gur-jhola.svg', 1, 1, 0, 14),
+(1, 'nolen-gur-500g',      'GUR-003', 'Nolen Gur (500g)',           'নলেন গুড় (৫০০ গ্রাম)',     'Premium nolen gur, the first boiling of the season — rich, smoky and rare.', 'মৌসুমের প্রথম ফুটের প্রিমিয়াম নলেন গুড় — ঘন, ধোঁয়াটে ও দুর্লভ।', 320.00, 300.00, 40, 'gur-nolen.svg', 1, 1, 1, 18),
+(1, 'khajurer-gur-1kg',    'GUR-004', 'Khajurer Gur (1kg)',         'খেজুরের গুড় (১ কেজি)',     'Pure date palm gur in a food-grade jar — no sugar, no lye, nothing added.', 'ফুড-গ্রেড বয়ামে ভেজালবিহীন খেজুরের গুড় — নেই চিনি, নেই চুন, নেই কোনো মেশানো।', 430.00, NULL, 55, 'gur-khajurer.svg', 1, 0, 0, 9),
+(2, 'patali-gur-1kg',      'PAT-001', 'Patali Gur (1kg)',           'পাটালি গুড় (১ কেজি)',     'Pressed date palm patali — solid slabs that crack with a clean, honeyed bite.', 'চাপে বসানো খেজুরের পাটালি — শক্ত চকে ভাঙলে ভেতর থেকে ঝরে মধুর স্বাদ।', 420.00, 395.00, 50, 'patali-gur.svg', 1, 1, 1, 20),
+(2, 'nolen-patali-500g',   'PAT-002', 'Nolen Patali (500g)',        'নলেন পাটালি (৫০০ গ্রাম)',  'The prized nolen patali — the milder, creamier sister of regular patali.', 'বেশি দামি নলেন পাটালি — সাধারণ পাটালির থেকে নরম ও ক্রিমি।', 285.00, NULL, 35, 'patali-nolen.svg', 1, 0, 0, 7),
+(2, 'coconut-patali-500g', 'PAT-003', 'Coconut Patali (500g)',      'নারকেল পাটালি (৫০০ গ্রাম)', 'Patali folded with fresh grated coconut for a festive finish.', 'তাজা নারকেল কোড়ানো মেশানো পাটালি — উৎসবের মুকুট।', 260.00, 240.00, 38, 'patali-coconut.svg', 1, 0, 0, 11),
+(3, 'mustard-oil-1l',      'OIL-001', 'Cold-Pressed Mustard Oil (1L)', 'ঘানিভাঙা সরিষার তেল (১ লিটার)', 'Kachi ghani cold-pressed mustard oil, 1 litre — deep colour, bold aroma.', 'কাঁচা ঘানি থেকে ঠান্ডা চাপা খাঁটি সরিষার তেল, ১ লিটার — গাঢ় রং, তীব্র ঘ্রাণ।', 380.00, NULL, 70, 'mustard-oil-1l.svg', 1, 1, 0, 12),
+(3, 'mustard-oil-500ml',   'OIL-002', 'Mustard Oil (500ml)',        'সরিষার তেল (৫০০ মি.লি.)', '100% raw mustard oil, pressed in a village ghani — pungent, golden, unrefined.', 'গ্রামের ঘানিতে চাপা ১০০% কাঁচা সরিষার তেল — তীব্র, সোনালি, পরিশোধিত নয়।', 195.00, 185.00, 80, 'mustard-oil-500ml.svg', 1, 0, 1, 16),
+(3, 'mustard-oil-2l',      'OIL-003', 'Mustard Oil (2L)',           'সরিষার তেল (২ লিটার)',    'Family-size 2 litre bottle of cold-pressed mustard oil for everyday cooking.', 'দৈনন্দিন রান্নার জন্য ২ লিটারের ফ্যামিলি প্যাক ঘানিভাঙা সরিষার তেল।', 720.00, NULL, 40, 'mustard-oil-2l.svg', 1, 1, 0, 13),
+(4, 'turmeric-powder-250g', 'SPC-001', 'Turmeric Powder (250g)',    'খাঁটি হলুদ গুঁড়া (২৫০ গ্রাম)', 'Sun-dried, stone-ground turmeric — brilliant colour, natural aroma.', 'রোদে শুকিয়ে চাক্কিতে ঘুরিয়ে গুঁড়া করা হলুদ — উজ্জ্বল রং, প্রাকৃতিক সুগন্ধ।', 90.00, NULL, 90, 'spice-turmeric.svg', 1, 0, 1, 21),
+(4, 'chili-powder-250g',   'SPC-002', 'Red Chili Powder (250g)',    'খাঁটি মরিচ গুঁড়া (২৫০ গ্রাম)', 'Whole red chilies ground to order — no colour, no chilli oil, only heat.', 'পুরো শুকনো মরিচ পিষে বানানো — নেই রং, নেই মরিচের তেল, শুধু ঝাল।', 120.00, 110.00, 85, 'spice-chili.svg', 1, 1, 0, 19),
+(4, 'cumin-powder-200g',   'SPC-003', 'Cumin Powder (200g)',        'খাঁটি জিরা গুঁড়া (২০০ গ্রাম)', 'Roasted-to-order cumin powder with a warm, toasty finish.', 'অর্ডার অনুযায়ী ভেজে পিষে নেওয়া জিরা গুঁড়া — গরম ও কষা গন্ধ।', 100.00, NULL, 75, 'spice-cumin.svg', 1, 0, 1, 15),
+(4, 'coriander-powder-250g', 'SPC-004', 'Coriander Powder (250g)',  'খাঁটি ধনে গুঁড়া (২৫০ গ্রাম)', 'Fragrant coriander ground in small batches for true khata-dhone taste.', 'ছোট ব্যাচে পিষে নেওয়া সুগন্ধি ধনে গুঁড়া — খাঁটি খাঁটে ধোনের স্বাদ।', 85.00, 78.00, 80, 'spice-coriander.svg', 1, 0, 1, 17),
+(4, 'garam-masala-200g',   'SPC-005', 'Garam Masala (200g)',        'খাঁটি গরম মসলা (২০০ গ্রাম)', 'A balanced blend of whole spices, freshly ground and packed at source.', 'উৎপাদকস্থলে সদ্য পিষে মেশানো সিম্ফনি — গরম মসলার সুষম মিশ্রণ।', 180.00, NULL, 60, 'spice-garam.svg', 1, 0, 0, 8),
+(4, 'village-masala-combo', 'SPC-006', 'Village Masala Combo',      'গ্রামীণ মসলা সেট',          'A gift-sized set of turmeric, chili, cumin and coriander from one village ghani.', 'এক গ্রামের ঘানি থেকে সংগৃহীত হলুদ, মরিচ, জিরা ও ধনে — উপহারের মতো এক সেট।', 350.00, 320.00, 30, 'spice-set.svg', 1, 1, 1, 12);
 
 -- Sample order history (for admin demo)
 INSERT INTO wsit_orders (user_id, order_number, status, subtotal, discount, shipping, total, payment_method, shipping_name, shipping_email, shipping_phone, shipping_address, shipping_city, shipping_postal, notes) VALUES
-(1, 'MF-100001', 'delivered', 165.00, 0.00, 0.00, 165.00, 'cod', 'মেঠোফ্রেশ অ্যাডমিন', 'admin@methofresh.com', '+8801711111111', '12 Gulshan Avenue', 'Dhaka', '1212', 'Demo order'),
-(1, 'MF-100002', 'processing', 280.00, 0.00, 60.00, 340.00, 'bkash', 'মেঠোফ্রেশ অ্যাডমিন', 'admin@methofresh.com', '+8801711111111', '12 Gulshan Avenue', 'Dhaka', '1212', NULL);
+(1, 'MF-100001', 'delivered', 800.00, 0.00, 0.00, 800.00, 'cod', 'মেঠোফ্রেশ অ্যাডমিন', 'admin@methofresh.com', '+8801711111111', '12 Gulshan Avenue', 'Dhaka', '1212', 'Demo order'),
+(1, 'MF-100002', 'processing', 505.00, 0.00, 60.00, 565.00, 'bkash', 'মেঠোফ্রেশ অ্যাডমিন', 'admin@methofresh.com', '+8801711111111', '12 Gulshan Avenue', 'Dhaka', '1212', NULL);
 
 INSERT INTO wsit_order_items (order_id, product_id, product_name, product_name_bn, price, quantity, total) VALUES
-(1, 1, 'Fresh Tomatoes', 'তাজা টমেটো', 35.00, 3, 105.00),
-(1, 2, 'Green Capsicum', 'সবুজ ক্যাপসিকাম', 60.00, 1, 60.00),
-(2, 4, 'Himsagar Mango', 'হিমসাগর আম', 180.00, 1, 180.00),
-(2, 3, 'Red Onion', 'লাল পেঁয়াজ', 50.00, 2, 100.00);
+(1, 1,  'Liquid Date Palm Gur (1kg)',  'খেজুরের তরল গুড় (১ কেজি)', 420.00, 1, 420.00),
+(1, 8,  'Cold-Pressed Mustard Oil (1L)', 'ঘানিভাঙা সরিষার তেল (১ লিটার)', 380.00, 1, 380.00),
+(2, 5,  'Patali Gur (1kg)',            'পাটালি গুড় (১ কেজি)',       395.00, 1, 395.00),
+(2, 12, 'Red Chili Powder (250g)',     'খাঁটি মরিচ গুঁড়া (২৫০ গ্রাম)', 110.00, 1, 110.00);

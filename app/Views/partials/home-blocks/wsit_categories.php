@@ -2,31 +2,28 @@
 // Homepage "Shop by Category" block.
 // Expects: $title (string), $categories (array of localized category rows).
 ?>
-<section class="max-w-7xl mx-auto px-4 py-6">
-    <div class="flex items-end justify-between mb-5">
-        <div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-stone-900"><?= e($title) ?></h2>
-            <p class="text-sm text-stone-500 mt-1"><?= e(trans('tagline')) ?></p>
-        </div>
-        <a href="<?= e(locale_url('/categories')) ?>" class="text-sm font-semibold text-brand-700 hover:underline shrink-0"><?= e(trans('view_all')) ?> →</a>
+<section class="max-w-7xl mx-auto px-4 py-8">
+    <div class="text-center max-w-2xl mx-auto mb-8">
+        <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight"><?= e($title) ?></h2>
+        <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
         <?php foreach ($categories as $category): ?>
         <?php
         $catImg = $category['image'] ?? '';
         $catImgUrl = $catImg !== '' ? image_url($catImg, $category['name'], 300) : '';
         ?>
-        <a href="<?= e(locale_url('/categories/' . $category['slug'])) ?>" class="group relative rounded-2xl overflow-hidden bg-stone-100 border border-stone-200/80 h-36 sm:h-44 flex flex-col justify-between p-3.5 hover:shadow-lg hover:-translate-y-0.5 transition duration-300">
-            <div class="w-full h-20 sm:h-24 flex items-center justify-center">
+        <a href="<?= e(locale_url('/categories/' . $category['slug'])) ?>" class="group rounded-2xl overflow-hidden border border-stone-200 bg-white hover:border-amber-400 hover:shadow-xl transition flex flex-col">
+            <div class="bg-stone-100 h-36 sm:h-44 flex items-center justify-center p-4">
                 <?php if ($catImgUrl !== ''): ?>
-                <img src="<?= e($catImgUrl) ?>" alt="<?= e($category['name']) ?>" loading="lazy" class="max-h-full max-w-full object-contain group-hover:scale-110 transition duration-300">
+                <img src="<?= e($catImgUrl) ?>" alt="<?= e($category['name']) ?>" loading="lazy" class="max-h-full max-w-full object-contain group-hover:scale-110 transition duration-500">
                 <?php else: ?>
                 <span class="text-4xl sm:text-5xl group-hover:scale-110 transition">🛒</span>
                 <?php endif; ?>
             </div>
-            <div class="rounded-xl bg-white/95 backdrop-blur px-3 py-2 border border-stone-200/60 shadow-xs">
-                <p class="text-stone-900 font-bold text-xs sm:text-sm group-hover:text-brand-700 transition truncate"><?= e($category['name']) ?></p>
-                <p class="text-stone-500 text-[10px] sm:text-[11px] truncate"><?= e($category['description'] ?? '') ?></p>
+            <div class="p-3.5 text-center">
+                <p class="text-sm sm:text-base font-bold text-stone-900 group-hover:text-brand-700 transition"><?= e($category['name']) ?></p>
+                <p class="text-[11px] text-amber-600 font-medium mt-0.5"><?= e(trans('view_all')) ?> →</p>
             </div>
         </a>
         <?php endforeach; ?>

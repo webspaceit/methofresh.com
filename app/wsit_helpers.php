@@ -33,11 +33,17 @@ function app_config(): array
         return $cfg;
     }
     $cfg = require dirname(__DIR__) . '/app/config/wsit_config.php';
-    // Load production overrides if present (never commit this file to git)
+    // Load production overrides only in production env (never commit these files).
+    // Also self-activates on any HTTPS request: a live server is always https,
+    // so the production config can never be silently skipped after upload.
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     $override = dirname(__DIR__) . '/app/config/wsit_config.production.php';
-    if (file_exists($override)) {
-        $prod = require $override;
-        $cfg = array_replace_recursive($cfg, $prod);
+    if (($cfg['app']['env'] ?? '') === 'production' || ($isHttps && file_exists($override))) {
+        if (file_exists($override)) {
+            $prod = require $override;
+            $cfg = array_replace_recursive($cfg, $prod);
+        }
     }
     return $cfg;
 }
@@ -183,6 +189,33 @@ function site_logo_url(): string
 }
 
 /**
+ * Returns ['height' => int, 'width' => int] for the logo image tag.
+ * Defaults: height 40px, width auto (0 = auto).
+ */
+function site_logo_dimensions(): array
+{
+    $h = (int) site_setting('logo_height', '40');
+    $w = (int) site_setting('logo_width',  '0');
+    return [
+        'height' => max(10, min(200, $h ?: 40)),
+        'width'  => max(0,  min(600, $w)),
+    ];
+}
+
+/**
+ * Returns an inline style string for the logo img tag based on saved dimensions.
+ * Width 0 means "auto".
+ */
+function site_logo_style(): string
+{
+    $d = site_logo_dimensions();
+    $style = 'height:' . $d['height'] . 'px;';
+    $style .= $d['width'] > 0 ? 'width:' . $d['width'] . 'px;' : 'width:auto;';
+    $style .= 'border-radius:17px;';
+    return $style;
+}
+
+/**
  * URL of the custom favicon uploaded from the admin Settings page.
  * Returns '' when no custom favicon is set (views then fall back to the
  * built-in emoji icon).
@@ -223,6 +256,52 @@ function site_setting(string $key, string $default = ''): string
 }
 
 /**
+ * Announcement-bar offers: a list of
+ * ['offer_en','offer_bn','coupon_en','coupon_bn','code'] rows, stored as JSON
+ * under the `ann_offers` setting. If the admin never saved the JSON, fall back
+ * to the legacy single-offer keys, then to the language files, so the bar
+ * keeps working out of the box. An explicit (empty) JSON means "no offers".
+ */
+function announcement_offers(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $fields = ['offer_en', 'offer_bn', 'coupon_en', 'coupon_bn', 'code'];
+    $raw = site_setting('ann_offers', '');
+
+    if ($raw !== '') {
+        $decoded = json_decode($raw, true);
+        $cache = [];
+        foreach ((is_array($decoded) ? $decoded : []) as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $item = [];
+            foreach ($fields as $field) {
+                $item[$field] = trim((string)($row[$field] ?? ''));
+            }
+            $cache[] = $item;
+        }
+        return $cache;
+    }
+
+    // No JSON yet: one offer built from the legacy keys / language defaults.
+    $en = require base_path('app/Lang/wsit_en.php');
+    $bn = require base_path('app/Lang/wsit_bn.php');
+    $cache = [[
+        'offer_en'  => site_setting('ann_offer_en', (string)($en['ann_offer'] ?? '')),
+        'offer_bn'  => site_setting('ann_offer_bn', (string)($bn['ann_offer'] ?? '')),
+        'coupon_en' => site_setting('ann_coupon_en', (string)($en['ann_coupon'] ?? '')),
+        'coupon_bn' => site_setting('ann_coupon_bn', (string)($bn['ann_coupon'] ?? '')),
+        'code'      => site_setting('ann_code', (string)($en['ann_code'] ?? '')),
+    ]];
+    return $cache;
+}
+
+/**
  * Footer "Quick Links" list. Falls back to the built-in links (Home /
  * Products / Categories / Cart) until the admin saves their own list.
  */
@@ -258,6 +337,91 @@ function footer_quick_links(): array
     unset($link);
 
     return $defaults;
+}
+
+/**
+ * Material Symbols outlined icon names embedded as inline SVGs in
+ * partials/wsit_icons.php. MUST stay in sync with the ICONS map there.
+ */
+define('NAV_ICON_NAMES', [
+    'account_balance_wallet', 'add', 'arrow_forward', 'bolt', 'calendar_today',
+    'campaign', 'check', 'checklist', 'chevron_right', 'contact_support',
+    'done_all', 'download', 'eco', 'expand_more', 'group', 'groups',
+    'inventory', 'inventory_2', 'keyboard_arrow_down', 'language', 'local_mall',
+    'local_shipping', 'location_city', 'logout', 'menu', 'more_vert',
+    'notifications', 'notifications_off', 'open_in_new', 'payments',
+    'pending_actions', 'percent', 'person', 'person_add', 'quiz', 'receipt',
+    'receipt_long', 'repeat', 'savings', 'schedule', 'search',
+    'share_location', 'shopping_basket', 'space_dashboard', 'storefront',
+    'support_agent', 'task_alt', 'today', 'trending_down', 'trending_up',
+    'tune', 'unfold_more', 'verified', 'visibility', 'workspace_premium',
+    'add_box', 'article', 'call', 'category', 'help_center', 'home', 'mail',
+    'map', 'north_east', 'translate', 'update', 'view_agenda',
+]);
+
+/**
+ * Whether the given string is a valid inline-SVG icon name (see NAV_ICON_NAMES).
+ * Frontend rendering only emits icon spans for known names so an unknown
+ * icon never leaks raw text.
+ */
+function nav_icon_valid(string $icon): bool
+{
+    return in_array($icon, NAV_ICON_NAMES, true);
+}
+
+/**
+ * Top navigation menu items for the frontend header. Empty until the admin
+ * saves custom items from Settings → "Top Navigation Menu".
+ */
+function nav_menu_items(): array
+{
+    $db = wsit_App::get('db');
+    if ($db !== null) {
+        try {
+            $setting = new \App\Models\wsit_Setting();
+            $raw = $setting->get('nav_menu', '');
+            if ($raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) {
+                    $template = [
+                        'label_en' => '',
+                        'label_bn' => '',
+                        'url'      => '',
+                        'icon'     => '',
+                        'target'   => 0,
+                        'enabled'  => true,
+                        'order'    => 0,
+                    ];
+                    foreach ($decoded as &$link) {
+                        $link = array_merge($template, is_array($link) ? $link : []);
+                    }
+                    unset($link);
+                    return $decoded;
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB unavailable — no custom items.
+        }
+    }
+    return [];
+}
+
+/**
+ * Build the href for a top-nav menu item: internal paths get the current
+ * locale prefix; anchors, mailto/tel and absolute URLs pass through.
+ */
+function nav_menu_url(string $url): string
+{
+    $url = trim($url);
+    if ($url === '') {
+        return '';
+    }
+    $first = $url[0];
+    if ($first === '#' || str_starts_with($url, 'http://') || str_starts_with($url, 'https://')
+        || str_starts_with($url, 'mailto:') || str_starts_with($url, 'tel:')) {
+        return $url;
+    }
+    return locale_url($url);
 }
 
 // ---------------------------------------------------------------------------
@@ -582,7 +746,9 @@ function start_session(): void
         'lifetime' => $lifetime,
         'path' => '/',
         'domain' => '',
-        'secure' => false,
+        // Send Secure automatically on HTTPS (live server), not on http dev.
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'),
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
@@ -680,6 +846,39 @@ function format_number(int|float|string $number): string
     return $formatted;
 }
 
+/**
+ * Material-admin currency format matching the dashboard mockup:
+ *   bn → '৳ ৩,৪২,৮৫০' (lakh grouping + Bengali digits)
+ *   en → '৳ 342,850'  (thousands grouping, latin digits)
+ */
+function admin_price(int|float|string $amount): string
+{
+    $amount = (float)$amount;
+    $int = (string)(int)$amount;
+
+    if (app_locale() === 'bn') {
+        // Indian/lakh grouping: 342850 => "3,42,850".
+        if (strlen($int) > 3) {
+            $last3 = substr($int, -3);
+            $rest  = substr($int, 0, -3);
+            $groups = [];
+            while (strlen($rest) > 2) {
+                array_unshift($groups, substr($rest, -2));
+                $rest = substr($rest, 0, -2);
+            }
+            if ($rest !== '') {
+                array_unshift($groups, $rest);
+            }
+            $int = implode(',', array_merge($groups, [$last3]));
+        }
+        $bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        $en = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        return '৳ ' . str_replace($en, $bn, $int);
+    }
+
+    return '৳ ' . number_format($amount);
+}
+
 function format_date(string $date, string $format = 'Y-m-d H:i'): string
 {
     $ts = strtotime($date);
@@ -731,6 +930,131 @@ function slugify(string $text): string
         return 'item-' . substr(md5($text), 0, 6);
     }
     return $base;
+}
+
+// ---------------------------------------------------------------------------
+// Bengali → Latin search normalization (romanized-Bengali search)
+// ---------------------------------------------------------------------------
+
+/**
+ * Transliterate Bengali characters to a coarse Latin approximation so a query
+ * typed in English letters ("shorisha") can match Bengali names ("সরিষা").
+ * A consonant with no following vowel sign takes the Bengali inherent vowel
+ * "o": তেল → "telo", সরিষা → "sorisa". Hasant joins consonants without a
+ * vowel (গ্রাম → "gram…"), Bengali digits map to ASCII.
+ */
+function bn_to_latin(string $text): string
+{
+    if (!preg_match('/[\x{0980}-\x{09FF}]/u', $text)) {
+        return $text; // Fast path: nothing Bengali to transliterate.
+    }
+
+    static $map = null;
+    if ($map === null) {
+        $map = [
+            // Independent vowels
+            'অ' => 'a',  'আ' => 'a',  'ই' => 'i',  'ঈ' => 'i',  'উ' => 'u',  'ঊ' => 'u',
+            'ঋ' => 'ri', 'এ' => 'e',  'ঐ' => 'ai', 'ও' => 'o',  'ঔ' => 'au',
+            // Consonants
+            'ক' => 'k',  'খ' => 'kh', 'গ' => 'g',  'ঘ' => 'gh', 'ঙ' => 'ng',
+            'চ' => 'c',  'ছ' => 'c',  'জ' => 'j',  'ঝ' => 'j',  'ঞ' => 'n',
+            'ট' => 't',  'ঠ' => 't',  'ড' => 'd',  'ঢ' => 'd',  'ণ' => 'n',
+            'ত' => 't',  'থ' => 't',  'দ' => 'd',  'ধ' => 'd',  'ন' => 'n',
+            'প' => 'p',  'ফ' => 'f',  'ব' => 'b',  'ভ' => 'b',  'ম' => 'm',
+            'য' => 'y',  'র' => 'r',  'ল' => 'l',
+            'শ' => 's',  'ষ' => 's',  'স' => 's',  'হ' => 'h',
+            // Nukta letters via \u escapes so the codepoints are unambiguous
+            // regardless of how the literals in this file are encoded.
+            "\u{09DC}" => 'r', "\u{09DD}" => 'r', "\u{09DF}" => 'y', 'ৎ' => 't',
+            // Vowel signs (matras)
+            'া' => 'a',  'ি' => 'i',  'ী' => 'i',  'ু' => 'u',  'ূ' => 'u',  'ৃ' => 'ri',
+            'ে' => 'e',  'ৈ' => 'ai', 'ো' => 'o',  'ৌ' => 'au', 'ৗ' => 'au',
+            // Signs, hasant, nukta (emitted as nothing)
+            'ং' => 'ng', 'ঁ' => 'n',  'ঃ' => '',   '্' => '',   '়' => '',
+            // Bengali digits
+            '০' => '0',  '১' => '1',  '২' => '2',  '৩' => '3',  '৪' => '4',
+            '৫' => '5',  '৬' => '6',  '৭' => '7',  '৮' => '8',  '৯' => '9',
+        ];
+    }
+
+    static $consonants = null;
+    if ($consonants === null) {
+        $consonants = array_flip([
+            'ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ',
+            'ত', 'থ', 'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'ষ',
+            'স', 'হ', "\u{09DC}", "\u{09DD}", "\u{09DF}", 'ৎ',
+        ]);
+    }
+
+    static $matras = null;
+    if ($matras === null) {
+        $matras = array_flip(['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ', 'ৗ']);
+    }
+
+    // Canonicalize decomposed nukta letters (ড+়, ঢ+়, য+়) to their single
+    // codepoints so both encodings of the same letter hit the same map entry.
+    $text = str_replace(
+        ["\u{09A1}\u{09BC}", "\u{09A2}\u{09BC}", "\u{09AF}\u{09BC}"],
+        ["\u{09DC}", "\u{09DD}", "\u{09DF}"],
+        $text
+    );
+
+    $chars = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
+    $out = '';
+    $n = count($chars);
+    for ($i = 0; $i < $n; $i++) {
+        $c = $chars[$i];
+        if (!isset($map[$c])) {
+            $out .= $c; // Latin passthrough (letters, spaces, punctuation).
+            continue;
+        }
+        $out .= $map[$c];
+        if (isset($consonants[$c])) {
+            $next = $chars[$i + 1] ?? '';
+            // Inherent "o" unless a vowel sign (matra) or hasant follows.
+            if ($next === '' || ($next !== '্' && !isset($matras[$next]))) {
+                $out .= 'o';
+            }
+        }
+    }
+    return $out;
+}
+
+/**
+ * Normalize any text into the canonical search-key space. Both the product
+ * side (stored in wsit_products.search_key) and the visitor's query pass
+ * through this, so spelling variants collapse onto one key: "shorisha",
+ * "sorisha", "sorisa" → "sorisa"; Bengali input is transliterated first.
+ */
+function search_normalize(string $text): string
+{
+    $text = bn_to_latin($text);
+    $text = mb_strtolower($text, 'UTF-8');
+    $text = str_replace(
+        ['sh', 'ch', 'th', 'kh', 'gh', 'ph', 'bh', 'dh', 'rh', 'jh', 'oo', 'ee', 'aa'],
+        ['s',  'c',  't',  'k',  'g',  'f',  'b',  'd',  'r',  'j',  'u',  'i',  'a'],
+        $text
+    );
+    $text = (string)preg_replace('/[^a-z0-9]+/', ' ', $text);
+    return trim((string)preg_replace('/\s+/', ' ', $text));
+}
+
+/**
+ * Canonical search key for a product: names (both locales), slug, SKU and
+ * descriptions, normalized into one Latin string the storefront search and
+ * the dashboard's search-log filter both LIKE against.
+ */
+function product_search_key(array $product): string
+{
+    $parts = [
+        $product['name_en'] ?? '',
+        $product['name_bn'] ?? '',
+        $product['slug'] ?? '',
+        $product['sku'] ?? '',
+        $product['description_en'] ?? '',
+        $product['description_bn'] ?? '',
+    ];
+    return search_normalize(implode(' ', $parts));
 }
 
 function price_display(array $product): array
@@ -889,6 +1213,342 @@ function payment_method_label(string $key, string|null $locale = null): string
     return strtoupper($key);
 }
 
+// ---------------------------------------------------------------------------
+// Shipping method configuration — conditional by locality and cart weight
+// ---------------------------------------------------------------------------
+
+/**
+ * Admin-managed shipping settings (setting key: `shipping_config`, JSON).
+ *
+ * Shape:
+ *   enabled   — master switch; off = delivery free on every order
+ *   free_over — subtotal at/above which every method charges 0 (0 = never)
+ *   methods   — list of {id, name_en, name_bn, enabled, base, per_kg,
+ *                areas, exclude}
+ *                 base/per_kg  → charge = base + per_kg × cart weight (kg)
+ *                 areas        — comma keywords; when set, the method is only
+ *                                offered when the entered city matches one
+ *                 exclude      — comma keywords; the method is skipped when
+ *                                the city matches one
+ *
+ * Factory default reproduces the original hardcoded rule exactly
+ * (৳60 under ৳500 subtotal, free at ৳500+), so behaviour is unchanged
+ * until the admin saves a configuration.
+ */
+function shipping_config(): array
+{
+    $default = [
+        'enabled'   => true,
+        'free_over' => 500.0,
+        'methods'   => [
+            [
+                'id'      => 'std',
+                'name_en' => 'Standard Delivery',
+                'name_bn' => 'স্ট্যান্ডার্ড ডেলিভারি',
+                'enabled' => true,
+                'base'    => 60.0,
+                'per_kg'  => 0.0,
+                'areas'   => '',
+                'exclude' => '',
+            ],
+        ],
+    ];
+
+    try {
+        $raw = site_setting('shipping_config');
+        if ($raw === '') {
+            return $default;
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return $default;
+        }
+
+        $cfg = [
+            'enabled'   => !empty($decoded['enabled']),
+            'free_over' => max(0.0, (float)($decoded['free_over'] ?? 0)),
+            'methods'   => [],
+        ];
+        foreach ((array)($decoded['methods'] ?? []) as $m) {
+            if (!is_array($m)) {
+                continue;
+            }
+            $cfg['methods'][] = [
+                'id'      => trim((string)($m['id'] ?? '')) !== '' ? trim((string)$m['id']) : ('m' . uniqid()),
+                'name_en' => trim((string)($m['name_en'] ?? '')),
+                'name_bn' => trim((string)($m['name_bn'] ?? '')),
+                'enabled' => !empty($m['enabled']),
+                'base'    => max(0.0, (float)($m['base'] ?? 0)),
+                'per_kg'  => max(0.0, (float)($m['per_kg'] ?? 0)),
+                'areas'   => trim((string)($m['areas'] ?? '')),
+                'exclude' => trim((string)($m['exclude'] ?? '')),
+            ];
+        }
+        return $cfg;
+    } catch (\Throwable) {
+        return $default;
+    }
+}
+
+/**
+ * Built-in starting list for the checkout city dropdown: all 64 districts of
+ * Bangladesh (bilingual). Used until the list is first saved in the dashboard
+ * (Settings → Checkout Cities).
+ */
+function default_checkout_cities(): array
+{
+    return [
+        // Dhaka division
+        ['name_en' => 'Dhaka', 'name_bn' => 'ঢাকা'],
+        ['name_en' => 'Gazipur', 'name_bn' => 'গাজীপুর'],
+        ['name_en' => 'Kishoreganj', 'name_bn' => 'কিশোরগঞ্জ'],
+        ['name_en' => 'Manikganj', 'name_bn' => 'মানিকগঞ্জ'],
+        ['name_en' => 'Munshiganj', 'name_bn' => 'মুন্সিগঞ্জ'],
+        ['name_en' => 'Narayanganj', 'name_bn' => 'নারায়ণগঞ্জ'],
+        ['name_en' => 'Narsingdi', 'name_bn' => 'নরসিংদী'],
+        ['name_en' => 'Tangail', 'name_bn' => 'টাঙ্গাইল'],
+        ['name_en' => 'Faridpur', 'name_bn' => 'ফরিদপুর'],
+        ['name_en' => 'Gopalganj', 'name_bn' => 'গোপালগঞ্জ'],
+        ['name_en' => 'Madaripur', 'name_bn' => 'মাদারীপুর'],
+        ['name_en' => 'Rajbari', 'name_bn' => 'রাজবাড়ী'],
+        ['name_en' => 'Shariatpur', 'name_bn' => 'শরীয়তপুর'],
+        // Chattogram division
+        ['name_en' => 'Chattogram', 'name_bn' => 'চট্টগ্রাম'],
+        ['name_en' => "Cox's Bazar", 'name_bn' => 'কক্সবাজার'],
+        ['name_en' => 'Bandarban', 'name_bn' => 'বান্দরবান'],
+        ['name_en' => 'Rangamati', 'name_bn' => 'রাঙ্গামাটি'],
+        ['name_en' => 'Khagrachhari', 'name_bn' => 'খাগড়াছড়ি'],
+        ['name_en' => 'Feni', 'name_bn' => 'ফেনী'],
+        ['name_en' => 'Lakshmipur', 'name_bn' => 'লক্ষ্মীপুর'],
+        ['name_en' => 'Noakhali', 'name_bn' => 'নোয়াখালী'],
+        ['name_en' => 'Cumilla', 'name_bn' => 'কুমিল্লা'],
+        ['name_en' => 'Brahmanbaria', 'name_bn' => 'ব্রাহ্মণবাড়িয়া'],
+        ['name_en' => 'Chandpur', 'name_bn' => 'চাঁদপুর'],
+        // Rajshahi division
+        ['name_en' => 'Rajshahi', 'name_bn' => 'রাজশাহী'],
+        ['name_en' => 'Joypurhat', 'name_bn' => 'জয়পুরহাট'],
+        ['name_en' => 'Naogaon', 'name_bn' => 'নওগাঁ'],
+        ['name_en' => 'Natore', 'name_bn' => 'নাটোর'],
+        ['name_en' => 'Chapainawabganj', 'name_bn' => 'চাঁপাইনবাবগঞ্জ'],
+        ['name_en' => 'Pabna', 'name_bn' => 'পাবনা'],
+        ['name_en' => 'Sirajganj', 'name_bn' => 'সিরাজগঞ্জ'],
+        ['name_en' => 'Bogura', 'name_bn' => 'বগুড়া'],
+        // Khulna division
+        ['name_en' => 'Khulna', 'name_bn' => 'খুলনা'],
+        ['name_en' => 'Bagerhat', 'name_bn' => 'বাগেরহাট'],
+        ['name_en' => 'Satkhira', 'name_bn' => 'সাতক্ষীরা'],
+        ['name_en' => 'Jashore', 'name_bn' => 'যশোর'],
+        ['name_en' => 'Jhenaidah', 'name_bn' => 'ঝিনাইদহ'],
+        ['name_en' => 'Magura', 'name_bn' => 'মাগুরা'],
+        ['name_en' => 'Meherpur', 'name_bn' => 'মেহেরপুর'],
+        ['name_en' => 'Narail', 'name_bn' => 'নড়াইল'],
+        ['name_en' => 'Kushtia', 'name_bn' => 'কুষ্টিয়া'],
+        ['name_en' => 'Chuadanga', 'name_bn' => 'চুয়াডাঙ্গা'],
+        // Barishal division
+        ['name_en' => 'Barishal', 'name_bn' => 'বরিশাল'],
+        ['name_en' => 'Patuakhali', 'name_bn' => 'পটুয়াখালী'],
+        ['name_en' => 'Bhola', 'name_bn' => 'ভোলা'],
+        ['name_en' => 'Pirojpur', 'name_bn' => 'পিরোজপুর'],
+        ['name_en' => 'Barguna', 'name_bn' => 'বরগুনা'],
+        ['name_en' => 'Jhalokathi', 'name_bn' => 'ঝালকাঠি'],
+        // Sylhet division
+        ['name_en' => 'Sylhet', 'name_bn' => 'সিলেট'],
+        ['name_en' => 'Moulvibazar', 'name_bn' => 'মৌলভীবাজার'],
+        ['name_en' => 'Habiganj', 'name_bn' => 'হবিগঞ্জ'],
+        ['name_en' => 'Sunamganj', 'name_bn' => 'সুনামগঞ্জ'],
+        // Rangpur division
+        ['name_en' => 'Rangpur', 'name_bn' => 'রংপুর'],
+        ['name_en' => 'Dinajpur', 'name_bn' => 'দিনাজপুর'],
+        ['name_en' => 'Thakurgaon', 'name_bn' => 'ঠাকুরগাঁও'],
+        ['name_en' => 'Panchagarh', 'name_bn' => 'পঞ্চগড়'],
+        ['name_en' => 'Nilphamari', 'name_bn' => 'নীলফামারী'],
+        ['name_en' => 'Lalmonirhat', 'name_bn' => 'লালমনিরহাট'],
+        ['name_en' => 'Kurigram', 'name_bn' => 'কুড়িগ্রাম'],
+        ['name_en' => 'Gaibandha', 'name_bn' => 'গাইবান্ধা'],
+        // Mymensingh division
+        ['name_en' => 'Mymensingh', 'name_bn' => 'ময়মনসিংহ'],
+        ['name_en' => 'Jamalpur', 'name_bn' => 'জামালপুর'],
+        ['name_en' => 'Netrokona', 'name_bn' => 'নেত্রকোণা'],
+        ['name_en' => 'Sherpur', 'name_bn' => 'শেরপুর'],
+    ];
+}
+
+/**
+ * Checkout city dropdown options (dashboard → Settings → Checkout Cities).
+ * Setting absent = the built-in 64 districts; stored empty list = the admin
+ * cleared every row (the checkout field then falls back to a text input).
+ */
+function checkout_cities(): array
+{
+    try {
+        $raw = site_setting('checkout_cities');
+        if ($raw === '') {
+            return default_checkout_cities();
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return default_checkout_cities();
+        }
+        $out = [];
+        foreach ($decoded as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $en = trim((string)($row['name_en'] ?? ''));
+            $bn = trim((string)($row['name_bn'] ?? ''));
+            if ($en === '' && $bn === '') {
+                continue;
+            }
+            $out[] = ['name_en' => $en, 'name_bn' => $bn];
+        }
+        return $out;
+    } catch (\Throwable) {
+        return default_checkout_cities();
+    }
+}
+
+/** Dropdown value → every spelling of that district ([bn, en]) — for the JS preview. */
+function checkout_city_alts(): array
+{
+    $map = [];
+    foreach (checkout_cities() as $c) {
+        $pair = [];
+        foreach (['name_bn', 'name_en'] as $field) {
+            $v = trim((string)$c[$field]);
+            if ($v !== '' && !in_array($v, $pair, true)) {
+                $pair[] = $v;
+            }
+        }
+        foreach ($pair as $val) {
+            $map[$val] = $pair;
+        }
+    }
+    return $map;
+}
+
+/**
+ * The entered city plus its BN/EN counterparts from the dropdown list —
+ * so shipping keywords written in the other language still match.
+ */
+function checkout_city_spellings(string $city): array
+{
+    $spellings = [mb_strtolower(trim($city))];
+    $entered = trim($city);
+    if ($entered !== '') {
+        foreach (checkout_cities() as $c) {
+            $bn = trim((string)$c['name_bn']);
+            $en = trim((string)$c['name_en']);
+            $hit = ($bn !== '' && strcasecmp($bn, $entered) === 0)
+                || ($en !== '' && strcasecmp($en, $entered) === 0);
+            if (!$hit) {
+                continue;
+            }
+            foreach ([$bn, $en] as $s) {
+                $low = mb_strtolower($s);
+                if ($s !== '' && !in_array($low, $spellings, true)) {
+                    $spellings[] = $low;
+                }
+            }
+            break;
+        }
+    }
+    return $spellings;
+}
+
+/** Does the entered city match any comma-separated keyword? (case-insensitive)
+ * Cities from the dropdown also match via their other-language spelling —
+ * "Dhaka" hits a "ঢাকা" keyword and vice versa. */
+function shipping_city_matches(string $city, string $keywords): bool
+{
+    if (trim($city) === '' || trim($keywords) === '') {
+        return false;
+    }
+    $spellings = checkout_city_spellings($city);
+    foreach (explode(',', $keywords) as $keyword) {
+        $keyword = mb_strtolower(trim($keyword));
+        if ($keyword === '') {
+            continue;
+        }
+        foreach ($spellings as $spelling) {
+            if (mb_strpos($spelling, $keyword) !== false) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Is this method offered for the given city? A null city means "locality
+ * unknown" (cart page estimate) → only the enabled flag is checked.
+ */
+function shipping_method_available(array $method, ?string $city): bool
+{
+    if (empty($method['enabled'])) {
+        return false;
+    }
+    if ($city === null) {
+        return true;
+    }
+    $areas = (string)($method['areas'] ?? '');
+    if (trim($areas) !== '' && !shipping_city_matches($city, $areas)) {
+        return false;
+    }
+    $exclude = (string)($method['exclude'] ?? '');
+    if (trim($exclude) !== '' && shipping_city_matches($city, $exclude)) {
+        return false;
+    }
+    return true;
+}
+
+/** Enabled methods (master switch on) available for the city — [] = free. */
+function shipping_available_methods(?string $city = null): array
+{
+    $cfg = shipping_config();
+    if (!$cfg['enabled']) {
+        return [];
+    }
+    $available = [];
+    foreach ($cfg['methods'] as $method) {
+        if (shipping_method_available($method, $city)) {
+            $available[] = $method;
+        }
+    }
+    return $available;
+}
+
+/** Charge for one method: base + per_kg × weight, 0 when the subtotal is at/above the free threshold. */
+function shipping_method_charge(array $method, float $subtotal, float $weight, float|null $freeOver = null): float
+{
+    $freeOver = $freeOver ?? shipping_config()['free_over'];
+    if ($freeOver > 0 && $subtotal >= $freeOver) {
+        return 0.0;
+    }
+    return round(max(0.0, (float)$method['base'] + (float)$method['per_kg'] * max(0.0, $weight)), 2);
+}
+
+/** Total weight (kg) of the guest cart — items carry `weight` after hydration. */
+function cart_total_weight(): float
+{
+    $weight = 0.0;
+    foreach (guest_cart() as $item) {
+        $weight += (float)($item['weight'] ?? 0) * max(1, (int)($item['quantity'] ?? 1));
+    }
+    return round($weight, 3);
+}
+
+/** Method name in the given (or current) locale, falling back to the other language. */
+function shipping_method_name(array $method, string|null $locale = null): string
+{
+    $locale = $locale ?? app_locale();
+    $en = trim((string)($method['name_en'] ?? ''));
+    $bn = trim((string)($method['name_bn'] ?? ''));
+    if ($locale === 'bn') {
+        return $bn !== '' ? $bn : ($en !== '' ? $en : trans('shipping'));
+    }
+    return $en !== '' ? $en : ($bn !== '' ? $bn : trans('shipping'));
+}
+
 function send_order_status_email(array $order, string $oldStatus, string $newStatus): bool
 {
     $email = trim((string)($order['shipping_email'] ?? ''));
@@ -1030,4 +1690,421 @@ function send_contact_message_email(array $data): bool
     $headers .= "X-Mailer: PHP/" . phpversion();
 
     return @mail($to, $mailSubject, $body, $headers);
+}
+
+function whatsapp_order_url(): string
+{
+    $phone = trim((string) site_setting('footer_phone', ''));
+    if ($phone === '') {
+        return '';
+    }
+    $phone = preg_replace('/[^0-9+]/', '', $phone);
+    if ($phone === '') {
+        return '';
+    }
+    return 'https://wa.me/' . ltrim($phone, '+');
+}
+
+function homepage_sections(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $enFile = base_path('app/Lang/wsit_en.php');
+    $bnFile = base_path('app/Lang/wsit_bn.php');
+    $enStrings = file_exists($enFile) ? (array) require $enFile : [];
+    $bnStrings = file_exists($bnFile) ? (array) require $bnFile : [];
+
+    $allKeys = [
+        'section_land_trust' => [
+            'label_key' => 'Home Trust Badges',
+            'icon' => '🛡️',
+            'fields' => ['land_trust_1', 'land_trust_2', 'land_trust_3', 'land_trust_4'],
+        ],
+        'section_land_value' => [
+            'label_key' => 'Home Value Cards',
+            'icon' => '🚚',
+            'fields' => [
+                'land_value_1_icon', 'land_value_1', 'land_value_1_text',
+                'land_value_2_icon', 'land_value_2', 'land_value_2_text',
+                'land_value_3_icon', 'land_value_3', 'land_value_3_text',
+                'land_value_4_icon', 'land_value_4', 'land_value_4_text',
+            ],
+        ],
+        'section_land_story' => [
+            'label_key' => 'Home Story',
+            'icon' => '📖',
+            'fields' => [
+                'land_story_badge', 'land_story_title', 'land_story_par',
+                'land_story_image_label',
+                'land_story_1',
+                'land_story_2',
+                'land_story_3',
+                'land_story_4',
+            ],
+        ],
+        'section_land_why' => [
+            'label_key' => 'Home Why Us',
+            'icon' => '🏆',
+            'fields' => [
+                'land_why_title',
+                'land_why_1_icon', 'land_why_1', 'land_why_1_text',
+                'land_why_2_icon', 'land_why_2', 'land_why_2_text',
+                'land_why_3_icon', 'land_why_3', 'land_why_3_text',
+                'land_why_4_icon', 'land_why_4', 'land_why_4_text',
+            ],
+        ],
+        'section_land_how' => [
+            'label_key' => 'Home How To Order',
+            'icon' => '📦',
+            'fields' => [
+                'land_how_title',
+                'land_how_1_num', 'land_how_1', 'land_how_1_text',
+                'land_how_2_num', 'land_how_2', 'land_how_2_text',
+                'land_how_3_num', 'land_how_3', 'land_how_3_text',
+            ],
+        ],
+        'section_hero_content' => [
+            'label_key' => 'Hero Content',
+            'icon' => '🌟',
+            'fields' => ['land_hero_highlight', 'land_hero_1', 'land_hero_2', 'land_hero_3', 'land_stamp_label', 'land_stamp_text'],
+        ],
+        'section_land_products' => [
+            'label_key' => 'Products Heading',
+            'icon' => '🛒',
+            'fields' => ['land_products', 'land_products_text', 'land_tab_all'],
+        ],
+        'section_land_testimonials' => [
+            'label_key' => 'Home Testimonials',
+            'icon' => '⭐',
+            'fields' => [
+                'land_testimonials',
+                'land_testimonial_1_stars', 'land_testimonial_1', 'land_testimonial_1_by', 'land_testimonial_1_loc',
+                'land_testimonial_2_stars', 'land_testimonial_2', 'land_testimonial_2_by', 'land_testimonial_2_loc',
+                'land_testimonial_3_stars', 'land_testimonial_3', 'land_testimonial_3_by', 'land_testimonial_3_loc',
+            ],
+        ],
+        'section_land_faq' => [
+            'label_key' => 'Home FAQ',
+            'icon' => '❓',
+            'fields' => [
+                'land_faq_title',
+                'land_faq_1_q', 'land_faq_1_a',
+                'land_faq_2_q', 'land_faq_2_a',
+                'land_faq_3_q', 'land_faq_3_a',
+                'land_faq_4_q', 'land_faq_4_a',
+            ],
+        ],
+        'section_land_cta' => [
+            'label_key' => 'Home CTA Banner',
+            'icon' => '🔔',
+            'fields' => ['land_cta_title', 'land_cta_text', 'land_cta_btn', 'land_cta_wa', 'land_cta_call'],
+        ],
+        'section_footer_newsletter' => [
+            'label_key' => 'Home Newsletter',
+            'icon' => '📰',
+            'fields' => ['footer_newsletter', 'footer_newsletter_text', 'newsletter_placeholder', 'newsletter_btn'],
+        ],
+    ];
+
+    // Human-readable labels for the homepage content fields (used by the admin
+    // editor; falls back to the raw key when a field is missing from this map).
+    $fieldLabels = [
+        // Home Trust Badges
+        'land_trust_1'            => 'Trust Badge 1',
+        'land_trust_2'            => 'Trust Badge 2',
+        'land_trust_3'            => 'Trust Badge 3',
+        'land_trust_4'            => 'Trust Badge 4',
+        // Home Value Cards
+        'land_value_1_icon'       => 'Value Card 1 – Icon',
+        'land_value_1'            => 'Value Card 1 – Title',
+        'land_value_1_text'       => 'Value Card 1 – Text',
+        'land_value_2_icon'       => 'Value Card 2 – Icon',
+        'land_value_2'            => 'Value Card 2 – Title',
+        'land_value_2_text'       => 'Value Card 2 – Text',
+        'land_value_3_icon'       => 'Value Card 3 – Icon',
+        'land_value_3'            => 'Value Card 3 – Title',
+        'land_value_3_text'       => 'Value Card 3 – Text',
+        'land_value_4_icon'       => 'Value Card 4 – Icon',
+        'land_value_4'            => 'Value Card 4 – Title',
+        'land_value_4_text'       => 'Value Card 4 – Text',
+        // Home Story
+        'land_story_badge'        => 'Story Badge',
+        'land_story_title'        => 'Story Title',
+        'land_story_par'          => 'Story Paragraph',
+        'land_story_image_label'  => 'Story Image Caption',
+        'land_story_1'            => 'Story Point 1',
+        'land_story_2'            => 'Story Point 2',
+        'land_story_3'            => 'Story Point 3',
+        'land_story_4'            => 'Story Point 4',
+        // Home Why Us
+        'land_why_title'          => 'Why Us Title',
+        'land_why_1_icon'         => 'Why Us 1 – Icon',
+        'land_why_1'              => 'Why Us 1 – Title',
+        'land_why_1_text'         => 'Why Us 1 – Text',
+        'land_why_2_icon'         => 'Why Us 2 – Icon',
+        'land_why_2'              => 'Why Us 2 – Title',
+        'land_why_2_text'         => 'Why Us 2 – Text',
+        'land_why_3_icon'         => 'Why Us 3 – Icon',
+        'land_why_3'              => 'Why Us 3 – Title',
+        'land_why_3_text'         => 'Why Us 3 – Text',
+        'land_why_4_icon'         => 'Why Us 4 – Icon',
+        'land_why_4'              => 'Why Us 4 – Title',
+        'land_why_4_text'         => 'Why Us 4 – Text',
+        // Home How To Order
+        'land_how_title'          => 'How To Order Title',
+        'land_how_1_num'          => 'Step 1 – Number',
+        'land_how_1'              => 'Step 1 – Title',
+        'land_how_1_text'         => 'Step 1 – Text',
+        'land_how_2_num'          => 'Step 2 – Number',
+        'land_how_2'              => 'Step 2 – Title',
+        'land_how_2_text'         => 'Step 2 – Text',
+        'land_how_3_num'          => 'Step 3 – Number',
+        'land_how_3'              => 'Step 3 – Title',
+        'land_how_3_text'         => 'Step 3 – Text',
+        // Hero Content
+        'land_hero_highlight'     => 'Hero Highlight',
+        'land_hero_1'             => 'Hero Badge 1',
+        'land_hero_2'             => 'Hero Badge 2',
+        'land_hero_3'             => 'Hero Badge 3',
+        'land_stamp_label'        => 'Stamp Label',
+        'land_stamp_text'         => 'Stamp Text',
+        // Products Heading
+        'land_products'           => 'Products Heading',
+        'land_products_text'      => 'Products Subtitle',
+        'land_tab_all'            => 'All Products Tab Label',
+        // Home Testimonials
+        'land_testimonials'       => 'Testimonials Heading',
+        'land_testimonial_1_stars' => 'Testimonial 1 – Stars',
+        'land_testimonial_1'      => 'Testimonial 1 – Text',
+        'land_testimonial_1_by'   => 'Testimonial 1 – Author',
+        'land_testimonial_1_loc'  => 'Testimonial 1 – Location',
+        'land_testimonial_2_stars' => 'Testimonial 2 – Stars',
+        'land_testimonial_2'      => 'Testimonial 2 – Text',
+        'land_testimonial_2_by'   => 'Testimonial 2 – Author',
+        'land_testimonial_2_loc'  => 'Testimonial 2 – Location',
+        'land_testimonial_3_stars' => 'Testimonial 3 – Stars',
+        'land_testimonial_3'      => 'Testimonial 3 – Text',
+        'land_testimonial_3_by'   => 'Testimonial 3 – Author',
+        'land_testimonial_3_loc'  => 'Testimonial 3 – Location',
+        // Home FAQ
+        'land_faq_title'          => 'FAQ Heading',
+        'land_faq_1_q'            => 'FAQ 1 – Question',
+        'land_faq_1_a'            => 'FAQ 1 – Answer',
+        'land_faq_2_q'            => 'FAQ 2 – Question',
+        'land_faq_2_a'            => 'FAQ 2 – Answer',
+        'land_faq_3_q'            => 'FAQ 3 – Question',
+        'land_faq_3_a'            => 'FAQ 3 – Answer',
+        'land_faq_4_q'            => 'FAQ 4 – Question',
+        'land_faq_4_a'            => 'FAQ 4 – Answer',
+        // Home CTA Banner
+        'land_cta_title'          => 'CTA Title',
+        'land_cta_text'           => 'CTA Text',
+        'land_cta_btn'            => 'CTA Button Label',
+        'land_cta_wa'             => 'CTA WhatsApp Number',
+        'land_cta_call'           => 'CTA Call Number',
+        // Home Newsletter
+        'footer_newsletter'       => 'Newsletter Heading',
+        'footer_newsletter_text'  => 'Newsletter Text',
+        'newsletter_placeholder'  => 'Newsletter Email Placeholder',
+        'newsletter_btn'          => 'Newsletter Subscribe Button',
+    ];
+
+    $defaults = [];
+    foreach ($allKeys as $sectionId => $section) {
+        foreach ($section['fields'] as $key) {
+            $en = $enStrings[$key] ?? $key;
+            $bn = $bnStrings[$key] ?? $en;
+            $defaults[$key] = ['en' => (string) $en, 'bn' => (string) $bn];
+        }
+    }
+
+    $db = wsit_App::get('db');
+    if ($db !== null) {
+        try {
+            $setting = new \App\Models\wsit_Setting();
+            $raw = $setting->get('home_content', '');
+            if ($raw !== '') {
+                $overrides = json_decode($raw, true);
+                if (is_array($overrides)) {
+                    foreach ($overrides as $key => $value) {
+                        if (isset($defaults[$key]) && is_array($value)) {
+                            if (isset($value['en'])) {
+                                $defaults[$key]['en'] = (string) $value['en'];
+                            }
+                            if (isset($value['bn'])) {
+                                $defaults[$key]['bn'] = (string) $value['bn'];
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB unavailable — use defaults
+        }
+    }
+
+    $cache = ['defaults' => $defaults, 'sections' => $allKeys, 'field_labels' => $fieldLabels];
+    return $cache;
+}
+
+function homepage_section(string $key, ?string $locale = null): string
+{
+    $locale = $locale ?? app_locale();
+    $sections = homepage_sections();
+    return (string) ($sections['defaults'][$key][$locale] ?? ($sections['defaults'][$key]['en'] ?? $key));
+}
+
+/**
+ * Return the story section image path (stored as a standalone setting so it
+ * can be uploaded independently of the hero slides).
+ */
+function story_image_path(): string
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    try {
+        $setting = new \App\Models\wsit_Setting();
+        $cache = trim($setting->get('story_image', ''));
+    } catch (\Throwable $e) {
+        $cache = '';
+    }
+    return $cache;
+}
+
+// ---------------------------------------------------------------------------
+// Facebook Pixel
+// ---------------------------------------------------------------------------
+
+/**
+ * Return the merged Facebook Pixel configuration with defaults.
+ * Shape: ['pixel_id' => '', 'enabled' => bool, 'test_mode' => bool,
+ *          'events' => ['view_content'=>bool, 'add_to_cart'=>bool,
+ *                       'initiate_checkout'=>bool, 'purchase'=>bool]]
+ */
+function facebook_pixel_config(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $default = [
+        'pixel_id' => '',
+        'enabled'  => false,
+        'test_mode' => false,
+        'events'   => [
+            'view_content'      => true,
+            'add_to_cart'       => true,
+            'initiate_checkout' => true,
+            'purchase'          => true,
+        ],
+    ];
+
+    try {
+        $setting = new \App\Models\wsit_Setting();
+        $raw = $setting->get('facebook_pixel', '');
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                foreach ($default as $key => $val) {
+                    if (!array_key_exists($key, $decoded)) {
+                        continue;
+                    }
+                    if (is_array($val)) {
+                        if (is_array($decoded[$key])) {
+                            $default[$key] = array_merge($val, $decoded[$key]);
+                        }
+                    } elseif (is_bool($val)) {
+                        $default[$key] = (bool)$decoded[$key];
+                    } else {
+                        $default[$key] = trim((string)$decoded[$key]);
+                    }
+                }
+            }
+        }
+    } catch (\Throwable $e) {
+        // DB unavailable — fall back to defaults.
+    }
+
+    // Pixel is only "enabled" when a pixel ID is present and the master
+    // switch is on; an empty ID always disables the snippet.
+    $cache = $default;
+    $cache['enabled'] = $default['enabled'] && trim((string)$default['pixel_id']) !== '';
+    return $cache;
+}
+
+/** Whether the Facebook Pixel snippet should render at all. */
+function facebook_pixel_enabled(): bool
+{
+    $cfg = facebook_pixel_config();
+    return !empty($cfg['enabled']) && trim((string)$cfg['pixel_id']) !== '';
+}
+
+/** The raw pixel ID (empty when not configured). */
+function facebook_pixel_id(): string
+{
+    return trim((string)(facebook_pixel_config()['pixel_id'] ?? ''));
+}
+
+/** True when the given event name is toggled on in the admin. */
+function facebook_pixel_event_enabled(string $event): bool
+{
+    $events = facebook_pixel_config()['events'] ?? [];
+    return !empty($events[$event]);
+}
+
+/** True when test mode is on (events logged, not sent to Facebook). */
+function facebook_pixel_test_mode(): bool
+{
+    return !empty(facebook_pixel_config()['test_mode']);
+}
+
+/**
+ * Build the standard <script> base snippet for the <head>.
+ * Returns an empty string when the pixel is disabled.
+ */
+function facebook_pixel_base_script(): string
+{
+    if (!facebook_pixel_enabled()) {
+        return '';
+    }
+
+    $pixelId = facebook_pixel_id();
+    $testMode = facebook_pixel_test_mode() ? 'true' : 'false';
+
+    return <<<HTML
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);
+t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '{$pixelId}', {test_mode: {$testMode}});
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id={$pixelId}&ev=PageView&noscript=1"
+ /></noscript>
+HTML;
+}
+
+/**
+ * Render a standard event call for the given event name + parameters.
+ * Returns '' when the pixel is disabled or the event is toggled off.
+ */
+function facebook_pixel_track(string $event, array $params = []): string
+{
+    if (!facebook_pixel_enabled() || !facebook_pixel_event_enabled($event)) {
+        return '';
+    }
+
+    $json = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return "fbq('track', '" . e($event) . "', " . $json . ');';
 }

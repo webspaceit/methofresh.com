@@ -15,6 +15,15 @@
 /.idea/
 /.vscode/
 
+# Local agent/tooling temp dirs (one-off scripts, never part of the app)
+/.opencode-*/
+/.opencode_tmp/
+/app/.opencode-*/
+/app/.opencode_tmp/
+
+# One-off archive (image backup, not referenced by the app)
+/public/assets/img.zip
+
 # Environment & logs
 .env
 .env.*

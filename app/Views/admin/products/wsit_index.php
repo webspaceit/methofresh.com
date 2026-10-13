@@ -15,7 +15,7 @@ unset($currentQuery['page']);
            class="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
 </form>
 
-<div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+<div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-left text-xs text-stone-500 border-b border-stone-100 uppercase">

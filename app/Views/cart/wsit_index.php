@@ -6,12 +6,12 @@
         <span class="text-stone-600"><?= e(trans('nav_cart')) ?></span>
     </nav>
 
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-stone-900 mb-6"><?= e(trans('cart')) ?> <span class="text-base font-semibold text-stone-400">(<?= e(format_number($cartItemCount)) ?> <?= $cartItemCount === 1 ? e(trans('item')) : e(trans('items')) ?>)</span></h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-brand-800 mb-6"><?= e(trans('cart')) ?> <span class="text-base font-semibold text-stone-400">(<?= e(format_number($cartItemCount)) ?> <?= $cartItemCount === 1 ? e(trans('item')) : e(trans('items')) ?>)</span></h1>
 
     <?php if (empty($cart)): ?>
-    <div class="text-center py-20 bg-white rounded-3xl border border-stone-200">
+    <div class="text-center py-20 bg-card rounded-3xl border border-honey-600/15">
         <p class="text-7xl mb-4">🛒</p>
-        <h2 class="text-xl font-bold text-stone-800"><?= e(trans('cart_empty')) ?></h2>
+        <h2 class="text-xl font-bold text-brand-800"><?= e(trans('cart_empty')) ?></h2>
         <p class="text-sm text-stone-500 mt-1"><?= e(trans('cart_empty_hint')) ?></p>
         <a href="<?= e(locale_url('/products')) ?>" class="inline-block mt-6 rounded-xl bg-brand-600 text-white px-8 py-3 text-sm font-bold hover:bg-brand-700"><?= e(trans('start_shopping')) ?></a>
     </div>
@@ -23,21 +23,21 @@
             <?= csrf_field() ?>
             <?php foreach ($cart as $item): ?>
             <?php $itemTotal = (float)$item['current_price'] * (int)$item['quantity']; ?>
-            <div class="bg-white rounded-2xl border border-stone-200 p-3 sm:p-4 flex gap-4 items-center" x-data="{ qty: <?= (int)$item['quantity'] ?>, price: <?= (float)$item['current_price'] ?>, stock: <?= (int)$item['stock'] ?> }"
+            <div class="bg-card rounded-2xl border border-honey-600/15 p-3 sm:p-4 flex gap-4 items-center" x-data="{ qty: <?= (int)$item['quantity'] ?>, price: <?= (float)$item['current_price'] ?>, stock: <?= (int)$item['stock'] ?> }"
                  x-init="watchItem">
-                <a href="<?= e(locale_url('/products/' . $item['slug'])) ?>" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-stone-100 shrink-0">
+                <a href="<?= e(locale_url('/products/' . $item['slug'])) ?>" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-honey-100/40 shrink-0">
                     <img src="<?= e(image_url($item['image'] ?? '', $item['name'] ?? '', 200)) ?>" alt="<?= e($item['name']) ?>" class="w-full h-full object-cover">
                 </a>
 
                 <div class="flex-1 min-w-0">
-                    <a href="<?= e(locale_url('/products/' . $item['slug'])) ?>" class="font-semibold text-stone-800 text-sm sm:text-base line-clamp-1 hover:text-brand-700"><?= e($item['name']) ?></a>
+                    <a href="<?= e(locale_url('/products/' . $item['slug'])) ?>" class="font-semibold text-brand-800 text-sm sm:text-base line-clamp-1 hover:text-brand-700"><?= e($item['name']) ?></a>
                     <p class="text-xs text-stone-500 mt-0.5"><?= e(format_price((float)$item['current_price'])) ?> <?= e(trans('unit_price')) ?></p>
                     <?php if ($item['sale_price'] !== null): ?>
                     <p class="text-xs text-stone-400 line-through"><?= e(format_price((float)$item['unit_price'])) ?></p>
                     <?php endif; ?>
 
                     <div class="mt-2 flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center rounded-lg border border-stone-200">
+                        <div class="flex items-center rounded-lg border border-honey-600/15">
                             <button type="button" @click="qty = Math.max(1, qty - 1); $el.closest('form').watchLines()" class="px-3 py-1.5 font-bold text-stone-500 hover:text-brand-700">−</button>
                             <input type="number" name="quantity[<?= (int)$item['product_id'] ?>]" :value="qty" min="1" :max="stock"
                                    class="w-12 text-center text-sm font-bold focus:outline-none bg-transparent" readonly>
@@ -66,7 +66,7 @@
         </form>
 
         <!-- Summary -->
-        <aside class="bg-white rounded-2xl border border-stone-200 p-5 h-fit lg:sticky lg:top-24">
+        <aside class="bg-card rounded-2xl border border-honey-600/15 p-5 h-fit lg:sticky lg:top-24">
             <h2 class="font-bold text-lg mb-4"><?= e(trans('order_summary')) ?></h2>
 
             <form method="post" action="<?= e(locale_url('/cart/coupon')) ?>" class="mb-4">
@@ -74,13 +74,13 @@
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('coupon')) ?></label>
                 <div class="flex gap-2 mt-1">
                     <input type="text" name="code" placeholder="WELCOME10"
-                           class="flex-1 min-w-0 rounded-xl border border-stone-200 px-3 py-2 text-sm uppercase focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                    <button type="submit" class="rounded-xl bg-stone-800 hover:bg-stone-900 text-white px-4 py-2 text-sm font-semibold"><?= e(trans('apply')) ?></button>
+                           class="flex-1 min-w-0 rounded-xl border border-honey-600/15 px-3 py-2 text-sm uppercase focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    <button type="submit" class="rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 text-sm font-semibold"><?= e(trans('apply')) ?></button>
                 </div>
                 <p class="text-[11px] text-stone-400 mt-1"><?= e(trans('promo_hint')) ?></p>
             </form>
 
-            <div class="space-y-2 text-sm border-t border-stone-100 pt-4">
+            <div class="space-y-2 text-sm border-t border-honey-600/15 pt-4">
                 <div class="flex justify-between">
                     <span class="text-stone-500"><?= e(trans('subtotal')) ?></span>
                     <span class="font-semibold" x-text="'<?= app_locale() === 'bn' ? '৳' : '$' ?>' + subtotal.toFixed(2)"><?= e(format_price($subtotal)) ?></span>
@@ -94,8 +94,8 @@
                     <span class="font-semibold" x-show="shipping > 0" x-text="'<?= app_locale() === 'bn' ? '৳' : '$' ?>' + shipping.toFixed(2)"><?= e(format_price($shipping)) ?></span>
                     <span class="font-semibold text-green-600" x-show="shipping === 0"><?= e(trans('shipping_free')) ?></span>
                 </div>
-                <div class="flex justify-between border-t border-stone-100 pt-3 text-base">
-                    <span class="font-bold text-stone-900"><?= e(trans('grand_total')) ?></span>
+                <div class="flex justify-between border-t border-honey-600/15 pt-3 text-base">
+                    <span class="font-bold text-brand-800"><?= e(trans('grand_total')) ?></span>
                     <span class="font-extrabold text-brand-700" x-text="'<?= app_locale() === 'bn' ? '৳' : '$' ?>' + grandTotal.toFixed(2)"><?= e(format_price($total)) ?></span>
                 </div>
             </div>
