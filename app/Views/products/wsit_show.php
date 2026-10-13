@@ -1,6 +1,9 @@
 <?php
 $priceInfo = price_display($product);
 $productName = $product['name'] ?? '';
+$image = $product['image'] ?? '';
+$imgUrl = image_url($image, $productName, 600);
+$inStock = (int)($product['stock'] ?? 0) > 0;
 $productPrice = $priceInfo['current'];
 $currency = app_locale() === 'bn' ? 'BDT' : 'USD';
 ?>
