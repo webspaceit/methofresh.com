@@ -32,7 +32,17 @@ function app_config(): array
     if ($cfg !== null) {
         return $cfg;
     }
-    $cfg = require dirname(__DIR__) . '/app/config/wsit_config.php';
+    // Base config is developer-local and gitignored; fall back to the tracked
+    // sample so a bare hosting upload (repo + production override) can boot.
+    $base   = dirname(__DIR__) . '/app/config/wsit_config.php';
+    $sample = dirname(__DIR__) . '/app/config/wsit_config.sample.php';
+    if (file_exists($base)) {
+        $cfg = require $base;
+    } elseif (file_exists($sample)) {
+        $cfg = require $sample;
+    } else {
+        $cfg = [];
+    }
     // Load production overrides only in production env (never commit these files).
     // Also self-activates on any HTTPS request: a live server is always https,
     // so the production config can never be silently skipped after upload.
