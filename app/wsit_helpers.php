@@ -219,8 +219,15 @@ function site_logo_dimensions(): array
 function site_logo_style(): string
 {
     $d = site_logo_dimensions();
-    $style = 'height:' . $d['height'] . 'px;';
-    $style .= $d['width'] > 0 ? 'width:' . $d['width'] . 'px;' : 'width:auto;';
+    // Constrain only ONE dimension and let the other follow the image's own
+    // aspect ratio. Forcing both height and width turns the <img> into a fixed
+    // box that "letterboxes" any non-square logo, which shows up as empty
+    // (header-coloured) space above and below the artwork.
+    if ($d['width'] > 0) {
+        $style = 'width:' . $d['width'] . 'px;height:auto;';
+    } else {
+        $style = 'height:' . $d['height'] . 'px;width:auto;';
+    }
     $style .= 'border-radius:17px;';
     return $style;
 }
