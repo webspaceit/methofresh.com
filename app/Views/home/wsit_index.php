@@ -44,7 +44,8 @@ foreach ($renderBlocks as $block) {
 $tabCategories = array_values($categories ?? []);
 ?>
 <style>
-    .hero-slide { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; z-index: 0; pointer-events: none; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    .hero-slide { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; z-index: 0; pointer-events: none; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
+    .hero-slide::-webkit-scrollbar { width: 0; height: 0; display: none; }
     .hero-slide.active { opacity: 1; visibility: visible; z-index: 10; pointer-events: auto; }
     .hero-dot { width: .625rem; height: .625rem; border-radius: 9999px; background: rgba(27,67,50,.22); transition: all .3s ease; }
     .hero-dot.active { background: #D97706; width: 1.5rem; }
