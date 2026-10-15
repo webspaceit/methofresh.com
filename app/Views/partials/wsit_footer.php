@@ -91,7 +91,7 @@ if ($showSocial) {
 }
 
 // Accepted payment methods (icons configured under Dashboard → Payment Methods).
-$payments = $showPayments ? active_payment_methods($locale) : [];
+$payments = $showPayments ? all_payment_methods_for_footer($locale) : [];
 
 $socialSvg = static function (string $platform): string {
     $paths = [
@@ -247,8 +247,13 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                     <?php if ($payments): ?>
                         <div class="ft-pay-icons grid grid-cols-2 gap-2">
                             <?php foreach ($payments as $method): ?>
+                                <?php $iconSrc = !empty($method['custom_icon']) ? asset_url($method['custom_icon']) : (str_starts_with($method['icon'] ?? '', '/') ? $method['icon'] : ''); ?>
                                 <span class="ft-pay-icon" title="<?= e((string) ($method['title'] ?? '')) ?>">
-                                    <img src="<?= e((string) ($method['icon'] ?? '')) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-8 h-8" />
+                                    <?php if ($iconSrc && (str_starts_with($iconSrc, '/assets/img/uploads/') || str_starts_with($method['icon'] ?? '', '/assets/img/'))): ?>
+                                        <img src="<?= e($iconSrc ?: $method['icon']) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-10 h-10 object-contain" />
+                                    <?php elseif (!empty($method['icon'])): ?>
+                                        <span class="text-2xl" aria-hidden="true"><?= e($method['icon']) ?></span>
+                                    <?php endif; ?>
                                 </span>
                             <?php endforeach; ?>
                         </div>

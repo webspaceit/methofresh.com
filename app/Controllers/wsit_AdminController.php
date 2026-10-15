@@ -1259,15 +1259,67 @@ class wsit_AdminController extends wsit_Controller
         $inputMethods = (array)$request->input('methods', []);
         $defaults = payment_methods_config();
         $cleaned = [];
+        $removeIcons = (array)$request->input('remove_icon', []);
+        $uploadDir = public_path('assets/img/uploads/payment-methods');
+
+        // Ensure upload directory exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
 
         foreach ($defaults as $key => $def) {
             $in = $inputMethods[$key] ?? [];
             $enabled = !empty($in['enabled']);
 
+            // Handle icon removal
+            $customIcon = $def['custom_icon'] ?? '';
+            if (!empty($removeIcons[$key]) && $customIcon) {
+                $iconPath = public_path($customIcon);
+                if (file_exists($iconPath)) {
+                    unlink($iconPath);
+                }
+                $customIcon = '';
+            }
+
+            // Handle icon upload
+            $files = $_FILES['icons'] ?? [];
+            if (!empty($files['name'][$key]) && $files['error'][$key] === UPLOAD_ERR_OK) {
+                $file = [
+                    'name' => $files['name'][$key],
+                    'type' => $files['type'][$key],
+                    'tmp_name' => $files['tmp_name'][$key],
+                    'error' => $files['error'][$key],
+                    'size' => $files['size'][$key],
+                ];
+
+                // Validate file type
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'];
+                if (in_array($file['type'], $allowedTypes)) {
+                    // Delete old custom icon if exists
+                    if ($customIcon) {
+                        $oldIconPath = public_path($customIcon);
+                        if (file_exists($oldIconPath)) {
+                            unlink($oldIconPath);
+                        }
+                    }
+
+                    // Generate unique filename
+                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    $filename = $key . '-' . time() . '.' . $ext;
+                    $destination = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+
+                    // Move uploaded file
+                    if (move_uploaded_file($file['tmp_name'], $destination)) {
+                        $customIcon = 'assets/img/uploads/payment-methods/' . $filename;
+                    }
+                }
+            }
+
             $cleaned[$key] = [
                 'key'         => $key,
                 'enabled'     => $enabled,
                 'icon'        => $def['icon'] ?? '',
+                'custom_icon' => $customIcon,
                 'title_en'    => trim((string)($in['title_en'] ?? $def['title_en'] ?? '')),
                 'title_bn'    => trim((string)($in['title_bn'] ?? $def['title_bn'] ?? '')),
                 'desc_en'     => trim((string)($in['desc_en'] ?? '')),

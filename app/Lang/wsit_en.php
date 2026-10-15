@@ -490,6 +490,7 @@ return [
 
     'admin_payment_methods'      => 'Payment Methods',
     'admin_payment_methods_desc' => 'Enable or disable payment gateways, update account numbers, and customize instructions shown to customers at checkout.',
+    'admin_payment_icon'         => 'Payment Icon',
     'payment_method_cod'         => 'Cash on Delivery',
     'payment_method_bkash'       => 'bKash Mobile Banking',
     'payment_method_nagad'       => 'Nagad Mobile Banking',

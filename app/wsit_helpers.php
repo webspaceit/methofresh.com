@@ -1398,6 +1398,22 @@ function active_payment_methods(string|null $locale = null): array
     return $active;
 }
 
+/**
+ * Get all payment methods for footer display (regardless of enabled status)
+ */
+function all_payment_methods_for_footer(string|null $locale = null): array
+{
+    $locale = $locale ?? app_locale();
+    $all = payment_methods_config();
+    $methods = [];
+    foreach ($all as $key => $method) {
+        $method['title'] = $locale === 'bn' ? ($method['title_bn'] ?: $method['title_en']) : $method['title_en'];
+        $method['desc']  = $locale === 'bn' ? ($method['desc_bn'] ?: $method['desc_en']) : $method['desc_en'];
+        $methods[$key] = $method;
+    }
+    return $methods;
+}
+
 function payment_method_label(string $key, string|null $locale = null): string
 {
     $locale = $locale ?? app_locale();

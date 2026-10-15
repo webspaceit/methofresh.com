@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<form method="post" action="<?= e(locale_url('/mf-dashboard/payment-methods')) ?>" class="space-y-6 max-w-4xl">
+<form method="post" action="<?= e(locale_url('/mf-dashboard/payment-methods')) ?>" enctype="multipart/form-data" class="space-y-6 max-w-4xl">
     <?= csrf_field() ?>
 
     <!-- ==========================================
@@ -32,6 +32,31 @@
         </div>
 
         <div class="p-5 space-y-4">
+            <!-- Icon Upload -->
+            <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-2"><?= e(trans('admin_payment_icon')) ?></label>
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
+                        <?php $codIcon = $methods['cod']['custom_icon'] ?? ''; ?>
+                        <?php if ($codIcon && file_exists(public_path($codIcon))): ?>
+                            <img src="<?= e(asset_url($codIcon)) ?>" alt="COD Icon" class="w-full h-full object-contain">
+                        <?php else: ?>
+                            <span class="text-3xl"><?= e($methods['cod']['icon'] ?? '💵') ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="icons[cod]" accept="image/*" class="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <p class="text-xs text-stone-400 mt-1">SVG, PNG or JPG (max 500x500px)</p>
+                        <?php if ($codIcon): ?>
+                            <label class="inline-flex items-center gap-2 mt-2 text-xs text-red-600 cursor-pointer">
+                                <input type="checkbox" name="remove_icon[cod]" value="1" class="rounded border-red-300">
+                                <span>Remove custom icon</span>
+                            </label>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('admin_name_en')) ?></label>
@@ -95,6 +120,31 @@
         </div>
 
         <div class="p-5 space-y-4">
+            <!-- Icon Upload -->
+            <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-2"><?= e(trans('admin_payment_icon')) ?></label>
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
+                        <?php $bkashIcon = $methods['bkash']['custom_icon'] ?? ''; ?>
+                        <?php if ($bkashIcon && file_exists(public_path($bkashIcon))): ?>
+                            <img src="<?= e(asset_url($bkashIcon)) ?>" alt="bKash Icon" class="w-full h-full object-contain">
+                        <?php else: ?>
+                            <span class="text-3xl"><?= e($methods['bkash']['icon'] ?? '📱') ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="icons[bkash]" accept="image/*" class="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <p class="text-xs text-stone-400 mt-1">SVG, PNG or JPG (max 500x500px)</p>
+                        <?php if ($bkashIcon): ?>
+                            <label class="inline-flex items-center gap-2 mt-2 text-xs text-red-600 cursor-pointer">
+                                <input type="checkbox" name="remove_icon[bkash]" value="1" class="rounded border-red-300">
+                                <span>Remove custom icon</span>
+                            </label>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_account_number')) ?></label>
@@ -183,6 +233,31 @@
         </div>
 
         <div class="p-5 space-y-4">
+            <!-- Icon Upload -->
+            <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-2"><?= e(trans('admin_payment_icon')) ?></label>
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
+                        <?php $nagadIcon = $methods['nagad']['custom_icon'] ?? ''; ?>
+                        <?php if ($nagadIcon && file_exists(public_path($nagadIcon))): ?>
+                            <img src="<?= e(asset_url($nagadIcon)) ?>" alt="Nagad Icon" class="w-full h-full object-contain">
+                        <?php else: ?>
+                            <span class="text-3xl"><?= e($methods['nagad']['icon'] ?? '💳') ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="icons[nagad]" accept="image/*" class="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <p class="text-xs text-stone-400 mt-1">SVG, PNG or JPG (max 500x500px)</p>
+                        <?php if ($nagadIcon): ?>
+                            <label class="inline-flex items-center gap-2 mt-2 text-xs text-red-600 cursor-pointer">
+                                <input type="checkbox" name="remove_icon[nagad]" value="1" class="rounded border-red-300">
+                                <span>Remove custom icon</span>
+                            </label>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_account_number')) ?></label>
@@ -270,6 +345,31 @@
         </div>
 
         <div class="p-5 space-y-4">
+            <!-- Icon Upload -->
+            <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-2"><?= e(trans('admin_payment_icon')) ?></label>
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
+                        <?php $rocketIcon = $methods['rocket']['custom_icon'] ?? ''; ?>
+                        <?php if ($rocketIcon && file_exists(public_path($rocketIcon))): ?>
+                            <img src="<?= e(asset_url($rocketIcon)) ?>" alt="Rocket Icon" class="w-full h-full object-contain">
+                        <?php else: ?>
+                            <span class="text-3xl"><?= e($methods['rocket']['icon'] ?? '🚀') ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="icons[rocket]" accept="image/*" class="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <p class="text-xs text-stone-400 mt-1">SVG, PNG or JPG (max 500x500px)</p>
+                        <?php if ($rocketIcon): ?>
+                            <label class="inline-flex items-center gap-2 mt-2 text-xs text-red-600 cursor-pointer">
+                                <input type="checkbox" name="remove_icon[rocket]" value="1" class="rounded border-red-300">
+                                <span>Remove custom icon</span>
+                            </label>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_account_number')) ?></label>
@@ -357,6 +457,31 @@
         </div>
 
         <div class="p-5 space-y-4">
+            <!-- Icon Upload -->
+            <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-2"><?= e(trans('admin_payment_icon')) ?></label>
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
+                        <?php $bankIcon = $methods['bank']['custom_icon'] ?? ''; ?>
+                        <?php if ($bankIcon && file_exists(public_path($bankIcon))): ?>
+                            <img src="<?= e(asset_url($bankIcon)) ?>" alt="Bank Transfer Icon" class="w-full h-full object-contain">
+                        <?php else: ?>
+                            <span class="text-3xl"><?= e($methods['bank']['icon'] ?? '🏦') ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="icons[bank]" accept="image/*" class="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <p class="text-xs text-stone-400 mt-1">SVG, PNG or JPG (max 500x500px)</p>
+                        <?php if ($bankIcon): ?>
+                            <label class="inline-flex items-center gap-2 mt-2 text-xs text-red-600 cursor-pointer">
+                                <input type="checkbox" name="remove_icon[bank]" value="1" class="rounded border-red-300">
+                                <span>Remove custom icon</span>
+                            </label>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_bank_name')) ?></label>

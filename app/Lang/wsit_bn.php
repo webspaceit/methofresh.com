@@ -492,6 +492,7 @@ return [
 
     'admin_payment_methods'      => 'পেমেন্ট পদ্ধতিসমূহ',
     'admin_payment_methods_desc' => 'গৃহীত পেমেন্ট গেটওয়ে, অ্যাকাউন্ট নম্বর ও গ্রাহক নির্দেশাবলী কনফিগার করুন।',
+    'admin_payment_icon'         => 'পেমেন্ট আইকন',
     'payment_method_cod'         => 'ক্যাশ অন ডেলিভারি',
     'payment_method_bkash'       => 'বিকাশ মোবাইল ব্যাংকিং',
     'payment_method_nagad'       => 'নগদ মোবাইল ব্যাংকিং',
