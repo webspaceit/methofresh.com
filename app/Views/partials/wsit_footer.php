@@ -238,12 +238,6 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                 <?php elseif ($block === 'payments' && $showPayments && ($payments || $paymentsLabel !== '' || $paymentsText !== '')): ?>
                 <!-- Accepted payments -->
                 <div class="mb-6 last:mb-0">
-                    <?php if ($paymentsLabel !== ''): ?>
-                        <h4 class="ft-heading mb-3"><?= e($paymentsLabel) ?></h4>
-                    <?php endif; ?>
-                    <?php if ($paymentsText !== ''): ?>
-                        <p class="ft-muted leading-relaxed mb-3"><?= e($paymentsText) ?></p>
-                    <?php endif; ?>
                     <?php if ($payments): ?>
                         <?php
                         // Define the desired order and layout
