@@ -637,6 +637,19 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
     const cbBtn = document.getElementById('add-custom-block');
     const cbTpl = <?= json_encode($customBlockTemplate) ?>;
 
+    // Bind translate buttons within a container
+    function bindTranslateButtons(container) {
+        if (!container) return;
+        const buttons = container.querySelectorAll('button[onclick*="bnTranslate"]');
+        buttons.forEach(function(btn) {
+            // Translate buttons already have inline onclick handlers
+            // This function is a placeholder for any additional initialization needed
+            btn.addEventListener('click', function(e) {
+                // Let the inline onclick handler do its work
+            });
+        });
+    }
+
     if (cbBtn && cbContainer && cbTpl) {
         cbBtn.addEventListener('click', function () {
             const key = cbContainer.children.length;
