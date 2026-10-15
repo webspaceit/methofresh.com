@@ -363,7 +363,7 @@ function footer_quick_links(): array
  */
 function footer_block_keys(): array
 {
-    return ['brand', 'links', 'contact', 'social', 'delivery', 'payments'];
+    return ['brand', 'links', 'contact', 'social', 'delivery', 'payments', 'custom'];
 }
 
 /**
@@ -1299,7 +1299,7 @@ function payment_methods_config(): array
         'cod' => [
             'key'         => 'cod',
             'enabled'     => true,
-            'icon'        => '💵',
+            'icon'        => '/assets/img/payment-methods/cod.svg',
             'title_en'    => 'Cash on Delivery',
             'title_bn'    => 'ক্যাশ অন ডেলিভারি',
             'desc_en'     => 'Pay with cash upon delivery at your doorstep.',
@@ -1311,7 +1311,7 @@ function payment_methods_config(): array
         'bkash' => [
             'key'         => 'bkash',
             'enabled'     => true,
-            'icon'        => '📱',
+            'icon'        => '/assets/img/payment-methods/bkash.svg',
             'title_en'    => 'bKash',
             'title_bn'    => 'বিকাশ',
             'desc_en'     => 'Send money to our bKash number and enter the transaction ID.',
@@ -1323,7 +1323,7 @@ function payment_methods_config(): array
         'nagad' => [
             'key'         => 'nagad',
             'enabled'     => false,
-            'icon'        => '💳',
+            'icon'        => '/assets/img/payment-methods/nagad.svg',
             'title_en'    => 'Nagad',
             'title_bn'    => 'নগদ',
             'desc_en'     => 'Send money to our Nagad number and enter the transaction ID.',
@@ -1335,7 +1335,7 @@ function payment_methods_config(): array
         'rocket' => [
             'key'         => 'rocket',
             'enabled'     => false,
-            'icon'        => '🚀',
+            'icon'        => '/assets/img/payment-methods/rocket.svg',
             'title_en'    => 'Rocket',
             'title_bn'    => 'রকেট',
             'desc_en'     => 'Send money to our DBBL Rocket account number.',
@@ -1347,7 +1347,7 @@ function payment_methods_config(): array
         'bank' => [
             'key'         => 'bank',
             'enabled'     => false,
-            'icon'        => '🏦',
+            'icon'        => '/assets/img/payment-methods/bank-transfer.svg',
             'title_en'    => 'Bank Transfer',
             'title_bn'    => 'ব্যাংক ট্রান্সফার',
             'desc_en'     => 'Direct deposit to our corporate bank account.',

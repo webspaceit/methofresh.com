@@ -137,9 +137,9 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
         .site-footer .ft-social a { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); }
         .site-footer .ft-social a:hover { background: var(--ft-hover); border-color: var(--ft-hover); color: var(--ft-bg); }
         .site-footer .ft-pay { border-top: 1px solid var(--ft-border); margin-top: .85rem; padding-top: .85rem; }
-        .site-footer .ft-pay-icon { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .7rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); font-size: .78rem; line-height: 1; }
-        .site-footer .ft-pay-icon .ft-pay-emoji { font-size: 1rem; }
-        .site-footer .ft-pay-icon:hover { border-color: var(--ft-hover); color: var(--ft-hover); }
+        .site-footer .ft-pay-icon { display: inline-flex; align-items: center; justify-content: center; padding: .5rem; border-radius: 8px; border: 1px solid var(--ft-border); background: rgba(255,255,255,0.05); }
+        .site-footer .ft-pay-icon img { width: 40px; height: 40px; object-fit: contain; }
+        .site-footer .ft-pay-icon:hover { border-color: var(--ft-hover); }
     </style>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ft-inner">
@@ -248,8 +248,7 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                         <div class="ft-pay-icons grid grid-cols-2 gap-2">
                             <?php foreach ($payments as $method): ?>
                                 <span class="ft-pay-icon" title="<?= e((string) ($method['title'] ?? '')) ?>">
-                                    <span class="ft-pay-emoji" aria-hidden="true"><?= e((string) ($method['icon'] ?? '')) ?></span>
-                                    <span><?= e((string) ($method['title'] ?? '')) ?></span>
+                                    <img src="<?= e((string) ($method['icon'] ?? '')) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-8 h-8" />
                                 </span>
                             <?php endforeach; ?>
                         </div>
