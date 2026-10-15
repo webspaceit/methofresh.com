@@ -866,6 +866,55 @@ class wsit_AdminController extends wsit_Controller
         $this->redirect('/mf-dashboard/footer');
     }
 
+    public function header(): string
+    {
+        return $this->view('admin/wsit_header', [
+            'pageTitle' => trans('admin_header') . ' | ' . trans('admin'),
+        ], 'wsit_admin_material');
+    }
+
+    public function updateHeader(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/header');
+        }
+
+        // Appearance — colours accept only a hex value; sizes are clamped.
+        $colorKeys = [
+            'header_bg_color', 'header_text_color', 'header_text_hover_color',
+            'nav_bg_color', 'nav_text_color', 'nav_accent_color',
+            'ann_bg_color', 'ann_text_color',
+        ];
+        foreach ($colorKeys as $key) {
+            $val = trim((string)$request->input($key, ''));
+            if ($val !== '' && preg_match('/^#[0-9a-fA-F]{3,8}$/', $val)) {
+                $this->settingModel->set($key, $val);
+            }
+        }
+
+        $numRanges = [
+            'nav_font_size'     => [11, 20],
+            'header_label_size' => [9, 16],
+            'header_padding'    => [6, 28],
+            'nav_padding'       => [4, 24],
+        ];
+        foreach ($numRanges as $key => $range) {
+            $val = (int)$request->input($key, 0);
+            if ($val > 0) {
+                $this->settingModel->set($key, (string)max($range[0], min($range[1], $val)));
+            }
+        }
+
+        // Visibility toggles — unchecked checkboxes are absent from the request.
+        foreach (['header_show_announcement', 'header_show_nav'] as $key) {
+            $this->settingModel->set($key, $request->input($key) ? '1' : '0');
+        }
+
+        $this->flash('success', trans('admin_saved'));
+        $this->redirect('/mf-dashboard/header');
+    }
+
     private function saveFooterSocialLinks(wsit_Request $request): void
     {
         $raw     = $request->inputArray('social_links', []);

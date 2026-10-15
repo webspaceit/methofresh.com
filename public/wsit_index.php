@@ -115,6 +115,8 @@ $router->post('/mf-dashboard/pages/{id}/delete',           [wsit_AdminPageContro
 $router->post('/mf-dashboard/pages/{id}/toggle',           [wsit_AdminPageController::class, 'toggle']);
 $router->get('/mf-dashboard/footer',                       [wsit_AdminController::class, 'footer']);
 $router->post('/mf-dashboard/footer',                      [wsit_AdminController::class, 'updateFooter']);
+$router->get('/mf-dashboard/header',                       [wsit_AdminController::class, 'header']);
+$router->post('/mf-dashboard/header',                      [wsit_AdminController::class, 'updateHeader']);
 $router->get('/mf-dashboard/payment-methods',              [wsit_AdminController::class, 'paymentMethods']);
 $router->post('/mf-dashboard/payment-methods',             [wsit_AdminController::class, 'updatePaymentMethods']);
 $router->get('/mf-dashboard/shipping',                     [wsit_AdminController::class, 'shippingMethods']);

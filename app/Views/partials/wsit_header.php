@@ -17,9 +17,65 @@ $headerCategories = app()->get('footer_categories') ?? \App\Models\wsit_Category
 $headerQuick = array_slice(array_values($headerCategories), 0, 4);
 $headerAllCategories = array_values($headerCategories);
 $pathIsHome = $path === '';
+
+// --- Header / top-navigation appearance (dashboard-editable) --------------
+// Only safe CSS colour tokens are honoured; anything else falls back.
+$hdColor = static function (string $val, string $fallback): string {
+    $val = trim($val);
+    if ($val !== '' && (
+        preg_match('/^#[0-9a-fA-F]{3,8}$/', $val)
+        || preg_match('/^rgba?\([0-9.,%\s]+\)$/', $val)
+        || preg_match('/^[a-zA-Z]{3,20}$/', $val)
+    )) {
+        return $val;
+    }
+    return $fallback;
+};
+$hdNum = static function (string $val, int $min, int $max, int $fallback): int {
+    $val = trim($val);
+    if ($val === '' || !is_numeric($val)) {
+        return $fallback;
+    }
+    return max($min, min($max, (int) $val));
+};
+
+$hdVars = sprintf(
+    '--hd-bg:%s;--hd-text:%s;--hd-hover:%s;--hd-nav-bg:%s;--hd-nav-text:%s;--hd-accent:%s;'
+    . '--hd-ann-bg:%s;--hd-ann-text:%s;--hd-nav-fs:%dpx;--hd-label-fs:%dpx;--hd-py:%dpx;--hd-nav-py:%dpx;',
+    $hdColor(site_setting('header_bg_color'), '#142e1c'),
+    $hdColor(site_setting('header_text_color'), '#d6d3d1'),
+    $hdColor(site_setting('header_text_hover_color'), '#ffffff'),
+    $hdColor(site_setting('nav_bg_color'), '#142e1c'),
+    $hdColor(site_setting('nav_text_color'), '#e7e5e4'),
+    $hdColor(site_setting('nav_accent_color'), '#fbbf24'),
+    $hdColor(site_setting('ann_bg_color'), '#143626'),
+    $hdColor(site_setting('ann_text_color'), '#ffffff'),
+    $hdNum(site_setting('nav_font_size'), 11, 20, 14),
+    $hdNum(site_setting('header_label_size'), 9, 16, 11),
+    $hdNum(site_setting('header_padding'), 6, 28, 14),
+    $hdNum(site_setting('nav_padding'), 4, 24, 10)
+);
+
+$showAnn = site_setting('header_show_announcement', '1') !== '0';
+$showNav = site_setting('header_show_nav', '1') !== '0';
 ?>
+<div class="site-header" style="<?= e($hdVars) ?>">
+<style>
+    .site-header .hd-ann { background: var(--hd-ann-bg); color: var(--hd-ann-text); }
+    .site-header .hd-bar { background: var(--hd-bg); }
+    .site-header .hd-bar-inner { padding-top: var(--hd-py); padding-bottom: var(--hd-py); }
+    .site-header .hd-icon { color: var(--hd-text); }
+    .site-header .hd-icon:hover { color: var(--hd-hover); }
+    .site-header .hd-label { font-size: var(--hd-label-fs); }
+    .site-header .hd-nav { background: var(--hd-nav-bg); }
+    .site-header .hd-nav-inner { padding-top: var(--hd-nav-py); padding-bottom: var(--hd-nav-py); }
+    .site-header .hd-nav-link { color: var(--hd-nav-text); font-size: var(--hd-nav-fs); }
+    .site-header .hd-nav-link:hover { color: var(--hd-accent); }
+    .site-header .hd-nav-active { color: var(--hd-accent); border-bottom-color: var(--hd-accent) !important; }
+</style>
 <!-- BEGIN: AnnouncementBar -->
-<div class="bg-brand-800 text-white text-xs sm:text-sm py-2 px-4" data-purpose="announcement-bar">
+<?php if ($showAnn): ?>
+<div class="hd-ann bg-brand-800 text-white text-xs sm:text-sm py-2 px-4" data-purpose="announcement-bar">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
         <div class="w-full md:w-auto md:flex-1 md:pr-6 min-w-0 h-6 overflow-hidden"
              x-data="{ i: 0, n: <?= count($annSlides) ?>, t: null }"
@@ -49,10 +105,11 @@ $pathIsHome = $path === '';
         </div>
     </div>
 </div>
+<?php endif; ?>
 <!-- END: AnnouncementBar -->
 <!-- BEGIN: MainHeader -->
-<header class="bg-[#142e1c] border-b border-white/15 top-0 z-50 shadow-sm" data-purpose="primary-header">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+<header class="hd-bar bg-[#142e1c] border-b border-white/15 top-0 z-50 shadow-sm" data-purpose="primary-header">
+    <div class="hd-bar-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
         <div class="flex items-center justify-between gap-4">
 
             <!-- Mobile hamburger -->
@@ -111,7 +168,7 @@ $pathIsHome = $path === '';
                     </div>
                 </form>
                 <?php if (count($headerQuick) > 0): ?>
-                <div class="flex items-center gap-2 mt-1.5 text-[11px] text-stone-300 pl-3">
+                <div class="hd-icon flex items-center gap-2 mt-1.5 text-[11px] text-stone-300 pl-3">
                     <span><?= e(trans('popular_label')) ?></span>
                     <?php foreach ($headerQuick as $quickCat): ?>
                     <a class="hover:text-white underline decoration-white/40" href="<?= e(locale_url('/categories/' . $quickCat['slug'])) ?>"><?= e($quickCat['name']) ?></a>
@@ -126,16 +183,16 @@ $pathIsHome = $path === '';
                 <!-- Language switcher -->
                 <div class="flex items-center rounded-lg border border-white/25 p-0.5 text-xs font-semibold" x-data>
                     <a href="<?= e(locale_url_for('en', '/' . $path)) ?>?lang=en"
-                       class="px-2 py-1 rounded-md transition <?= $locale === 'en' ? 'bg-amber-500 text-stone-900' : 'text-stone-300 hover:text-white' ?>">EN</a>
+                       class="px-2 py-1 rounded-md transition <?= $locale === 'en' ? 'bg-amber-500 text-stone-900' : 'hd-icon text-stone-300 hover:text-white' ?>">EN</a>
                     <a href="<?= e(locale_url_for('bn', '/' . $path)) ?>?lang=bn"
-                       class="px-2 py-1 rounded-md transition font-bengali <?= $locale === 'bn' ? 'bg-amber-500 text-stone-900' : 'text-stone-300 hover:text-white' ?>">বাংলা</a>
+                       class="px-2 py-1 rounded-md transition font-bengali <?= $locale === 'bn' ? 'bg-amber-500 text-stone-900' : 'hd-icon text-stone-300 hover:text-white' ?>">বাংলা</a>
                 </div>
 
                 <!-- Account -->
                 <?php if ($currentUser): ?>
                 <div x-data="{ openAccount: false }" class="relative hidden sm:block">
                     <button @click="openAccount = !openAccount" @click.outside="openAccount = false"
-                            class="flex flex-col items-center text-stone-300 hover:text-white transition">
+                            class="hd-icon flex flex-col items-center text-stone-300 hover:text-white transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                     </button>
                     <div x-show="openAccount" x-cloak x-transition
@@ -149,14 +206,14 @@ $pathIsHome = $path === '';
                     </div>
                 </div>
                 <?php else: ?>
-                <a href="<?= e(locale_url('/login')) ?>" class="hidden sm:flex flex-col items-center text-stone-300 hover:text-white transition">
+                <a href="<?= e(locale_url('/login')) ?>" class="hd-icon hidden sm:flex flex-col items-center text-stone-300 hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    <span class="text-[11px] mt-0.5"><?= e(trans('nav_login')) ?></span>
+                    <span class="hd-label text-[11px] mt-0.5"><?= e(trans('nav_login')) ?></span>
                 </a>
                 <?php endif; ?>
 
                 <!-- Cart -->
-                <a href="<?= e(locale_url('/cart')) ?>" @click.prevent="openCart()" class="relative flex flex-col items-center text-stone-300 hover:text-white transition" aria-label="<?= e(trans('nav_cart')) ?>">
+                <a href="<?= e(locale_url('/cart')) ?>" @click.prevent="openCart()" class="hd-icon relative flex flex-col items-center text-stone-300 hover:text-white transition" aria-label="<?= e(trans('nav_cart')) ?>">
                     <span class="relative inline-block" id="cart-icon">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                         <span x-show="cartCount > 0" x-cloak
@@ -164,7 +221,7 @@ $pathIsHome = $path === '';
                             <span x-text="cartCount"></span>
                         </span>
                     </span>
-                    <span class="text-[11px] mt-0.5"><?= e(trans('nav_cart')) ?></span>
+                    <span class="hd-label text-[11px] mt-0.5"><?= e(trans('nav_cart')) ?></span>
                 </a>
 
                 <a class="hidden sm:inline-flex items-center gap-1.5 bg-amber-500 text-stone-900 hover:bg-amber-400 text-sm font-medium px-4 py-2 rounded-lg transition shadow-sm" href="<?= e(locale_url('/products')) ?>">
@@ -175,12 +232,13 @@ $pathIsHome = $path === '';
     </div>
 
     <!-- Category Mega Navigation -->
-    <nav class="border-t border-white/10 bg-[#142e1c]" data-purpose="main-navigation">
+    <?php if ($showNav): ?>
+    <nav class="hd-nav border-t border-white/10 bg-[#142e1c]" data-purpose="main-navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ul class="flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-200 scrollbar-none whitespace-nowrap">
-                <li><a class="<?= $pathIsHome ? 'text-amber-400 font-semibold border-b-2 border-amber-400 pb-1' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
+            <ul class="hd-nav-inner flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-200 scrollbar-none whitespace-nowrap">
+                <li><a class="hd-nav-link <?= $pathIsHome ? 'hd-nav-active text-amber-400 font-semibold border-b-2 border-amber-400 pb-1' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
                 <li class="relative group">
-                    <a class="hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>">
+                    <a class="hd-nav-link hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>">
                         <span><?= e(trans('nav_all_categories')) ?></span>
                         <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-amber-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </a>
@@ -197,17 +255,17 @@ $pathIsHome = $path === '';
                     <?php endif; ?>
                 </li>
                 <?php foreach ($headerQuick as $cat): ?>
-                <li><a class="hover:text-amber-400 py-1" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
+                <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
                 <?php endforeach; ?>
-                <li><a class="hover:text-amber-400 py-1" href="<?= e(locale_url('/#story')) ?>"><?= e(trans('land_story_badge')) ?></a></li>
-                <li><a class="hover:text-amber-400 py-1" href="<?= e(locale_url('/#faq')) ?>"><?= e(trans('land_faq_title')) ?></a></li>
+                <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/#story')) ?>"><?= e(trans('land_story_badge')) ?></a></li>
+                <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/#faq')) ?>"><?= e(trans('land_faq_title')) ?></a></li>
                 <?php foreach (nav_menu_items() as $navItem): ?>
                 <?php if (empty($navItem['enabled'])) continue; ?>
                 <?php $navLabel = trim((string)($navItem['label_' . $locale] ?? '')) ?: trim((string)($navItem['label_en'] ?? '')); ?>
                 <?php $navUrl = trim((string)($navItem['url'] ?? '')); ?>
                 <?php if ($navLabel === '' || $navUrl === '') continue; ?>
                 <li>
-                    <a class="hover:text-amber-400 py-1 flex items-center gap-1.5" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
+                    <a class="hd-nav-link hover:text-amber-400 py-1 flex items-center gap-1.5" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
                         <?php if (!empty($navItem['icon']) && nav_icon_valid($navItem['icon'])): ?><span class="material-symbols-outlined text-[16px]"><?= e($navItem['icon']) ?></span><?php endif; ?>
                         <?= e($navLabel) ?>
                     </a>
@@ -216,6 +274,7 @@ $pathIsHome = $path === '';
             </ul>
         </div>
     </nav>
+    <?php endif; ?>
 
     <!-- Mobile search -->
     <div class="lg:hidden px-4 pb-3" x-data="liveSearch()">
@@ -297,4 +356,5 @@ $pathIsHome = $path === '';
         </div>
     </template>
 </header>
+</div>
 <!-- END: MainHeader -->
