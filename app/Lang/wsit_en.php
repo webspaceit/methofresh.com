@@ -565,6 +565,7 @@ return [
     'admin_footer_block_contact'     => 'Contact',
     'admin_footer_block_social'      => 'Social icons',
     'admin_footer_block_delivery'    => 'Delivery',
+    'admin_footer_block_lang'        => 'Language',
     'admin_footer_block_payments'    => 'Payment methods',
     'admin_footer_payments_note'     => 'The payment icons come from Dashboard → Payment Methods (only enabled methods are shown).',
     'admin_footer_delivery_section'  => 'Delivery & payment',

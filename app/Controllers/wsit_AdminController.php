@@ -854,7 +854,7 @@ class wsit_AdminController extends wsit_Controller
         // Visibility toggles — unchecked checkboxes are absent from the request.
         foreach ([
             'footer_show_brand', 'footer_show_links', 'footer_show_contact',
-            'footer_show_delivery', 'footer_show_social', 'footer_show_payments',
+            'footer_show_delivery', 'footer_show_lang', 'footer_show_social', 'footer_show_payments',
             'footer_show_pages_bar', 'footer_show_brand_name',
         ] as $key) {
             $this->settingModel->set($key, $request->input($key) ? '1' : '0');

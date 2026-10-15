@@ -567,6 +567,7 @@ return [
     'admin_footer_block_contact'     => 'যোগাযোগ',
     'admin_footer_block_social'      => 'সোশ্যাল আইকন',
     'admin_footer_block_delivery'    => 'ডেলিভারি',
+    'admin_footer_block_lang'        => 'ভাষা',
     'admin_footer_block_payments'    => 'পেমেন্ট মাধ্যম',
     'admin_footer_payments_note'     => 'পেমেন্ট আইকন ড্যাশবোর্ড → পেমেন্ট পদ্ধতি থেকে আসে (শুধু চালু থাকা মাধ্যম দেখানো হয়)।',
     'admin_footer_delivery_section'  => 'ডেলিভারি ও পেমেন্ট',

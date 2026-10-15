@@ -58,10 +58,12 @@ $showBrand     = site_setting('footer_show_brand', '1') !== '0';
 $showLinks     = site_setting('footer_show_links', '1') !== '0';
 $showContact   = site_setting('footer_show_contact', '1') !== '0';
 $showDelivery  = site_setting('footer_show_delivery', '1') !== '0';
+$showLang      = site_setting('footer_show_lang', '1') !== '0';
 $showSocial    = site_setting('footer_show_social', '1') !== '0';
 $showPayments  = site_setting('footer_show_payments', '1') !== '0';
-$showCustom    = site_setting('footer_show_custom', '1') !== '0';
 $showPagesBar  = site_setting('footer_show_pages_bar', '1') !== '0';
+
+$path = request_path();
 
 // The brand-name text is redundant when a logo image already spells out the
 // brand, so it defaults to hidden when a logo is set. Editable in the dashboard.
@@ -233,6 +235,17 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                     <?php if ($deliveryText !== ''): ?>
                         <p class="ft-muted leading-relaxed"><?= nl2br(e($deliveryText)) ?></p>
                     <?php endif; ?>
+                </div>
+
+                <?php elseif ($block === 'lang' && $showLang): ?>
+                <!-- Language switcher -->
+                <div class="mb-6 last:mb-0">
+                    <div class="inline-flex items-center rounded-lg border border-[var(--ft-border)] p-0.5 text-xs font-semibold">
+                        <a href="<?= e(locale_url_for('en', '/' . $path)) ?>?lang=en"
+                           class="px-2.5 py-1 rounded-md transition <?= $locale === 'en' ? 'bg-amber-500 text-stone-900' : 'text-[var(--ft-link)] hover:text-[var(--ft-hover)]' ?>">EN</a>
+                        <a href="<?= e(locale_url_for('bn', '/' . $path)) ?>?lang=bn"
+                           class="px-2.5 py-1 rounded-md transition <?= $locale === 'bn' ? 'bg-amber-500 text-stone-900' : 'text-[var(--ft-link)] hover:text-[var(--ft-hover)]' ?>">বাংলা</a>
+                    </div>
                 </div>
 
                 <?php elseif ($block === 'payments' && $showPayments && ($payments || $paymentsLabel !== '' || $paymentsText !== '')): ?>

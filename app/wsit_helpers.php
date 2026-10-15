@@ -363,7 +363,7 @@ function footer_quick_links(): array
  */
 function footer_block_keys(): array
 {
-    return ['brand', 'links', 'contact', 'social', 'delivery', 'payments'];
+    return ['brand', 'links', 'contact', 'social', 'delivery', 'lang', 'payments'];
 }
 
 /**
