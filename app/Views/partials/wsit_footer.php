@@ -276,26 +276,6 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                     <?php endif; ?>
                 </div>
 
-                <?php elseif ($block === 'custom'): ?>
-                <!-- Custom blocks -->
-                <?php $customBlocks = array_filter(footer_custom_blocks(), fn($b) => !empty($b['enabled'])); ?>
-                <?php if ($customBlocks): ?>
-                    <?php foreach ($customBlocks as $customBlock): ?>
-                        <div class="mb-6 last:mb-0">
-                            <?php 
-                            $customTitle = trim((string) ($customBlock['title_' . $locale] ?? '')) ?: trim((string) ($customBlock['title_en'] ?? ''));
-                            $customContent = trim((string) ($customBlock['content_' . $locale] ?? '')) ?: trim((string) ($customBlock['content_en'] ?? ''));
-                            ?>
-                            <?php if ($customTitle !== ''): ?>
-                                <h4 class="ft-heading mb-3"><?= e($customTitle) ?></h4>
-                            <?php endif; ?>
-                            <?php if ($customContent !== ''): ?>
-                                <div class="ft-muted leading-relaxed"><?= safe_html($customContent) ?></div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-
                 <?php endif; ?>
 
                 <?php endforeach; ?>
