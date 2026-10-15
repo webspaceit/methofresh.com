@@ -62,12 +62,12 @@ $showBrandName = site_setting('footer_show_brand_name', site_logo_url() !== '' ?
 // --- Appearance ----------------------------------------------------------
 $ftVars = sprintf(
     '--ft-bg:%s;--ft-heading:%s;--ft-text:%s;--ft-link:%s;--ft-hover:%s;--ft-border:%s;--ft-fs:%dpx;--ft-hs:%dpx;--ft-py:%dpx;',
-    $ftColor(site_setting('footer_bg_color'), '#ffffff'),
-    $ftColor(site_setting('footer_heading_color'), '#1c1917'),
-    $ftColor(site_setting('footer_text_color'), '#57534e'),
-    $ftColor(site_setting('footer_link_color'), '#44403c'),
-    $ftColor(site_setting('footer_link_hover_color'), '#b45309'),
-    $ftColor(site_setting('footer_border_color'), '#e7e5e4'),
+    $ftColor(site_setting('footer_bg_color'), '#142e1c'),
+    $ftColor(site_setting('footer_heading_color'), '#ffffff'),
+    $ftColor(site_setting('footer_text_color'), '#d6d3d1'),
+    $ftColor(site_setting('footer_link_color'), '#e7e5e4'),
+    $ftColor(site_setting('footer_link_hover_color'), '#f2a635'),
+    $ftColor(site_setting('footer_border_color'), '#2c4a39'),
     $ftNum(site_setting('footer_font_size'), 11, 22, 14),
     $ftNum(site_setting('footer_heading_size'), 11, 26, 15),
     $ftNum(site_setting('footer_padding'), 12, 72, 28)
@@ -124,7 +124,7 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
         .site-footer .ft-list .ft-link-row:hover { transform: translateX(3px); }
         .site-footer .ft-icon { width: 1rem; height: 1rem; flex: none; opacity: .85; }
         .site-footer .ft-social a { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); }
-        .site-footer .ft-social a:hover { background: var(--ft-hover); border-color: var(--ft-hover); color: #ffffff; }
+        .site-footer .ft-social a:hover { background: var(--ft-hover); border-color: var(--ft-hover); color: var(--ft-bg); }
         .site-footer .ft-pay { border-top: 1px solid var(--ft-border); margin-top: .85rem; padding-top: .85rem; }
     </style>
 

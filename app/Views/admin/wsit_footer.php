@@ -26,12 +26,12 @@ $footer = [
 
 // Colour fields: only a 6-digit hex can be shown in <input type="color">.
 $colorDefaults = [
-    'footer_bg_color'           => '#ffffff',
-    'footer_heading_color'      => '#1c1917',
-    'footer_text_color'         => '#57534e',
-    'footer_link_color'         => '#44403c',
-    'footer_link_hover_color'   => '#b45309',
-    'footer_border_color'       => '#e7e5e4',
+    'footer_bg_color'           => '#142e1c',
+    'footer_heading_color'      => '#ffffff',
+    'footer_text_color'         => '#d6d3d1',
+    'footer_link_color'         => '#e7e5e4',
+    'footer_link_hover_color'   => '#f2a635',
+    'footer_border_color'       => '#2c4a39',
 ];
 $colors = [];
 foreach ($colorDefaults as $ck => $cd) {
