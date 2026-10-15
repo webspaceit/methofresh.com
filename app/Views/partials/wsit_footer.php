@@ -38,9 +38,11 @@ $paymentsLabel = site_setting('footer_payments_label_' . $locale) ?: trans('foot
 $paymentsText  = site_setting('footer_payments_text_' . $locale)  ?: trans('footer_payments_text');
 
 $copyright = site_setting('copyright_' . $locale) ?: site_setting('copyright_en');
+// {year} is the documented token; {বছর} is accepted too because the built-in
+// translator may have localised the token before this guard existed.
 $copyright = str_replace(
-    ['{year}', '{site_name}', '{rights}'],
-    [format_number(date('Y')), trans('site_name'), trans('footer_rights')],
+    ['{year}', '{বছর}', '{site_name}', '{rights}'],
+    [format_number(date('Y')), format_number(date('Y')), trans('site_name'), trans('footer_rights')],
     $copyright
 );
 if ($copyright === '') {

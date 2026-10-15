@@ -1053,11 +1053,57 @@ class wsit_AdminController extends wsit_Controller
 
     private function translateText(string $text, string $source, string $target): string
     {
-        $result = $this->googleTranslate($text, $source, $target);
-        if ($result !== '') {
-            return $result;
+        // Protect placeholder tokens such as {year} / {site_name} from the
+        // translator (Google turns "{year}" into "{বছর}"). Each token is
+        // swapped for a numbered marker that survives translation, then the
+        // originals are restored afterwards.
+        $tokens = [];
+        $masked = preg_replace_callback(
+            '/\{[^{}\r\n]{1,40}\}/u',
+            static function (array $m) use (&$tokens): string {
+                $tokens[] = $m[0];
+                return '{{' . (count($tokens) - 1) . '}}';
+            },
+            $text
+        );
+        if (!is_string($masked) || $masked === '') {
+            $masked = $text;
+            $tokens = [];
         }
-        return $this->mymemoryTranslate($text, $source, $target);
+
+        $result = $this->googleTranslate($masked, $source, $target);
+        if ($result === '') {
+            $result = $this->mymemoryTranslate($masked, $source, $target);
+        }
+
+        if ($result === '') {
+            return '';
+        }
+
+        return $tokens ? $this->restorePlaceholders($result, $tokens) : $result;
+    }
+
+    /**
+     * Put the original {tokens} back in place of their {{n}} markers. Tolerant
+     * of the translator dropping / adding a brace or spacing, and of it
+     * localising the marker digits (e.g. 0 -> ০).
+     *
+     * @param string[] $tokens
+     */
+    private function restorePlaceholders(string $text, array $tokens): string
+    {
+        return (string) preg_replace_callback(
+            '/\{+\s*([0-9০-৯]+)\s*\}+/u',
+            static function (array $m) use ($tokens): string {
+                $digits = strtr($m[1], [
+                    '০' => '0', '১' => '1', '২' => '2', '৩' => '3', '৪' => '4',
+                    '৫' => '5', '৬' => '6', '৭' => '7', '৮' => '8', '৯' => '9',
+                ]);
+                $idx = (int) $digits;
+                return $tokens[$idx] ?? $m[0];
+            },
+            $text
+        );
     }
 
     private function googleTranslate(string $text, string $source, string $target): string
