@@ -367,40 +367,74 @@ function footer_block_keys(): array
 }
 
 /**
- * Effective footer column order: the saved order (sanitised to known keys,
- * de-duplicated) with any keys the admin never saw appended in default order.
+ * Effective footer column layout: returns an array of columns, where each column
+ * is an array of block keys. This allows multiple blocks to be stacked in the same column.
+ * Falls back to default layout if saved data is invalid.
  */
-function footer_block_order(): array
+function footer_column_layout(): array
 {
     $known = footer_block_keys();
-    $order = [];
-
+    $default = [['brand'], ['links'], ['contact', 'social'], ['delivery'], ['payments']];
+    
     $db = wsit_App::get('db');
     if ($db !== null) {
         try {
             $setting = new \App\Models\wsit_Setting();
-            $raw = $setting->get('footer_block_order', '');
+            $raw = $setting->get('footer_column_layout', '');
             if ($raw !== '') {
                 $decoded = json_decode($raw, true);
                 if (is_array($decoded)) {
-                    foreach ($decoded as $key) {
-                        if (is_string($key) && in_array($key, $known, true) && !in_array($key, $order, true)) {
-                            $order[] = $key;
+                    // Validate structure: array of arrays
+                    $layout = [];
+                    $usedKeys = [];
+                    foreach ($decoded as $column) {
+                        if (!is_array($column)) continue;
+                        $validColumn = [];
+                        foreach ($column as $key) {
+                            if (is_string($key) && in_array($key, $known, true) && !in_array($key, $usedKeys, true)) {
+                                $validColumn[] = $key;
+                                $usedKeys[] = $key;
+                            }
                         }
+                        if (!empty($validColumn)) {
+                            $layout[] = $validColumn;
+                        }
+                    }
+                    // Add any missing blocks to the last column
+                    foreach ($known as $key) {
+                        if (!in_array($key, $usedKeys, true)) {
+                            if (empty($layout)) {
+                                $layout[] = [$key];
+                            } else {
+                                $layout[count($layout) - 1][] = $key;
+                            }
+                        }
+                    }
+                    if (!empty($layout)) {
+                        return $layout;
                     }
                 }
             }
         } catch (\Throwable $e) {
-            // DB unavailable — fall back to the default order.
+            // DB unavailable — fall back to the default layout.
         }
     }
+    
+    return $default;
+}
 
-    foreach ($known as $key) {
-        if (!in_array($key, $order, true)) {
-            $order[] = $key;
+/**
+ * Legacy compatibility: returns flat array of all blocks in column order.
+ */
+function footer_block_order(): array
+{
+    $layout = footer_column_layout();
+    $order = [];
+    foreach ($layout as $column) {
+        foreach ($column as $block) {
+            $order[] = $block;
         }
     }
-
     return $order;
 }
 

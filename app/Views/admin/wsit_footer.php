@@ -170,15 +170,33 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
         <section class="pt-2 border-t border-stone-100">
             <h2 class="text-sm font-bold text-stone-800 mb-1 mt-4"><?= e(trans('admin_footer_layout')) ?></h2>
             <p class="text-xs text-stone-400 mb-3"><?= e(trans('admin_footer_layout_desc')) ?></p>
-            <ul class="space-y-2" data-ft-block-list>
-                <?php foreach (footer_block_order() as $blockKey): ?>
-                    <li class="flex items-center gap-3 rounded-xl border border-stone-200 bg-stone-50/60 px-3 py-2 cursor-move select-none" draggable="true" data-ft-block="<?= e($blockKey) ?>">
-                        <span class="text-stone-400 text-lg leading-none" aria-hidden="true">⋮⋮</span>
-                        <span class="flex-1 text-sm font-semibold text-stone-700"><?= e(trans('admin_footer_block_' . $blockKey)) ?></span>
-                        <input type="hidden" name="footer_block_order[]" value="<?= e($blockKey) ?>">
-                    </li>
+            
+            <div class="flex gap-2 mb-3">
+                <button type="button" id="add-column-btn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700">
+                    + Add Column
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" data-ft-columns>
+                <?php foreach (footer_column_layout() as $colIndex => $column): ?>
+                    <div class="border-2 border-dashed border-stone-300 rounded-xl p-3 min-h-[200px]" data-column="<?= $colIndex ?>">
+                        <div class="flex items-center justify-between mb-2 pb-2 border-b border-stone-200">
+                            <span class="text-xs font-bold text-stone-500 uppercase">Column <?= $colIndex + 1 ?></span>
+                            <button type="button" class="remove-column-btn text-red-500 hover:text-red-700 text-xs" title="Remove column">×</button>
+                        </div>
+                        <ul class="space-y-2 min-h-[100px]" data-column-blocks>
+                            <?php foreach ($column as $blockKey): ?>
+                                <li class="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-2 py-1.5 cursor-move select-none" draggable="true" data-ft-block="<?= e($blockKey) ?>">
+                                    <span class="text-stone-400 text-sm leading-none" aria-hidden="true">⋮⋮</span>
+                                    <span class="flex-1 text-xs font-semibold text-stone-700"><?= e(trans('admin_footer_block_' . $blockKey)) ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
+            </div>
+            
+            <input type="hidden" name="footer_column_layout" id="footer-column-layout-input" value="">
         </section>
 
         <!-- ============ Delivery & payment text ============ -->
@@ -512,38 +530,109 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
         });
     }
 
-    // Footer block drag-and-drop reordering
-    const blockList = document.querySelector('[data-ft-block-list]');
-    if (blockList) {
+    // Footer column-based drag-and-drop
+    const columnsContainer = document.querySelector('[data-ft-columns]');
+    const addColumnBtn = document.getElementById('add-column-btn');
+    const layoutInput = document.getElementById('footer-column-layout-input');
+    
+    if (columnsContainer && layoutInput) {
         let draggedItem = null;
-
-        blockList.addEventListener('dragstart', function (e) {
-            if (e.target.tagName === 'LI') {
-                draggedItem = e.target;
-                e.target.style.opacity = '0.4';
+        let draggedFromColumn = null;
+        
+        // Update hidden input with current layout
+        function updateLayoutInput() {
+            const columns = [];
+            columnsContainer.querySelectorAll('[data-column]').forEach(col => {
+                const blocks = [];
+                col.querySelectorAll('[data-column-blocks] li').forEach(li => {
+                    blocks.push(li.getAttribute('data-ft-block'));
+                });
+                columns.push(blocks);
+            });
+            layoutInput.value = JSON.stringify(columns);
+        }
+        
+        // Add column functionality
+        if (addColumnBtn) {
+            addColumnBtn.addEventListener('click', function() {
+                const columnCount = columnsContainer.querySelectorAll('[data-column]').length;
+                const newColumnHTML = `
+                    <div class="border-2 border-dashed border-stone-300 rounded-xl p-3 min-h-[200px]" data-column="${columnCount}">
+                        <div class="flex items-center justify-between mb-2 pb-2 border-b border-stone-200">
+                            <span class="text-xs font-bold text-stone-500 uppercase">Column ${columnCount + 1}</span>
+                            <button type="button" class="remove-column-btn text-red-500 hover:text-red-700 text-xs" title="Remove column">×</button>
+                        </div>
+                        <ul class="space-y-2 min-h-[100px]" data-column-blocks></ul>
+                    </div>
+                `;
+                columnsContainer.insertAdjacentHTML('beforeend', newColumnHTML);
+                setupColumnEvents(columnsContainer.lastElementChild);
+                updateLayoutInput();
+            });
+        }
+        
+        // Remove column functionality
+        columnsContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-column-btn')) {
+                const column = e.target.closest('[data-column]');
+                if (column && columnsContainer.querySelectorAll('[data-column]').length > 1) {
+                    column.remove();
+                    updateLayoutInput();
+                }
             }
         });
-
-        blockList.addEventListener('dragend', function (e) {
-            if (draggedItem) {
-                draggedItem.style.opacity = '';
-                draggedItem = null;
-            }
+        
+        // Setup drag-and-drop for a column
+        function setupColumnEvents(column) {
+            const blockList = column.querySelector('[data-column-blocks]');
+            
+            // Drag start
+            blockList.addEventListener('dragstart', function(e) {
+                if (e.target.tagName === 'LI') {
+                    draggedItem = e.target;
+                    draggedFromColumn = column;
+                    e.target.style.opacity = '0.4';
+                }
+            });
+            
+            // Drag end
+            blockList.addEventListener('dragend', function(e) {
+                if (draggedItem) {
+                    draggedItem.style.opacity = '';
+                    draggedItem = null;
+                    draggedFromColumn = null;
+                    updateLayoutInput();
+                }
+            });
+            
+            // Allow drop
+            blockList.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            // Drop
+            blockList.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (draggedItem) {
+                    const afterElement = getDragAfterElement(blockList, e.clientY);
+                    if (afterElement == null) {
+                        blockList.appendChild(draggedItem);
+                    } else {
+                        blockList.insertBefore(draggedItem, afterElement);
+                    }
+                }
+            });
+        }
+        
+        // Setup events for all existing columns
+        columnsContainer.querySelectorAll('[data-column]').forEach(col => {
+            setupColumnEvents(col);
         });
-
-        blockList.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(blockList, e.clientY);
-            if (afterElement == null) {
-                blockList.appendChild(draggedItem);
-            } else {
-                blockList.insertBefore(draggedItem, afterElement);
-            }
-        });
-
+        
+        // Find the position to insert the dragged item
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('li:not([style*="opacity: 0.4"])')];
-
+            
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
                 const offset = y - box.top - box.height / 2;
@@ -554,6 +643,9 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
+        
+        // Initialize layout input
+        updateLayoutInput();
     }
 })();
 </script>

@@ -558,7 +558,7 @@ return [
     'admin_footer_heading_delivery'  => 'Delivery column heading',
     'admin_footer_heading_social'    => 'Social column heading',
     'admin_footer_layout'            => 'Footer layout',
-    'admin_footer_layout_desc'       => 'Drag the blocks to change the order of the footer columns. Drag a block by its handle and drop it where you want it.',
+    'admin_footer_layout_desc'       => 'Organize footer blocks into columns. Drag blocks between columns to group them together, or drag within a column to reorder. Add new columns or remove existing ones to create your perfect layout.',
     'admin_footer_block_brand'       => 'Brand & about',
     'admin_footer_block_links'       => 'Links',
     'admin_footer_block_contact'     => 'Contact',

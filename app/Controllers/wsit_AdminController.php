@@ -981,28 +981,56 @@ class wsit_AdminController extends wsit_Controller
 
     private function saveFooterBlockOrder(wsit_Request $request): void
     {
-        $order = $request->inputArray('footer_block_order', []);
+        // Handle new column-based layout
+        $layoutJson = $request->input('footer_column_layout', '[]');
+        $layout = json_decode($layoutJson, true);
         $known = footer_block_keys();
-        $clean = [];
+        $cleanLayout = [];
+        $usedKeys = [];
 
-        foreach ($order as $key) {
-            $key = trim((string)$key);
-            if (!in_array($key, $known, true)) {
-                continue;
-            }
-            if (!in_array($key, $clean, true)) {
-                $clean[] = $key;
+        // Validate and clean the layout structure
+        if (is_array($layout)) {
+            foreach ($layout as $columnIndex => $column) {
+                if (!is_array($column)) {
+                    continue;
+                }
+                
+                $cleanColumn = [];
+                foreach ($column as $key) {
+                    $key = trim((string)$key);
+                    if (!in_array($key, $known, true)) {
+                        continue;
+                    }
+                    if (!in_array($key, $usedKeys, true)) {
+                        $cleanColumn[] = $key;
+                        $usedKeys[] = $key;
+                    }
+                }
+                
+                // Only keep non-empty columns
+                if (!empty($cleanColumn)) {
+                    $cleanLayout[] = $cleanColumn;
+                }
             }
         }
 
-        // Ensure all known keys are present (append any missing ones at the end)
+        // Ensure all known keys are present (append missing ones to the last column)
         foreach ($known as $key) {
-            if (!in_array($key, $clean, true)) {
-                $clean[] = $key;
+            if (!in_array($key, $usedKeys, true)) {
+                if (empty($cleanLayout)) {
+                    $cleanLayout[] = [$key];
+                } else {
+                    $cleanLayout[count($cleanLayout) - 1][] = $key;
+                }
             }
         }
 
-        $this->settingModel->set('footer_block_order', json_encode($clean, JSON_UNESCAPED_UNICODE));
+        // Ensure at least one column exists
+        if (empty($cleanLayout)) {
+            $cleanLayout = [['brand'], ['links'], ['contact'], ['social'], ['delivery'], ['payments']];
+        }
+
+        $this->settingModel->set('footer_column_layout', json_encode($cleanLayout, JSON_UNESCAPED_UNICODE));
     }
 
     public function updateNavMenu(wsit_Request $request): void
