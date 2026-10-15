@@ -583,6 +583,7 @@ return [
     'admin_footer_show_delivery'     => 'ডেলিভারি কলাম',
     'admin_footer_show_social'       => 'সোশ্যাল আইকন',
     'admin_footer_show_pages_bar'    => 'পেজ বার (নিচে)',
+    'admin_footer_show_brand_name'   => 'ব্র্যান্ড নাম লেখা (লোগোর পাশে)',
     'admin_nav_menu'                 => 'টপ নেভিগেশন মেনু',
     'admin_nav_menu_desc'            => 'ফ্রন্টএন্ডের উপরের নেভিগেশন বারের শেষে (ডেস্কটপ ও মোবাইল) দেখানো কাস্টম লিংক। আইটেমগুলো ক্রম নম্বর অনুযায়ী সাজানো হয়।',
     'admin_nav_link'                 => 'মেনু আইটেম',

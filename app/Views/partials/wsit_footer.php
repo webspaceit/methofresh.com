@@ -55,6 +55,10 @@ $showDelivery  = site_setting('footer_show_delivery', '1') !== '0';
 $showSocial    = site_setting('footer_show_social', '1') !== '0';
 $showPagesBar  = site_setting('footer_show_pages_bar', '1') !== '0';
 
+// The brand-name text is redundant when a logo image already spells out the
+// brand, so it defaults to hidden when a logo is set. Editable in the dashboard.
+$showBrandName = site_setting('footer_show_brand_name', site_logo_url() !== '' ? '0' : '1') !== '0';
+
 // --- Appearance ----------------------------------------------------------
 $ftVars = sprintf(
     '--ft-bg:%s;--ft-heading:%s;--ft-text:%s;--ft-link:%s;--ft-hover:%s;--ft-border:%s;--ft-fs:%dpx;--ft-hs:%dpx;--ft-py:%dpx;',
@@ -137,7 +141,9 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                     <?php else: ?>
                         <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:var(--ft-heading);color:var(--ft-bg)"><?= e(mb_substr($brandName, 0, 1)) ?></div>
                     <?php endif; ?>
-                    <span class="text-lg font-bold" style="color:var(--ft-heading)"><?= e($brandName) ?></span>
+                    <?php if ($showBrandName): ?>
+                        <span class="text-lg font-bold" style="color:var(--ft-heading)"><?= e($brandName) ?></span>
+                    <?php endif; ?>
                 </div>
                 <?php if ($footerAbout !== ''): ?>
                     <p class="ft-muted mt-3 leading-relaxed"><?= e($footerAbout) ?></p>

@@ -53,6 +53,7 @@ $toggles = [
     'footer_show_delivery'   => site_setting('footer_show_delivery', '1'),
     'footer_show_social'     => site_setting('footer_show_social', '1'),
     'footer_show_pages_bar'  => site_setting('footer_show_pages_bar', '1'),
+    'footer_show_brand_name' => site_setting('footer_show_brand_name', site_logo_url() !== '' ? '0' : '1'),
 ];
 
 $platforms = ['facebook', 'instagram', 'youtube', 'twitter', 'x', 'whatsapp', 'tiktok', 'linkedin'];
@@ -375,6 +376,7 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                     'footer_show_delivery'  => 'admin_footer_show_delivery',
                     'footer_show_social'    => 'admin_footer_show_social',
                     'footer_show_pages_bar' => 'admin_footer_show_pages_bar',
+                    'footer_show_brand_name' => 'admin_footer_show_brand_name',
                 ];
                 foreach ($visibility as $fieldName => $labelKey): ?>
                 <label class="flex items-center gap-2.5 rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm text-stone-700 cursor-pointer">

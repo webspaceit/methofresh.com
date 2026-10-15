@@ -581,6 +581,7 @@ return [
     'admin_footer_show_delivery'     => 'Delivery column',
     'admin_footer_show_social'       => 'Social icons',
     'admin_footer_show_pages_bar'    => 'Pages bar (bottom)',
+    'admin_footer_show_brand_name'   => 'Brand name text (next to logo)',
     'admin_nav_menu'                 => 'Top Navigation Menu',
     'admin_nav_menu_desc'            => 'Custom links shown at the end of the frontend top navigation bar (desktop & mobile). Items are sorted by the order number.',
     'admin_nav_link'                 => 'Menu item',
