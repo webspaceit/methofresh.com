@@ -44,8 +44,11 @@ foreach ($renderBlocks as $block) {
 $tabCategories = array_values($categories ?? []);
 ?>
 <style>
-    .hero-slide { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; z-index: 0; pointer-events: none; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
-    .hero-slide::-webkit-scrollbar { width: 0; height: 0; display: none; }
+    /* Slides are stacked in the SAME grid cell so the slider grows to fit the
+       tallest slide. They are not absolutely positioned and have no internal
+       overflow, so the mouse wheel always scrolls the page — never the hero. */
+    .hero-slider { display: grid; }
+    .hero-slide { grid-area: 1 / 1; opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; z-index: 0; pointer-events: none; }
     .hero-slide.active { opacity: 1; visibility: visible; z-index: 10; pointer-events: auto; }
     .hero-dot { width: .625rem; height: .625rem; border-radius: 9999px; background: rgba(27,67,50,.22); transition: all .3s ease; }
     .hero-dot.active { background: #D97706; width: 1.5rem; }
@@ -95,7 +98,7 @@ $tabCategories = array_values($categories ?? []);
             $btn2Text  = trim((string)($slide['btn2_text_' . $locale] ?? '')) ?: trim((string)($slide['btn2_text_en'] ?? ''));
             $btn2Link  = trim((string)($slide['btn2_link'] ?? '/categories'));
         ?>
-        <div class="hero-slide <?= $i === 0 ? 'active' : '' ?> absolute inset-0 flex items-center" data-index="<?= $i ?>" role="group" aria-label="Slide <?= $i + 1 ?> of <?= $slideCount ?>">
+        <div class="hero-slide <?= $i === 0 ? 'active' : '' ?> flex items-center" data-index="<?= $i ?>" role="group" aria-label="Slide <?= $i + 1 ?> of <?= $slideCount ?>">
             <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                     <!-- Hero Text Content -->
