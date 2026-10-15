@@ -33,10 +33,13 @@ $headingLinks    = site_setting('footer_heading_links_' . $locale)    ?: trans('
 $headingContact  = site_setting('footer_heading_contact_' . $locale)  ?: trans('footer_contact');
 $headingDelivery = site_setting('footer_heading_delivery_' . $locale) ?: trans('footer_delivery');
 $headingSocial   = site_setting('footer_heading_social_' . $locale)   ?: trans('footer_follow_us');
+$headingCustom   = site_setting('footer_heading_custom_' . $locale)   ?: trans('footer_custom_title');
 
 $deliveryText  = site_setting('footer_delivery_text_' . $locale) ?: trans('footer_delivery_text');
 $paymentsLabel = site_setting('footer_payments_label_' . $locale) ?: trans('footer_payments');
 $paymentsText  = site_setting('footer_payments_text_' . $locale)  ?: trans('footer_payments_text');
+$customTitle   = site_setting('footer_custom_title_' . $locale)   ?: trans('footer_custom_title');
+$customDesc    = site_setting('footer_custom_desc_' . $locale)    ?: trans('footer_custom_desc');
 
 $copyright = site_setting('copyright_' . $locale) ?: site_setting('copyright_en');
 // {year} is the documented token; {বছর} is accepted too because the built-in
@@ -57,6 +60,7 @@ $showContact   = site_setting('footer_show_contact', '1') !== '0';
 $showDelivery  = site_setting('footer_show_delivery', '1') !== '0';
 $showSocial    = site_setting('footer_show_social', '1') !== '0';
 $showPayments  = site_setting('footer_show_payments', '1') !== '0';
+$showCustom    = site_setting('footer_show_custom', '1') !== '0';
 $showPagesBar  = site_setting('footer_show_pages_bar', '1') !== '0';
 
 // The brand-name text is redundant when a logo image already spells out the
@@ -241,7 +245,7 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                         <p class="ft-muted leading-relaxed mb-3"><?= e($paymentsText) ?></p>
                     <?php endif; ?>
                     <?php if ($payments): ?>
-                        <div class="ft-pay-icons flex flex-wrap gap-2">
+                        <div class="ft-pay-icons grid grid-cols-2 gap-2">
                             <?php foreach ($payments as $method): ?>
                                 <span class="ft-pay-icon" title="<?= e((string) ($method['title'] ?? '')) ?>">
                                     <span class="ft-pay-emoji" aria-hidden="true"><?= e((string) ($method['icon'] ?? '')) ?></span>
