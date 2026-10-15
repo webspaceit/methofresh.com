@@ -156,7 +156,7 @@ $pathIsHome = $path === '';
                 <?php endif; ?>
 
                 <!-- Cart -->
-                <a href="<?= e(locale_url('/cart')) ?>" class="relative flex flex-col items-center text-stone-300 hover:text-white transition" aria-label="<?= e(trans('nav_cart')) ?>">
+                <a href="<?= e(locale_url('/cart')) ?>" @click.prevent="openCart()" class="relative flex flex-col items-center text-stone-300 hover:text-white transition" aria-label="<?= e(trans('nav_cart')) ?>">
                     <span class="relative inline-block" id="cart-icon">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                         <span x-show="cartCount > 0" x-cloak

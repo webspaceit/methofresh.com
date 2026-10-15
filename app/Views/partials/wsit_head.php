@@ -62,6 +62,10 @@
 <style>body{font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif;}</style>
 <?php endif; ?>
 <style>
+    /* Keep Alpine-controlled elements (cart drawer, badges, dropdowns) hidden
+       until Alpine has initialised and evaluated x-show. */
+    [x-cloak] { display: none !important; }
+
     /* Announcement bar — offers slide up from the bottom, one after another
        (index set by Alpine). The viewport and every slide share one fixed
        line height, so i * 100% / n lands exactly on each slide. */
@@ -83,9 +87,30 @@
     function store(initial) {
         return {
             cartCount: (initial && initial.cartCount) ? initial.cartCount : 0,
+            itemsLabel: (initial && initial.itemsLabel) ? initial.itemsLabel : ':count items',
             openMobile: false,
             cartOpen: false,
+            cartItems: [],
+            cartSubtotal: '',
+            cartLoaded: false,
             toast: { show: false, type: 'success', message: '' },
+
+            // Merge a cart payload (from any cart endpoint) into the drawer.
+            applyCart(cart) {
+                if (!cart) return;
+                this.cartItems = Array.isArray(cart.items) ? cart.items : [];
+                this.cartSubtotal = cart.subtotal_display || '';
+                if (cart.cart_count !== undefined) {
+                    this.cartCount = cart.cart_count;
+                }
+                this.cartLoaded = true;
+            },
+            showToast(ok, message) {
+                if (!message) return;
+                this.toast = { show: true, type: ok === false ? 'error' : 'success', message: message };
+                setTimeout(() => { this.toast.show = false; }, 3500);
+            },
+
             addToCart(productId, quantity = 1) {
                 const form = new FormData();
                 form.append('_token', '<?= csrf_token() ?>');
@@ -97,14 +122,60 @@
                         if (data.cart_count !== undefined) {
                             this.cartCount = data.cart_count;
                         }
-                        if (data.message) {
-                            this.toast = { show: true, type: data.ok ? 'success' : 'error', message: data.message };
-                            setTimeout(() => { this.toast.show = false; }, 3500);
+                        this.applyCart(data.cart);
+                        this.showToast(data.ok, data.message);
+                        if (data.ok) {
+                            // Slide the cart in once the flying image lands.
+                            setTimeout(() => { this.cartOpen = true; }, 650);
                         }
                     })
                     .catch(() => {
                         window.location.reload();
                     });
+            },
+
+            // -- Cart drawer ---------------------------------------------------
+            openCart() {
+                this.cartOpen = true;
+                if (!this.cartLoaded) {
+                    this.loadCart();
+                }
+            },
+            closeCart() {
+                this.cartOpen = false;
+            },
+            loadCart() {
+                fetch('<?= locale_url('/cart/items') ?>', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(r => r.json())
+                    .then(data => this.applyCart(data))
+                    .catch(() => {});
+            },
+            cartAction(url, form) {
+                form.append('_token', '<?= csrf_token() ?>');
+                return fetch(url, { method: 'POST', body: form, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.applyCart(data.cart);
+                        this.showToast(data.ok, data.message);
+                    })
+                    .catch(() => {});
+            },
+            setQty(productId, quantity) {
+                if (quantity < 1) {
+                    this.removeItem(productId);
+                    return;
+                }
+                const form = new FormData();
+                form.append('quantity[' + productId + ']', quantity);
+                this.cartAction('<?= locale_url('/cart/update') ?>', form);
+            },
+            removeItem(productId) {
+                const form = new FormData();
+                form.append('product_id', productId);
+                this.cartAction('<?= locale_url('/cart/remove') ?>', form);
+            },
+            clearCart() {
+                this.cartAction('<?= locale_url('/cart/clear') ?>', new FormData());
             },
             // Fire a Facebook Pixel AddToCart event when an item is added.
             // Best-effort: never blocks the add-to-cart flow.

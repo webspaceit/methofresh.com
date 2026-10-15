@@ -187,6 +187,10 @@ return [
 
     // Cart
     'cart'               => 'শপিং কার্ট',
+    'cart_bag'           => 'শপিং ব্যাগ',
+    'cart_view'          => 'কার্ট দেখুন',
+    'cart_clear_all'     => 'সব মুছুন',
+    'cart_items_count'   => ':count টি পণ্য',
     'cart_empty'         => 'আপনার কার্ট খালি',
     'cart_empty_hint'    => 'আমাদের পণ্য দেখুন এবং কেনাকাটা শুরু করুন।',
     'continue_shopping'  => 'কেনাকাটা চালিয়ে যান',

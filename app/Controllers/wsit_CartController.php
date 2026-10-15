@@ -82,14 +82,9 @@ class wsit_CartController extends wsit_Controller
 
         $this->flash('success', trans('cart_added'));
 
-        // AJAX (add from product cards) → return JSON with the new cart count.
-        if (strtolower((string)$request->server('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
-            $this->json([
-                'ok'         => true,
-                'message'    => trans('cart_added'),
-                'cart_count' => guest_cart_count(),
-                'subtotal'   => guest_cart_subtotal(),
-            ]);
+        // AJAX (add from product cards) → return JSON with the updated cart.
+        if ($this->isAjax($request)) {
+            $this->cartJsonResponse(trans('cart_added'));
         }
 
         $referrer = $request->server('HTTP_REFERER');
@@ -119,6 +114,9 @@ class wsit_CartController extends wsit_Controller
         }
 
         $_SESSION['cart'] = $cart;
+        if ($this->isAjax($request)) {
+            $this->cartJsonResponse(trans('cart_updated'));
+        }
         $this->flash('success', trans('cart_updated'));
         $this->redirect('/cart');
     }
@@ -131,15 +129,29 @@ class wsit_CartController extends wsit_Controller
             unset($cart[$productId]);
             $_SESSION['cart'] = $cart;
         }
+        if ($this->isAjax($request)) {
+            $this->cartJsonResponse(trans('cart_removed'));
+        }
         $this->flash('success', trans('cart_removed'));
         $this->redirect('/cart');
     }
 
-    public function destroy(): void
+    public function destroy(wsit_Request $request): void
     {
         $_SESSION['cart'] = [];
+        if ($this->isAjax($request)) {
+            $this->cartJsonResponse(trans('cart_cleared'));
+        }
         $this->flash('success', trans('cart_cleared'));
         $this->redirect('/cart');
+    }
+
+    /**
+     * GET /cart/items — JSON snapshot used by the slide-in cart drawer.
+     */
+    public function items(): void
+    {
+        $this->json($this->cartJson());
     }
 
     public function applyCoupon(wsit_Request $request): void
@@ -158,6 +170,59 @@ class wsit_CartController extends wsit_Controller
     }
 
     // -- Helpers (used by checkout too) ------------------------------------
+
+    /**
+     * JSON-friendly snapshot of the cart for the slide-in cart drawer.
+     * Images and prices are pre-formatted so the front-end needs no formatting.
+     */
+    public function cartJson(): array
+    {
+        $cart = $this->hydratedCart();
+        $items = [];
+        $subtotal = 0.0;
+
+        foreach ($cart as $productId => $item) {
+            $qty = (int)$item['quantity'];
+            $line = (float)$item['current_price'] * $qty;
+            $subtotal += $line;
+
+            $items[] = [
+                'product_id'    => (int)($item['product_id'] ?? $productId),
+                'name'          => $item['name'],
+                'slug'          => $item['slug'],
+                'url'           => locale_url('/products/' . $item['slug']),
+                'image'         => image_url($item['image'] ?? null, $item['name'], 160),
+                'price'         => (float)$item['current_price'],
+                'price_display' => format_price((float)$item['current_price']),
+                'line_display'  => format_price($line),
+                'quantity'      => $qty,
+                'stock'         => (int)$item['stock'],
+            ];
+        }
+
+        return [
+            'items'            => $items,
+            'cart_count'       => guest_cart_count(),
+            'subtotal'         => $subtotal,
+            'subtotal_display' => format_price($subtotal),
+        ];
+    }
+
+    private function isAjax(wsit_Request $request): bool
+    {
+        return strtolower((string)$request->server('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest';
+    }
+
+    private function cartJsonResponse(string $message, bool $ok = true): void
+    {
+        $cart = $this->cartJson();
+        $this->json([
+            'ok'         => $ok,
+            'message'    => $message,
+            'cart_count' => $cart['cart_count'],
+            'cart'       => $cart,
+        ]);
+    }
 
     public function hydratedCart(): array
     {

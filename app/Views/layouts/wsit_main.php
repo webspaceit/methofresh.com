@@ -7,7 +7,7 @@ $locale = app_locale();
 <!DOCTYPE html>
 <html lang="<?= e($locale) ?>">
 <?php include views_path('partials/wsit_head.php'); ?>
-<body class="flex flex-col min-h-screen bg-cream text-brand-900 font-sans" x-data="store({ cartCount: <?= (int)$cartCount ?>, message: '' })">
+<body class="flex flex-col min-h-screen bg-cream text-brand-900 font-sans" x-data="store({ cartCount: <?= (int)$cartCount ?>, itemsLabel: '<?= e(trans('cart_items_count')) ?>', message: '' })">
 
     <?php include views_path('partials/wsit_header.php'); ?>
 
@@ -16,6 +16,7 @@ $locale = app_locale();
     </main>
 
     <?php include views_path('partials/wsit_footer.php'); ?>
+    <?php include views_path('partials/wsit_cart-drawer.php'); ?>
     <?php include views_path('partials/wsit_flash.php'); ?>
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

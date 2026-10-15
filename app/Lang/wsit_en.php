@@ -187,6 +187,10 @@ return [
 
     // Cart
     'cart'               => 'Shopping Cart',
+    'cart_bag'           => 'Shopping Bag',
+    'cart_view'          => 'View Cart',
+    'cart_clear_all'     => 'Clear All',
+    'cart_items_count'   => ':count items',
     'cart_empty'         => 'Your cart is empty',
     'cart_empty_hint'    => 'Browse our products and add something to get started.',
     'continue_shopping'  => 'Continue Shopping',

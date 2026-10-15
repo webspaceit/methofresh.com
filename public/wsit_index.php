@@ -42,6 +42,7 @@ $router->get('/sitemap.xml',            [wsit_SitemapController::class, 'index']
 
 // ---- Cart ----
 $router->get('/cart',                    [wsit_CartController::class, 'index']);
+$router->get('/cart/items',              [wsit_CartController::class, 'items']);
 $router->post('/cart/add',               [wsit_CartController::class, 'add']);
 $router->post('/cart/update',            [wsit_CartController::class, 'update']);
 $router->post('/cart/remove',            [wsit_CartController::class, 'remove']);
