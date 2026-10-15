@@ -69,6 +69,14 @@
     @media (prefers-reduced-motion: reduce) {
         .ann-slider { transition: none; }
     }
+
+    /* Cart icon bounce when a flying product lands. */
+    @keyframes cartBump {
+        0% { transform: scale(1); }
+        35% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+    .cart-bump { animation: cartBump .45s ease; }
 </style>
 <script>
     // Alpine store — global cart counter that updates after add-to-cart.
@@ -116,6 +124,107 @@
         };
     }
     window.store = store;
+
+    // Fly a product image to the header cart icon as add-to-cart feedback.
+    // Adapted from the pharmacy project's flyToCart utility.
+    function flyToCart(event, imgSrc) {
+        try {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                return;
+            }
+
+            const btn = (event && (event.currentTarget || event.target)) || document.body;
+
+            // Nearest product image inside the clicked card (or an explicit URL).
+            let sourceImg = null;
+            for (let node = btn; node && node !== document.body; node = node.parentElement) {
+                if (node.tagName === 'IMG') { sourceImg = node; break; }
+                const inner = node.querySelector ? node.querySelector('img') : null;
+                if (inner) { sourceImg = inner; break; }
+            }
+
+            const startRect = (sourceImg || btn).getBoundingClientRect();
+
+            // Land on the header cart icon; fall back to the top-right corner
+            // when it is missing or scrolled out of view.
+            const cartEl = document.getElementById('cart-icon');
+            let cartRect = null;
+            if (cartEl) {
+                const r = cartEl.getBoundingClientRect();
+                if (r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth) {
+                    cartRect = r;
+                }
+            }
+            if (!cartRect) {
+                cartRect = { left: window.innerWidth - 56, top: 20, width: 44, height: 44 };
+            }
+
+            const src = (sourceImg && sourceImg.src) || imgSrc || '';
+            let flyer;
+            if (src) {
+                flyer = document.createElement('img');
+                flyer.src = src;
+                flyer.alt = '';
+                flyer.style.objectFit = 'cover';
+            } else {
+                flyer = document.createElement('div');
+                flyer.style.background = 'linear-gradient(135deg, #142e1c, #2D6A4F)';
+                flyer.textContent = '✓';
+                flyer.style.color = '#f2a635';
+                flyer.style.display = 'flex';
+                flyer.style.alignItems = 'center';
+                flyer.style.justifyContent = 'center';
+                flyer.style.fontSize = '20px';
+                flyer.style.fontWeight = '700';
+            }
+            Object.assign(flyer.style, {
+                position: 'fixed',
+                left: startRect.left + 'px',
+                top: startRect.top + 'px',
+                width: Math.max(startRect.width, 24) + 'px',
+                height: Math.max(startRect.height, 24) + 'px',
+                borderRadius: '12px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, .28)',
+                zIndex: '9999',
+                pointerEvents: 'none',
+                opacity: '0.95',
+                willChange: 'transform, opacity',
+                transformOrigin: 'center center',
+                transform: 'translate(0, 0) scale(1)',
+            });
+            document.body.appendChild(flyer);
+
+            const destX = (cartRect.left + cartRect.width / 2) - (startRect.left + startRect.width / 2);
+            const destY = (cartRect.top + cartRect.height / 2) - (startRect.top + startRect.height / 2);
+            const duration = 650;
+
+            const cleanup = () => { if (flyer.parentNode) flyer.parentNode.removeChild(flyer); };
+
+            const startTime = performance.now();
+            const tick = (now) => {
+                const p = Math.min((now - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                flyer.style.transform = `translate(${destX * eased}px, ${destY * eased}px) scale(${1 - eased * 0.76})`;
+                flyer.style.opacity = (0.95 - eased * 0.75).toFixed(3);
+                if (p < 1) {
+                    requestAnimationFrame(tick);
+                } else {
+                    cleanup();
+                    if (cartEl) {
+                        cartEl.classList.remove('cart-bump');
+                        void cartEl.offsetWidth;
+                        cartEl.classList.add('cart-bump');
+                        setTimeout(() => cartEl.classList.remove('cart-bump'), 450);
+                    }
+                }
+            };
+            requestAnimationFrame(tick);
+            setTimeout(cleanup, 900);
+        } catch (e) {
+            console.warn('flyToCart error', e);
+        }
+    }
+    window.flyToCart = flyToCart;
 
     // Alpine component — live search suggestions dropdown.
     function liveSearch(initialQuery = '') {
