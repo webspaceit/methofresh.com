@@ -137,8 +137,8 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
         .site-footer .ft-social a { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); }
         .site-footer .ft-social a:hover { background: var(--ft-hover); border-color: var(--ft-hover); color: var(--ft-bg); }
         .site-footer .ft-pay { border-top: 1px solid var(--ft-border); margin-top: .85rem; padding-top: .85rem; }
-        .site-footer .ft-pay-icon { display: inline-flex; align-items: center; justify-content: center; padding: .5rem; border-radius: 8px; border: 1px solid var(--ft-border); background: rgba(255,255,255,0.05); }
-        .site-footer .ft-pay-icon img { width: 40px; height: 40px; object-fit: contain; }
+        .site-footer .ft-pay-icon { display: inline-flex; align-items: center; justify-content: center; padding: .4rem; border-radius: 8px; border: 1px solid var(--ft-border); background: rgba(255,255,255,0.05); }
+        .site-footer .ft-pay-icon img { width: 32px; height: 32px; object-fit: contain; }
         .site-footer .ft-pay-icon:hover { border-color: var(--ft-hover); }
     </style>
 
@@ -245,14 +245,33 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                         <p class="ft-muted leading-relaxed mb-3"><?= e($paymentsText) ?></p>
                     <?php endif; ?>
                     <?php if ($payments): ?>
+                        <?php
+                        // Define the desired order and layout
+                        $layoutOrder = [
+                            'bkash' => 'col',
+                            'nagad' => 'col',
+                            'rocket' => 'col',
+                            'bank' => 'col',
+                            'cod' => 'col-span-2',
+                        ];
+                        // Sort payments according to layout order
+                        $orderedPayments = [];
+                        foreach ($layoutOrder as $key => $span) {
+                            if (isset($payments[$key])) {
+                                $payments[$key]['_span'] = $span;
+                                $orderedPayments[] = $payments[$key];
+                            }
+                        }
+                        ?>
                         <div class="ft-pay-icons grid grid-cols-2 gap-2">
-                            <?php foreach ($payments as $method): ?>
+                            <?php foreach ($orderedPayments as $method): ?>
+                                <?php $spanClass = $method['_span'] ?? 'col'; ?>
                                 <?php $iconSrc = !empty($method['custom_icon']) ? asset_url($method['custom_icon']) : (str_starts_with($method['icon'] ?? '', '/') ? $method['icon'] : ''); ?>
-                                <span class="ft-pay-icon" title="<?= e((string) ($method['title'] ?? '')) ?>">
+                                <span class="ft-pay-icon <?= $spanClass === 'col-span-2' ? 'col-span-2' : '' ?>" title="<?= e((string) ($method['title'] ?? '')) ?>">
                                     <?php if ($iconSrc && (str_starts_with($iconSrc, '/assets/img/uploads/') || str_starts_with($method['icon'] ?? '', '/assets/img/'))): ?>
-                                        <img src="<?= e($iconSrc ?: $method['icon']) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-10 h-10 object-contain" />
+                                        <img src="<?= e($iconSrc ?: $method['icon']) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-8 h-8 object-contain" />
                                     <?php elseif (!empty($method['icon'])): ?>
-                                        <span class="text-2xl" aria-hidden="true"><?= e($method['icon']) ?></span>
+                                        <span class="text-lg" aria-hidden="true"><?= e($method['icon']) ?></span>
                                     <?php endif; ?>
                                 </span>
                             <?php endforeach; ?>
