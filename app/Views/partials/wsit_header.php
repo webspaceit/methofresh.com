@@ -175,21 +175,21 @@ $pathIsHome = $path === '';
     </div>
 
     <!-- Category Mega Navigation -->
-    <nav class="border-t border-stone-200 bg-stone-50/80 backdrop-blur" data-purpose="main-navigation">
+    <nav class="border-t border-white/10 bg-[#142e1c]" data-purpose="main-navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ul class="flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-700 scrollbar-none whitespace-nowrap">
-                <li><a class="<?= $pathIsHome ? 'text-brand-700 font-semibold border-b-2 border-brand-700 pb-1' : 'hover:text-brand-700' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
+            <ul class="flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-200 scrollbar-none whitespace-nowrap">
+                <li><a class="<?= $pathIsHome ? 'text-amber-400 font-semibold border-b-2 border-amber-400 pb-1' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
                 <li class="relative group">
-                    <a class="hover:text-brand-700 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>">
+                    <a class="hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>">
                         <span><?= e(trans('nav_all_categories')) ?></span>
-                        <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-brand-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-amber-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </a>
                     <?php if (count($headerAllCategories) > 0): ?>
                     <div class="absolute left-0 top-full hidden group-hover:block z-50">
                         <div class="pt-2">
-                            <div class="w-64 rounded-xl border border-stone-200 bg-white shadow-xl p-2">
+                            <div class="w-64 rounded-xl border border-white/10 bg-[#0B1F16] shadow-xl p-2">
                                 <?php foreach ($headerAllCategories as $cat): ?>
-                                <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-2 rounded-lg text-sm font-medium text-stone-700 hover:bg-stone-50 hover:text-brand-700 transition"><?= e($cat['name']) ?></a>
+                                <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-2 rounded-lg text-sm font-medium text-stone-200 hover:bg-white/10 hover:text-amber-400 transition"><?= e($cat['name']) ?></a>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -197,17 +197,17 @@ $pathIsHome = $path === '';
                     <?php endif; ?>
                 </li>
                 <?php foreach ($headerQuick as $cat): ?>
-                <li><a class="hover:text-brand-700 py-1" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
+                <li><a class="hover:text-amber-400 py-1" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
                 <?php endforeach; ?>
-                <li><a class="hover:text-brand-700 py-1" href="<?= e(locale_url('/#story')) ?>"><?= e(trans('land_story_badge')) ?></a></li>
-                <li><a class="hover:text-brand-700 py-1" href="<?= e(locale_url('/#faq')) ?>"><?= e(trans('land_faq_title')) ?></a></li>
+                <li><a class="hover:text-amber-400 py-1" href="<?= e(locale_url('/#story')) ?>"><?= e(trans('land_story_badge')) ?></a></li>
+                <li><a class="hover:text-amber-400 py-1" href="<?= e(locale_url('/#faq')) ?>"><?= e(trans('land_faq_title')) ?></a></li>
                 <?php foreach (nav_menu_items() as $navItem): ?>
                 <?php if (empty($navItem['enabled'])) continue; ?>
                 <?php $navLabel = trim((string)($navItem['label_' . $locale] ?? '')) ?: trim((string)($navItem['label_en'] ?? '')); ?>
                 <?php $navUrl = trim((string)($navItem['url'] ?? '')); ?>
                 <?php if ($navLabel === '' || $navUrl === '') continue; ?>
                 <li>
-                    <a class="hover:text-brand-700 py-1 flex items-center gap-1.5" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
+                    <a class="hover:text-amber-400 py-1 flex items-center gap-1.5" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
                         <?php if (!empty($navItem['icon']) && nav_icon_valid($navItem['icon'])): ?><span class="material-symbols-outlined text-[16px]"><?= e($navItem['icon']) ?></span><?php endif; ?>
                         <?= e($navLabel) ?>
                     </a>

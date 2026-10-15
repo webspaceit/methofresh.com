@@ -26,7 +26,7 @@ $footer = [
 
 // Colour fields: only a 6-digit hex can be shown in <input type="color">.
 $colorDefaults = [
-    'footer_bg_color'           => '#142e1c',
+    'footer_bg_color'           => '#0B1F16',
     'footer_heading_color'      => '#ffffff',
     'footer_text_color'         => '#d6d3d1',
     'footer_link_color'         => '#e7e5e4',

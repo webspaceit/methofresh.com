@@ -62,7 +62,7 @@ $showBrandName = site_setting('footer_show_brand_name', site_logo_url() !== '' ?
 // --- Appearance ----------------------------------------------------------
 $ftVars = sprintf(
     '--ft-bg:%s;--ft-heading:%s;--ft-text:%s;--ft-link:%s;--ft-hover:%s;--ft-border:%s;--ft-fs:%dpx;--ft-hs:%dpx;--ft-py:%dpx;',
-    $ftColor(site_setting('footer_bg_color'), '#142e1c'),
+    $ftColor(site_setting('footer_bg_color'), '#0B1F16'),
     $ftColor(site_setting('footer_heading_color'), '#ffffff'),
     $ftColor(site_setting('footer_text_color'), '#d6d3d1'),
     $ftColor(site_setting('footer_link_color'), '#e7e5e4'),
