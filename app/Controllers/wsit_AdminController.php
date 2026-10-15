@@ -810,19 +810,91 @@ class wsit_AdminController extends wsit_Controller
         }
 
         $keys = [
+            'footer_brand_en', 'footer_brand_bn',
             'footer_about_en', 'footer_about_bn',
             'footer_email', 'footer_phone',
             'footer_address_en', 'footer_address_bn',
             'copyright_en', 'copyright_bn',
+            'footer_heading_links_en', 'footer_heading_links_bn',
+            'footer_heading_contact_en', 'footer_heading_contact_bn',
+            'footer_heading_delivery_en', 'footer_heading_delivery_bn',
+            'footer_delivery_text_en', 'footer_delivery_text_bn',
+            'footer_payments_label_en', 'footer_payments_label_bn',
+            'footer_payments_text_en', 'footer_payments_text_bn',
         ];
         foreach ($keys as $key) {
             $this->settingModel->set($key, trim((string)$request->input($key, '')));
         }
 
+        // Appearance — colours accept only a hex value; sizes are clamped.
+        $colorKeys = [
+            'footer_bg_color', 'footer_heading_color', 'footer_text_color',
+            'footer_link_color', 'footer_link_hover_color', 'footer_border_color',
+        ];
+        foreach ($colorKeys as $key) {
+            $val = trim((string)$request->input($key, ''));
+            if ($val !== '' && preg_match('/^#[0-9a-fA-F]{3,8}$/', $val)) {
+                $this->settingModel->set($key, $val);
+            }
+        }
+
+        $numRanges = [
+            'footer_font_size'    => [11, 22],
+            'footer_heading_size' => [11, 26],
+            'footer_padding'      => [12, 72],
+        ];
+        foreach ($numRanges as $key => $range) {
+            $val = (int)$request->input($key, 0);
+            if ($val > 0) {
+                $this->settingModel->set($key, (string)max($range[0], min($range[1], $val)));
+            }
+        }
+
+        // Visibility toggles — unchecked checkboxes are absent from the request.
+        foreach ([
+            'footer_show_brand', 'footer_show_links', 'footer_show_contact',
+            'footer_show_delivery', 'footer_show_social', 'footer_show_pages_bar',
+        ] as $key) {
+            $this->settingModel->set($key, $request->input($key) ? '1' : '0');
+        }
+
         $this->saveFooterQuickLinks($request);
+        $this->saveFooterSocialLinks($request);
 
         $this->flash('success', trans('admin_saved'));
         $this->redirect('/mf-dashboard/footer');
+    }
+
+    private function saveFooterSocialLinks(wsit_Request $request): void
+    {
+        $raw     = $request->inputArray('social_links', []);
+        $removes = $request->inputArray('social_links_remove', []);
+        $allowed = ['facebook', 'instagram', 'youtube', 'twitter', 'x', 'whatsapp', 'tiktok', 'linkedin'];
+        $links   = [];
+
+        foreach ($raw as $key => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            if (!empty($removes[$key])) {
+                continue;
+            }
+            $url = trim((string)($item['url'] ?? ''));
+            if ($url === '') {
+                continue;
+            }
+            $platform = trim((string)($item['platform'] ?? ''));
+            if (!in_array($platform, $allowed, true)) {
+                $platform = 'facebook';
+            }
+            $links[] = [
+                'platform' => $platform,
+                'url'      => $url,
+                'enabled'  => empty($item['enabled']) ? 0 : 1,
+            ];
+        }
+
+        $this->settingModel->set('footer_social_links', json_encode($links, JSON_UNESCAPED_UNICODE));
     }
 
     private function saveFooterQuickLinks(wsit_Request $request): void

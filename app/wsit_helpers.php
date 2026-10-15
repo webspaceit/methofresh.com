@@ -357,6 +357,41 @@ function footer_quick_links(): array
 }
 
 /**
+ * Footer social links: a list of ['platform','url','enabled'] rows stored as
+ * JSON under the `footer_social_links` setting. Empty until the admin saves
+ * some from the Footer editor. Platforms map to the inline SVGs in the footer
+ * partial (facebook, instagram, youtube, twitter/x, whatsapp, tiktok, linkedin).
+ */
+function footer_social_links(): array
+{
+    $links = [];
+
+    $db = wsit_App::get('db');
+    if ($db !== null) {
+        try {
+            $setting = new \App\Models\wsit_Setting();
+            $raw = $setting->get('footer_social_links', '');
+            if ($raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) {
+                    $links = $decoded;
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB unavailable — no social links.
+        }
+    }
+
+    $template = ['platform' => '', 'url' => '', 'enabled' => true];
+    foreach ($links as &$link) {
+        $link = array_merge($template, is_array($link) ? $link : []);
+    }
+    unset($link);
+
+    return $links;
+}
+
+/**
  * Material Symbols outlined icon names embedded as inline SVGs in
  * partials/wsit_icons.php. MUST stay in sync with the ICONS map there.
  */
