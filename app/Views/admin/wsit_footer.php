@@ -355,6 +355,66 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
             </button>
         </section>
 
+        <!-- ============ Custom blocks ============ -->
+        <section class="pt-2 border-t border-stone-100">
+            <h2 class="text-sm font-bold text-stone-800 mb-1 mt-4"><?= e(trans('admin_footer_custom_blocks')) ?></h2>
+            <p class="text-xs text-stone-400 mb-3"><?= e(trans('admin_footer_custom_blocks_desc')) ?></p>
+            <div class="space-y-4" id="custom-blocks">
+                <?php $existingCustomBlocks = footer_custom_blocks(); ?>
+                <?php foreach ($existingCustomBlocks as $cbKey => $cb): $cbNum = (int) $cbKey + 1; ?>
+                <div class="rounded-xl border border-stone-200 bg-stone-50/50 p-4">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3">
+                        <span class="text-xs font-bold text-stone-500 uppercase tracking-wide"><?= e(trans('admin_cb_block')) ?> <?= $cbNum ?></span>
+                        <label class="flex items-center gap-2 text-xs font-medium text-stone-600">
+                            <input type="checkbox" name="custom_blocks[<?= $cbKey ?>][enabled]" value="1"
+                                   class="h-4 w-4 rounded border-stone-300 text-brand-600 focus:ring-brand-500" <?= !empty($cb['enabled']) ? 'checked' : '' ?>>
+                            <?= e(trans('admin_cb_enabled')) ?>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs font-medium text-red-500 ml-auto">
+                            <input type="checkbox" name="custom_blocks_remove[<?= $cbKey ?>]" value="1"
+                                   class="h-4 w-4 rounded border-red-300 text-red-500 focus:ring-red-400">
+                            <?= e(trans('admin_cb_remove')) ?>
+                        </label>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_title')) ?> (EN)</label>
+                            <input type="text" name="custom_blocks[<?= $cbKey ?>][title_en]" value="<?= e($cb['title_en'] ?? '') ?>"
+                                   placeholder="<?= e(trans('admin_cb_title_placeholder')) ?>" class="<?= $inputCls ?>">
+                        </div>
+                        <div>
+                            <div class="flex items-center">
+                                <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_title')) ?> (BN)</label>
+                                <?php $source = "[name='custom_blocks[$cbKey][title_en]']"; $target = "[name='custom_blocks[$cbKey][title_bn]']"; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+                            </div>
+                            <input type="text" name="custom_blocks[<?= $cbKey ?>][title_bn]" value="<?= e($cb['title_bn'] ?? '') ?>"
+                                   placeholder="<?= e(trans('admin_cb_title_placeholder')) ?>" class="<?= $inputCls ?>">
+                        </div>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3 mt-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_content')) ?> (EN)</label>
+                            <textarea name="custom_blocks[<?= $cbKey ?>][content_en]" rows="3" class="<?= $inputCls ?>"
+                                      placeholder="<?= e(trans('admin_cb_content_placeholder')) ?>"><?= e($cb['content_en'] ?? '') ?></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center">
+                                <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_content')) ?> (BN)</label>
+                                <?php $source = "[name='custom_blocks[$cbKey][content_en]']"; $target = "[name='custom_blocks[$cbKey][content_bn]']"; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+                            </div>
+                            <textarea name="custom_blocks[<?= $cbKey ?>][content_bn]" rows="3" class="<?= $inputCls ?>"
+                                      placeholder="<?= e(trans('admin_cb_content_placeholder')) ?>"><?= e($cb['content_bn'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" id="add-custom-block"
+                    class="mt-4 inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-500 hover:border-brand-500 hover:text-brand-600 transition">
+                <span class="text-lg leading-none">+</span> <?= e(trans('admin_cb_add')) ?>
+            </button>
+        </section>
+
         <!-- ============ Copyright ============ -->
         <section class="pt-2 border-t border-stone-100">
             <h2 class="text-sm font-bold text-stone-800 mb-3 mt-4"><?= e(trans('admin_copyright')) ?></h2>
@@ -506,6 +566,48 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
 </div>
 <?php $socialLinkTemplate = ob_get_clean(); ?>
 
+<?php ob_start(); ?>
+<div class="rounded-xl border border-stone-200 bg-stone-50/50 p-4">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3">
+        <span class="text-xs font-bold text-stone-500 uppercase tracking-wide"><?= e(trans('admin_cb_block')) ?> {{KEYNUM}}</span>
+        <label class="flex items-center gap-2 text-xs font-medium text-stone-600">
+            <input type="checkbox" name="custom_blocks[{{KEY}}][enabled]" value="1" checked class="h-4 w-4 rounded border-stone-300 text-brand-600 focus:ring-brand-500">
+            <?= e(trans('admin_cb_enabled')) ?>
+        </label>
+        <label class="flex items-center gap-2 text-xs font-medium text-red-500 ml-auto">
+            <input type="checkbox" name="custom_blocks_remove[{{KEY}}]" value="1" class="h-4 w-4 rounded border-red-300 text-red-500 focus:ring-red-400">
+            <?= e(trans('admin_cb_remove')) ?>
+        </label>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-3">
+        <div>
+            <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_title')) ?> (EN)</label>
+            <input type="text" name="custom_blocks[{{KEY}}][title_en]" value="" placeholder="<?= e(trans('admin_cb_title_placeholder')) ?>" class="<?= $inputCls ?>">
+        </div>
+        <div>
+            <div class="flex items-center">
+                <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_title')) ?> (BN)</label>
+                <?php $source = "[name='custom_blocks[{{KEY}}][title_en]']"; $target = "[name='custom_blocks[{{KEY}}][title_bn]']"; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+            </div>
+            <input type="text" name="custom_blocks[{{KEY}}][title_bn]" value="" placeholder="<?= e(trans('admin_cb_title_placeholder')) ?>" class="<?= $inputCls ?>">
+        </div>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-3 mt-3">
+        <div>
+            <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_content')) ?> (EN)</label>
+            <textarea name="custom_blocks[{{KEY}}][content_en]" rows="3" class="<?= $inputCls ?>" placeholder="<?= e(trans('admin_cb_content_placeholder')) ?>"></textarea>
+        </div>
+        <div>
+            <div class="flex items-center">
+                <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_cb_content')) ?> (BN)</label>
+                <?php $source = "[name='custom_blocks[{{KEY}}][content_en]']"; $target = "[name='custom_blocks[{{KEY}}][content_bn]']"; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+            </div>
+            <textarea name="custom_blocks[{{KEY}}][content_bn]" rows="3" class="<?= $inputCls ?>" placeholder="<?= e(trans('admin_cb_content_placeholder')) ?>"></textarea>
+        </div>
+    </div>
+</div>
+<?php $customBlockTemplate = ob_get_clean(); ?>
+
 <script>
 (function () {
     const qlContainer = document.getElementById('quick-links');
@@ -527,6 +629,19 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
         slBtn.addEventListener('click', function () {
             const key = slContainer.children.length;
             slContainer.insertAdjacentHTML('beforeend', slTpl.replaceAll('{{KEY}}', String(key)).replaceAll('{{KEYNUM}}', String(key + 1)));
+        });
+    }
+
+    // Custom blocks
+    const cbContainer = document.getElementById('custom-blocks');
+    const cbBtn = document.getElementById('add-custom-block');
+    const cbTpl = <?= json_encode($customBlockTemplate) ?>;
+
+    if (cbBtn && cbContainer && cbTpl) {
+        cbBtn.addEventListener('click', function () {
+            const key = cbContainer.children.length;
+            cbContainer.insertAdjacentHTML('beforeend', cbTpl.replaceAll('{{KEY}}', String(key)).replaceAll('{{KEYNUM}}', String(key + 1)));
+            bindTranslateButtons(cbContainer.lastElementChild);
         });
     }
 
