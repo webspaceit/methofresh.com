@@ -32,6 +32,7 @@ $footerAddress = site_setting('footer_address_' . $locale) ?: site_setting('foot
 $headingLinks    = site_setting('footer_heading_links_' . $locale)    ?: trans('footer_quick_links');
 $headingContact  = site_setting('footer_heading_contact_' . $locale)  ?: trans('footer_contact');
 $headingDelivery = site_setting('footer_heading_delivery_' . $locale) ?: trans('footer_delivery');
+$headingSocial   = site_setting('footer_heading_social_' . $locale)   ?: trans('footer_follow_us');
 
 $deliveryText  = site_setting('footer_delivery_text_' . $locale) ?: trans('footer_delivery_text');
 $paymentsLabel = site_setting('footer_payments_label_' . $locale) ?: trans('footer_payments');
@@ -55,6 +56,7 @@ $showLinks     = site_setting('footer_show_links', '1') !== '0';
 $showContact   = site_setting('footer_show_contact', '1') !== '0';
 $showDelivery  = site_setting('footer_show_delivery', '1') !== '0';
 $showSocial    = site_setting('footer_show_social', '1') !== '0';
+$showPayments  = site_setting('footer_show_payments', '1') !== '0';
 $showPagesBar  = site_setting('footer_show_pages_bar', '1') !== '0';
 
 // The brand-name text is redundant when a logo image already spells out the
@@ -83,6 +85,9 @@ if ($showSocial) {
         }
     }
 }
+
+// Accepted payment methods (icons configured under Dashboard → Payment Methods).
+$payments = $showPayments ? active_payment_methods($locale) : [];
 
 $socialSvg = static function (string $platform): string {
     $paths = [
@@ -128,12 +133,17 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
         .site-footer .ft-social a { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); }
         .site-footer .ft-social a:hover { background: var(--ft-hover); border-color: var(--ft-hover); color: var(--ft-bg); }
         .site-footer .ft-pay { border-top: 1px solid var(--ft-border); margin-top: .85rem; padding-top: .85rem; }
+        .site-footer .ft-pay-icon { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .7rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); font-size: .78rem; line-height: 1; }
+        .site-footer .ft-pay-icon .ft-pay-emoji { font-size: 1rem; }
+        .site-footer .ft-pay-icon:hover { border-color: var(--ft-hover); color: var(--ft-hover); }
     </style>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ft-inner">
         <div class="ft-grid">
 
-            <?php if ($showBrand): ?>
+            <?php foreach (footer_block_order() as $block): ?>
+
+            <?php if ($block === 'brand' && $showBrand): ?>
             <!-- Brand -->
             <div>
                 <div class="flex items-center gap-2.5">
@@ -150,22 +160,9 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                 <?php if ($footerAbout !== ''): ?>
                     <p class="ft-muted mt-3 leading-relaxed"><?= e($footerAbout) ?></p>
                 <?php endif; ?>
-                <?php if ($socials): ?>
-                    <div class="ft-social mt-4 flex flex-wrap gap-2.5">
-                        <?php foreach ($socials as $social): ?>
-                            <?php $platform = (string) ($social['platform'] ?? ''); ?>
-                            <?php $svg = $socialSvg($platform); ?>
-                            <?php if ($svg === '') continue; ?>
-                            <a href="<?= e($social['url']) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e(ucfirst($platform)) ?>" title="<?= e(ucfirst($platform)) ?>">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><?= $svg ?></svg>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
             </div>
-            <?php endif; ?>
 
-            <?php if ($showLinks): ?>
+            <?php elseif ($block === 'links' && $showLinks): ?>
             <!-- Important Links -->
             <div>
                 <h4 class="ft-heading mb-3"><?= e($headingLinks) ?></h4>
@@ -178,9 +175,8 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                     <?php endforeach; ?>
                 </ul>
             </div>
-            <?php endif; ?>
 
-            <?php if ($showContact): ?>
+            <?php elseif ($block === 'contact' && $showContact): ?>
             <!-- Contact -->
             <div>
                 <h4 class="ft-heading mb-3"><?= e($headingContact) ?></h4>
@@ -205,27 +201,57 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                     <?php endif; ?>
                 </ul>
             </div>
-            <?php endif; ?>
 
-            <?php if ($showDelivery): ?>
-            <!-- Delivery & Payment -->
+            <?php elseif ($block === 'social' && $showSocial && $socials): ?>
+            <!-- Social -->
+            <div>
+                <?php if ($headingSocial !== ''): ?>
+                    <h4 class="ft-heading mb-3"><?= e($headingSocial) ?></h4>
+                <?php endif; ?>
+                <div class="ft-social flex flex-wrap gap-2.5">
+                    <?php foreach ($socials as $social): ?>
+                        <?php $platform = (string) ($social['platform'] ?? ''); ?>
+                        <?php $svg = $socialSvg($platform); ?>
+                        <?php if ($svg === '') continue; ?>
+                        <a href="<?= e($social['url']) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e(ucfirst($platform)) ?>" title="<?= e(ucfirst($platform)) ?>">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><?= $svg ?></svg>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <?php elseif ($block === 'delivery' && $showDelivery): ?>
+            <!-- Delivery -->
             <div>
                 <h4 class="ft-heading mb-3"><?= e($headingDelivery) ?></h4>
                 <?php if ($deliveryText !== ''): ?>
                     <p class="ft-muted leading-relaxed"><?= nl2br(e($deliveryText)) ?></p>
                 <?php endif; ?>
-                <?php if ($paymentsLabel !== '' || $paymentsText !== ''): ?>
-                    <div class="ft-pay">
-                        <?php if ($paymentsLabel !== ''): ?>
-                            <span class="block font-semibold mb-1"><?= e($paymentsLabel) ?></span>
-                        <?php endif; ?>
-                        <?php if ($paymentsText !== ''): ?>
-                            <span class="ft-muted"><?= e($paymentsText) ?></span>
-                        <?php endif; ?>
+            </div>
+
+            <?php elseif ($block === 'payments' && $showPayments && ($payments || $paymentsLabel !== '' || $paymentsText !== '')): ?>
+            <!-- Accepted payments -->
+            <div>
+                <?php if ($paymentsLabel !== ''): ?>
+                    <h4 class="ft-heading mb-3"><?= e($paymentsLabel) ?></h4>
+                <?php endif; ?>
+                <?php if ($paymentsText !== ''): ?>
+                    <p class="ft-muted leading-relaxed mb-3"><?= e($paymentsText) ?></p>
+                <?php endif; ?>
+                <?php if ($payments): ?>
+                    <div class="ft-pay-icons flex flex-wrap gap-2">
+                        <?php foreach ($payments as $method): ?>
+                            <span class="ft-pay-icon" title="<?= e((string) ($method['title'] ?? '')) ?>">
+                                <span class="ft-pay-emoji" aria-hidden="true"><?= e((string) ($method['icon'] ?? '')) ?></span>
+                                <span><?= e((string) ($method['title'] ?? '')) ?></span>
+                            </span>
+                        <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </div>
+
             <?php endif; ?>
+            <?php endforeach; ?>
         </div>
 
         <?php if ($showPagesBar || $copyright !== ''): ?>

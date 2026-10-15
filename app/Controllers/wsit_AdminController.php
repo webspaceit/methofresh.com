@@ -818,6 +818,7 @@ class wsit_AdminController extends wsit_Controller
             'footer_heading_links_en', 'footer_heading_links_bn',
             'footer_heading_contact_en', 'footer_heading_contact_bn',
             'footer_heading_delivery_en', 'footer_heading_delivery_bn',
+            'footer_heading_social_en', 'footer_heading_social_bn',
             'footer_delivery_text_en', 'footer_delivery_text_bn',
             'footer_payments_label_en', 'footer_payments_label_bn',
             'footer_payments_text_en', 'footer_payments_text_bn',
@@ -853,12 +854,13 @@ class wsit_AdminController extends wsit_Controller
         // Visibility toggles — unchecked checkboxes are absent from the request.
         foreach ([
             'footer_show_brand', 'footer_show_links', 'footer_show_contact',
-            'footer_show_delivery', 'footer_show_social', 'footer_show_pages_bar',
-            'footer_show_brand_name',
+            'footer_show_delivery', 'footer_show_social', 'footer_show_payments',
+            'footer_show_pages_bar', 'footer_show_brand_name',
         ] as $key) {
             $this->settingModel->set($key, $request->input($key) ? '1' : '0');
         }
 
+        $this->saveFooterBlockOrder($request);
         $this->saveFooterQuickLinks($request);
         $this->saveFooterSocialLinks($request);
 
@@ -975,6 +977,32 @@ class wsit_AdminController extends wsit_Controller
         }
 
         $this->settingModel->set('footer_quick_links', json_encode($links, JSON_UNESCAPED_UNICODE));
+    }
+
+    private function saveFooterBlockOrder(wsit_Request $request): void
+    {
+        $order = $request->inputArray('footer_block_order', []);
+        $known = footer_block_keys();
+        $clean = [];
+
+        foreach ($order as $key) {
+            $key = trim((string)$key);
+            if (!in_array($key, $known, true)) {
+                continue;
+            }
+            if (!in_array($key, $clean, true)) {
+                $clean[] = $key;
+            }
+        }
+
+        // Ensure all known keys are present (append any missing ones at the end)
+        foreach ($known as $key) {
+            if (!in_array($key, $clean, true)) {
+                $clean[] = $key;
+            }
+        }
+
+        $this->settingModel->set('footer_block_order', json_encode($clean, JSON_UNESCAPED_UNICODE));
     }
 
     public function updateNavMenu(wsit_Request $request): void

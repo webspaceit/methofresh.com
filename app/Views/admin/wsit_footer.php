@@ -16,6 +16,8 @@ $footer = [
     'heading_contact_bn'  => site_setting('footer_heading_contact_bn'),
     'heading_delivery_en' => site_setting('footer_heading_delivery_en'),
     'heading_delivery_bn' => site_setting('footer_heading_delivery_bn'),
+    'heading_social_en'   => site_setting('footer_heading_social_en'),
+    'heading_social_bn'   => site_setting('footer_heading_social_bn'),
     'delivery_text_en'    => site_setting('footer_delivery_text_en'),
     'delivery_text_bn'    => site_setting('footer_delivery_text_bn'),
     'payments_label_en'   => site_setting('footer_payments_label_en'),
@@ -52,6 +54,7 @@ $toggles = [
     'footer_show_contact'    => site_setting('footer_show_contact', '1'),
     'footer_show_delivery'   => site_setting('footer_show_delivery', '1'),
     'footer_show_social'     => site_setting('footer_show_social', '1'),
+    'footer_show_payments'   => site_setting('footer_show_payments', '1'),
     'footer_show_pages_bar'  => site_setting('footer_show_pages_bar', '1'),
     'footer_show_brand_name' => site_setting('footer_show_brand_name', site_logo_url() !== '' ? '0' : '1'),
 ];
@@ -148,7 +151,34 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                     </div>
                     <input type="text" name="footer_heading_delivery_bn" value="<?= e($footer['heading_delivery_bn']) ?>" class="<?= $inputCls ?> mt-1">
                 </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_footer_heading_social')) ?> (EN)</label>
+                    <input type="text" name="footer_heading_social_en" value="<?= e($footer['heading_social_en']) ?>" placeholder="<?= e(trans('footer_follow_us')) ?>" class="<?= $inputCls ?> mt-1">
+                </div>
+                <div>
+                    <div class="flex items-center">
+                        <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_footer_heading_social')) ?> (BN)</label>
+                        <?php $source = '[name=footer_heading_social_en]'; $target = '[name=footer_heading_social_bn]'; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+                    </div>
+                    <input type="text" name="footer_heading_social_bn" value="<?= e($footer['heading_social_bn']) ?>" class="<?= $inputCls ?> mt-1">
+                </div>
             </div>
+        </section>
+
+        <!-- ============ Layout order ============ -->
+        <section class="pt-2 border-t border-stone-100">
+            <h2 class="text-sm font-bold text-stone-800 mb-1 mt-4"><?= e(trans('admin_footer_layout')) ?></h2>
+            <p class="text-xs text-stone-400 mb-3"><?= e(trans('admin_footer_layout_desc')) ?></p>
+            <ul class="space-y-2" data-ft-block-list>
+                <?php foreach (footer_block_order() as $blockKey): ?>
+                    <li class="flex items-center gap-3 rounded-xl border border-stone-200 bg-stone-50/60 px-3 py-2 cursor-move select-none" draggable="true" data-ft-block="<?= e($blockKey) ?>">
+                        <span class="text-stone-400 text-lg leading-none" aria-hidden="true">⋮⋮</span>
+                        <span class="flex-1 text-sm font-semibold text-stone-700"><?= e(trans('admin_footer_block_' . $blockKey)) ?></span>
+                        <input type="hidden" name="footer_block_order[]" value="<?= e($blockKey) ?>">
+                    </li>
+                <?php endforeach; ?>
+            </ul>
         </section>
 
         <!-- ============ Delivery & payment text ============ -->
@@ -378,6 +408,7 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                     'footer_show_contact'   => 'admin_footer_show_contact',
                     'footer_show_delivery'  => 'admin_footer_show_delivery',
                     'footer_show_social'    => 'admin_footer_show_social',
+                    'footer_show_payments'  => 'admin_footer_show_payments',
                     'footer_show_pages_bar' => 'admin_footer_show_pages_bar',
                     'footer_show_brand_name' => 'admin_footer_show_brand_name',
                 ];
@@ -479,6 +510,50 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
             const key = slContainer.children.length;
             slContainer.insertAdjacentHTML('beforeend', slTpl.replaceAll('{{KEY}}', String(key)).replaceAll('{{KEYNUM}}', String(key + 1)));
         });
+    }
+
+    // Footer block drag-and-drop reordering
+    const blockList = document.querySelector('[data-ft-block-list]');
+    if (blockList) {
+        let draggedItem = null;
+
+        blockList.addEventListener('dragstart', function (e) {
+            if (e.target.tagName === 'LI') {
+                draggedItem = e.target;
+                e.target.style.opacity = '0.4';
+            }
+        });
+
+        blockList.addEventListener('dragend', function (e) {
+            if (draggedItem) {
+                draggedItem.style.opacity = '';
+                draggedItem = null;
+            }
+        });
+
+        blockList.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(blockList, e.clientY);
+            if (afterElement == null) {
+                blockList.appendChild(draggedItem);
+            } else {
+                blockList.insertBefore(draggedItem, afterElement);
+            }
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('li:not([style*="opacity: 0.4"])')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
     }
 })();
 </script>

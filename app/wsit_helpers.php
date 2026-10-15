@@ -357,6 +357,54 @@ function footer_quick_links(): array
 }
 
 /**
+ * The footer columns that can be shown and reordered from the Footer editor.
+ * Order here is the default order; the admin can drag them into any order and
+ * the result is stored as JSON under the `footer_block_order` setting.
+ */
+function footer_block_keys(): array
+{
+    return ['brand', 'links', 'contact', 'social', 'delivery', 'payments'];
+}
+
+/**
+ * Effective footer column order: the saved order (sanitised to known keys,
+ * de-duplicated) with any keys the admin never saw appended in default order.
+ */
+function footer_block_order(): array
+{
+    $known = footer_block_keys();
+    $order = [];
+
+    $db = wsit_App::get('db');
+    if ($db !== null) {
+        try {
+            $setting = new \App\Models\wsit_Setting();
+            $raw = $setting->get('footer_block_order', '');
+            if ($raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) {
+                    foreach ($decoded as $key) {
+                        if (is_string($key) && in_array($key, $known, true) && !in_array($key, $order, true)) {
+                            $order[] = $key;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB unavailable — fall back to the default order.
+        }
+    }
+
+    foreach ($known as $key) {
+        if (!in_array($key, $order, true)) {
+            $order[] = $key;
+        }
+    }
+
+    return $order;
+}
+
+/**
  * Footer social links: a list of ['platform','url','enabled'] rows stored as
  * JSON under the `footer_social_links` setting. Empty until the admin saves
  * some from the Footer editor. Platforms map to the inline SVGs in the footer
