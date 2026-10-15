@@ -780,6 +780,67 @@ function e(string|null $value): string
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/**
+ * Render a tiny, safe subset of inline HTML (used for the editable footer
+ * copyright bar, which admins may fill with e.g. a credit link).
+ *
+ * Only a small allow-list of inline tags survives; every attribute is dropped
+ * except safe href/target/rel/class/title on <a>, and javascript: style URLs
+ * are rejected. Anything else is removed, so this never echoes raw admin HTML.
+ */
+function safe_inline_html(string|null $html): string
+{
+    $html = (string) $html;
+    if (trim($html) === '') {
+        return '';
+    }
+
+    // 1) Drop every tag that is not on the allow-list.
+    $html = strip_tags($html, '<a><b><strong><i><em><u><span><small><sub><sup><br>');
+
+    // 2) Rebuild each remaining opening tag: anchors keep a few safe
+    //    attributes, everything else loses all of them.
+    return (string) preg_replace_callback('/<([a-zA-Z0-9]+)\b([^>]*)>/', static function (array $m): string {
+        $tag = strtolower($m[1]);
+
+        if ($tag !== 'a') {
+            return '<' . $tag . '>';
+        }
+
+        $keep = ['href', 'target', 'rel', 'class', 'title'];
+        $out  = '';
+        if (preg_match_all(
+            '/([a-zA-Z0-9_:-]+)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))/',
+            $m[2],
+            $attrs,
+            PREG_SET_ORDER
+        )) {
+            foreach ($attrs as $attr) {
+                $name  = strtolower($attr[1]);
+                $value = $attr[2] ?? '';
+                if ($value === '') {
+                    $value = $attr[3] ?? '';
+                }
+                if ($value === '') {
+                    $value = $attr[4] ?? '';
+                }
+                if (!in_array($name, $keep, true)) {
+                    continue;
+                }
+                if ($name === 'href') {
+                    $scheme = strtolower((string) parse_url(trim($value), PHP_URL_SCHEME));
+                    if ($scheme !== '' && !in_array($scheme, ['http', 'https', 'mailto', 'tel'], true)) {
+                        continue;
+                    }
+                }
+                $out .= ' ' . $name . '="' . e($value) . '"';
+            }
+        }
+
+        return '<a' . $out . '>';
+    }, $html);
+}
+
 // ---------------------------------------------------------------------------
 // Session & authentication
 // ---------------------------------------------------------------------------

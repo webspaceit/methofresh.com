@@ -540,7 +540,7 @@ return [
     'admin_footer_email'    => 'ইমেইল',
     'admin_footer_phone'    => 'ফোন',
     'admin_copyright'       => 'কপিরাইট বার',
-    'admin_copyright_hint'  => 'প্লেসহোল্ডার: {year} = বর্তমান বছর, {site_name} = সাইটের নাম, {rights} = "সর্বস্বত্ব সংরক্ষিত।"',
+    'admin_copyright_hint'  => 'প্লেসহোল্ডার: {year} = বর্তমান বছর, {site_name} = সাইটের নাম, {rights} = "সর্বস্বত্ব সংরক্ষিত।" সাধারণ HTML অনুমোদিত, যেমন <a href="https://example.com">লিংক</a> বা <strong>বোল্ড</strong>।',
     'admin_footer_quick_links'       => 'কুইক লিংক',
     'admin_footer_quick_links_desc'  => 'ফুটারের কুইক লিংক কলামে দেখানো লিংকগুলো সম্পাদনা করুন। অ্যাডমিন → পেজ-এ যোগ করা পেজগুলো নিচের বারে দেখা যাবে।',
     'admin_footer_add_link'          => 'লিংক যোগ করুন',

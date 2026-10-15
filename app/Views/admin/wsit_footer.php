@@ -316,7 +316,10 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                     <input type="text" name="copyright_en" value="<?= e($footer['copyright_en']) ?>" class="<?= $inputCls ?> mt-1">
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_lang_bn')) ?></label>
+                    <div class="flex items-center">
+                        <label class="text-xs font-semibold text-stone-500"><?= e(trans('admin_lang_bn')) ?></label>
+                        <?php $source = '[name=copyright_en]'; $target = '[name=copyright_bn]'; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+                    </div>
                     <input type="text" name="copyright_bn" value="<?= e($footer['copyright_bn']) ?>" class="<?= $inputCls ?> mt-1">
                 </div>
             </div>

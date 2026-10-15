@@ -229,7 +229,7 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
         <?php if ($showPagesBar || $copyright !== ''): ?>
         <!-- Copyright -->
         <div class="mt-9 pt-5 flex flex-col sm:flex-row justify-between items-center gap-3" style="border-top:1px solid var(--ft-border)">
-            <p class="ft-muted"><?= e($copyright) ?></p>
+            <p class="ft-muted"><?= safe_inline_html($copyright) ?></p>
             <?php if ($showPagesBar && $footerPages): ?>
             <div class="flex flex-wrap gap-4">
                 <?php foreach ($footerPages as $page): ?>

@@ -538,7 +538,7 @@ return [
     'admin_footer_email'    => 'Email',
     'admin_footer_phone'    => 'Phone',
     'admin_copyright'       => 'Copyright bar',
-    'admin_copyright_hint'  => 'Placeholders: {year} = current year, {site_name} = site name, {rights} = "All rights reserved."',
+    'admin_copyright_hint'  => 'Placeholders: {year} = current year, {site_name} = site name, {rights} = "All rights reserved." Basic HTML is allowed, e.g. <a href="https://example.com">link</a> or <strong>bold</strong>.',
     'admin_footer_quick_links'       => 'Quick Links',
     'admin_footer_quick_links_desc'  => 'Edit the links shown in the footer Quick Links column. Pages added under Admin → Pages still appear in the bottom bar.',
     'admin_footer_add_link'          => 'Add Link',
