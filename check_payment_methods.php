@@ -2,6 +2,7 @@
 require __DIR__ . '/app/wsit_bootstrap.php';
 
 $db = \App\Core\wsit_Database::connect(db_config());
+\App\Core\wsit_App::set('db', $db);
 $setting = new \App\Models\wsit_Setting();
 
 // Check current payment_methods value
