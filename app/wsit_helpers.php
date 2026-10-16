@@ -1311,7 +1311,7 @@ function payment_methods_config(): array
         'bkash' => [
             'key'         => 'bkash',
             'enabled'     => true,
-            'icon'        => '/assets/img/payment-methods/bkash.svg',
+            'icon'        => '/assets/img/payment-methods/bkash.png',
             'title_en'    => 'bKash',
             'title_bn'    => 'বিকাশ',
             'desc_en'     => 'Send money to our bKash number and enter the transaction ID.',
