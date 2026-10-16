@@ -1299,7 +1299,7 @@ function payment_methods_config(): array
         'cod' => [
             'key'         => 'cod',
             'enabled'     => true,
-            'icon'        => '/assets/img/payment-methods/cod.svg',
+            'icon'        => '/assets/img/payment-methods/cash-on-delivery.png',
             'title_en'    => 'Cash on Delivery',
             'title_bn'    => 'ক্যাশ অন ডেলিভারি',
             'desc_en'     => 'Pay with cash upon delivery at your doorstep.',
