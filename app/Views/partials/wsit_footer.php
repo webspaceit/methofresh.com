@@ -139,9 +139,10 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
         .site-footer .ft-social a { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 9999px; border: 1px solid var(--ft-border); color: var(--ft-link); }
         .site-footer .ft-social a:hover { background: var(--ft-hover); border-color: var(--ft-hover); color: var(--ft-bg); }
         .site-footer .ft-pay { border-top: 1px solid var(--ft-border); margin-top: .85rem; padding-top: .85rem; }
-        .site-footer .ft-pay-icon { display: inline-flex; align-items: center; justify-content: center; padding: .4rem; border-radius: 8px; border: 1px solid var(--ft-border); background: rgba(255,255,255,0.05); }
+        .site-footer .ft-pay-icon { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: .5rem .35rem; border-radius: 8px; border: 1px solid var(--ft-border); background: rgba(255,255,255,0.05); text-align: center; }
         .site-footer .ft-pay-icon img { width: 32px; height: 32px; object-fit: contain; }
         .site-footer .ft-pay-icon:hover { border-color: var(--ft-hover); }
+        .site-footer .ft-pay-label { font-size: 11px; line-height: 1.2; color: var(--ft-text); opacity: .92; }
     </style>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ft-inner">
@@ -283,6 +284,7 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                                     <?php elseif (!empty($method['icon'])): ?>
                                         <span class="text-lg" aria-hidden="true"><?= e($method['icon']) ?></span>
                                     <?php endif; ?>
+                                    <span class="ft-pay-label"><?= e((string) ($method['title'] ?? '')) ?></span>
                                 </span>
                             <?php endforeach; ?>
                         </div>
