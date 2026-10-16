@@ -1323,7 +1323,7 @@ function payment_methods_config(): array
         'nagad' => [
             'key'         => 'nagad',
             'enabled'     => false,
-            'icon'        => '/assets/img/payment-methods/nagad.svg',
+            'icon'        => '/assets/img/payment-methods/nagad.png',
             'title_en'    => 'Nagad',
             'title_bn'    => 'নগদ',
             'desc_en'     => 'Send money to our Nagad number and enter the transaction ID.',
