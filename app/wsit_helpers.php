@@ -1335,7 +1335,7 @@ function payment_methods_config(): array
         'rocket' => [
             'key'         => 'rocket',
             'enabled'     => false,
-            'icon'        => '/assets/img/payment-methods/rocket.svg',
+            'icon'        => '/assets/img/payment-methods/rocket.png',
             'title_en'    => 'Rocket',
             'title_bn'    => 'রকেট',
             'desc_en'     => 'Send money to our DBBL Rocket account number.',
