@@ -63,7 +63,7 @@ $showSocial    = site_setting('footer_show_social', '1') !== '0';
 $showPayments  = site_setting('footer_show_payments', '1') !== '0';
 $showPagesBar  = site_setting('footer_show_pages_bar', '1') !== '0';
 
-$path = request_path();
+$path = current_page_path();
 
 // The brand-name text is redundant when a logo image already spells out the
 // brand, so it defaults to hidden when a logo is set. Editable in the dashboard.
