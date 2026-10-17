@@ -58,13 +58,12 @@ RewriteRule ^ wsit_index.php [QSA,L]
     # "Vary: Accept-Encoding, Accept-Encoding". Drop the origin copy.
     Header unset Vary
 
-    # Anything served by PHP is per-visitor (session, cart, CSRF) and must never
-    # be stored by the browser or by a CDN. The front controller already sends
-    # this itself; the rule also covers standalone .php helpers dropped into the
-    # document root (e.g. the temporary OPcache-clearing script used on deploy),
-    # which would otherwise advertise no cache policy and can be cached at the
-    # edge for hours.
-    <FilesMatch "\.php$">
+    # Standalone .php helpers dropped into the document root (e.g. the temporary
+    # OPcache-clearing script used on deploy) advertise no cache policy of their
+    # own and can otherwise be cached at the edge for hours. The front controller
+    # (wsit_index.php) is excluded: it already sends its own no-store headers via
+    # the session, and setting them again here would duplicate the header.
+    <FilesMatch "^(?!wsit_index\.php$).+\.php$">
         Header set Cache-Control "no-store, no-cache, must-revalidate"
     </FilesMatch>
 </IfModule>
