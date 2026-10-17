@@ -195,34 +195,13 @@ if ($outletSub === '') {
     $outletSub = $t['outletSub'];
 }
 
-// Icons inlined as raw SVG so they never depend on icons.js (which Cloudflare
-// caches at the edge, so JS-map updates can take hours to appear).
-$matIcon = static function (string $name): string {
-    $paths = [
-        'web_asset' => '<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h320l240 240v480q0 33-23.5 56.5T680-40H200Zm240-720v-160H200v560h480v-400H440Zm0-80v80-80Z"/>',
-        'mark_email_unread' => '<path d="M160-80q-33 0-56.5-23.5T80-160v-640q0-33 23.5-56.5T160-880h640q20 0 38 8.5t29 23.5q-41 3-77 20.5T720-784H160v640h324q-4 18-1 36t9 34H160Zm160-560h320q17 0 28.5 11.5T680-600q0 17-11.5 28.5T640-560H320q-17 0-28.5-11.5T280-600q0-17 11.5-28.5T320-640Zm0 160h320q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400H320q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480Zm0 160h200q0-17 11.5-28.5T560-360q17 0 28.5 11.5T600-320q0 17-11.5 28.5T560-280H320q-17 0-28.5-11.5T280-320q0-17 11.5-28.5T320-360v-120q0-17 11.5-28.5T320-520Z"/>',
-        'mail' => '<path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T940-720v480q0 33-23.5 56.5T860-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200Z"/>',
-        'inbox' => '<path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T940-720v480q0 33-23.5 56.5T860-160H160Zm320-280 320-200v-80L480-520 160-720v80Z"/>',
-        'delete' => '<path d="M280-120q-33 0-56.5-23.5T200-200v-520q0-17-11.5-28.5T160-760v-40q0-17 11.5-28.5T160-840h280q17 0 28.5 11.5T480-800h160q17 0 28.5 11.5T680-760q0 17-11.5 28.5T640-720v40q0 17-11.5 28.5T600-640H280v520h440q17 0 28.5 11.5T760-80v40q0 17-11.5 28.5T720-40H280Z"/>',
-        'fiber_new' => '<path d="M480-80q-122 0-206-84-84-84-84-206 0-122 84-206 84-84 206-84 122 0 206 84 84 84 84 206 0 122-84 206-84 84-206 84Zm0-80q109 0 190.5-63.5T790-380H170q47 93 128.5 156.5T480-160ZM170-580h620q-47-93-128.5-156.5T480-800q-109 0-190.5 63.5T170-580Z"/>',
-        'chevron_left' => '<path d="M560-240 280-520l280-280 56 56-224 224 224 224-56 56Z"/>',
-        'check_circle' => '<path d="m424-312 288-288-56-56-232 232-114-114-56 56 170 170Zm56 232q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/>',
-        'forward_to_inbox' => '<path d="M200-160q-33 0-56.5-23.5T120-240v-560q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T880-800v280h-80v-280H200v560h280v80H200Zm280-280 320-200v-80L480-520 160-720v80l320 200Z"/>',
-    ];
-    if (isset($paths[$name])) {
-        return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="text-[20px] shrink-0" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em;">' . $paths[$name] . '</svg>';
-    }
-    // Fallback: let icons.js handle it.
-    return '<span class="material-symbols-outlined text-[20px]">' . htmlspecialchars($name) . '</span>';
-};
-
 // A nav row (icon + label), reused for every sidebar entry.
-$navLink = function (string $url, string $icon, string $label, string $stateClass, bool $badge = false, string $badgeText = '') use ($pendingBadge, $t, $matIcon): string {
+$navLink = function (string $url, string $icon, string $label, string $stateClass, bool $badge = false, string $badgeText = '') use ($pendingBadge, $t): string {
     $badgeHtml = $badge
         ? '<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold">' . htmlspecialchars($badgeText === '' ? $pendingBadge : $badgeText) . htmlspecialchars($t['newBadge']) . '</span>'
         : '';
     return '<a class="flex items-center justify-between px-space-md py-space-sm rounded-xl transition-all ' . htmlspecialchars($stateClass) . '" href="' . htmlspecialchars($url) . '">'
-        . '<div class="flex items-center gap-space-sm">' . $matIcon($icon) . '<span class="font-label-lg text-label-lg">' . htmlspecialchars($label) . '</span></div>'
+        . '<div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">' . htmlspecialchars($icon) . '</span><span class="font-label-lg text-label-lg">' . htmlspecialchars($label) . '</span></div>'
         . $badgeHtml
         . '</a>';
 };
