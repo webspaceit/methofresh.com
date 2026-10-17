@@ -93,6 +93,12 @@ $pageUrl = static function (int $n) use ($baseUrl): string {
                     </button>
                 </form>
                 <?php endif; ?>
+                <form method="post" action="<?= e(locale_url('/mf-dashboard/messages/' . (int)$m['id'] . '/delete')) ?>" onsubmit="return confirm('<?= e(trans('admin_delete_confirm')) ?>')">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low text-on-surface-variant font-label-md text-label-md font-semibold hover:bg-error-container hover:text-on-error-container transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">delete</span><?= e(trans('admin_delete')) ?>
+                    </button>
+                </form>
             </div>
         </div>
 

@@ -46,10 +46,11 @@ $pageUrl = static function (int $n) use ($baseUrl): string {
 
 <section class="overflow-hidden rounded-2xl bg-surface-container-lowest shadow-sm">
     <div class="hidden sm:grid grid-cols-12 gap-3 px-space-lg py-3 border-b border-surface-container font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-        <span class="col-span-6"><?= e(trans('admin_subscriber_email')) ?></span>
+        <span class="col-span-5"><?= e(trans('admin_subscriber_email')) ?></span>
         <span class="col-span-2"><?= e(trans('admin_subscriber_locale')) ?></span>
         <span class="col-span-2"><?= e(trans('admin_subscriber_status')) ?></span>
-        <span class="col-span-2 text-right"><?= e(trans('admin_subscriber_joined')) ?></span>
+        <span class="col-span-2"><?= e(trans('admin_subscriber_joined')) ?></span>
+        <span class="col-span-1 text-right"></span>
     </div>
     <div class="divide-y divide-surface-container">
         <?php foreach ($subscribers as $s):
@@ -58,7 +59,7 @@ $pageUrl = static function (int $n) use ($baseUrl): string {
             $isActive = (int)($s['is_active'] ?? 1) === 1;
         ?>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 items-center px-space-lg py-3.5 hover:bg-surface-container-low transition-colors">
-            <div class="col-span-6 flex items-center gap-3 min-w-0">
+            <div class="col-span-5 flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
                     <span class="material-symbols-outlined text-[18px]">mail</span>
                 </span>
@@ -78,6 +79,14 @@ $pageUrl = static function (int $n) use ($baseUrl): string {
             </div>
             <div class="col-span-2 pl-12 sm:pl-0 sm:text-right">
                 <span class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap"><?= e(format_date((string)($s['created_at'] ?? ''), 'd M Y, H:i')) ?></span>
+            </div>
+            <div class="col-span-1 pl-12 sm:pl-0 text-right">
+                <form method="post" action="<?= e(locale_url('/mf-dashboard/subscribers/' . (int)$s['id'] . '/delete')) ?>" onsubmit="return confirm('<?= e(trans('admin_delete_confirm')) ?>')">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-error-container hover:text-on-error-container transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">delete</span><?= e(trans('admin_delete')) ?>
+                    </button>
+                </form>
             </div>
         </div>
         <?php endforeach; ?>

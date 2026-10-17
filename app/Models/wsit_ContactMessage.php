@@ -36,6 +36,11 @@ class wsit_ContactMessage extends wsit_Model
         $this->updateRecord($this->table, ['is_read' => 1], ['id' => $id]);
     }
 
+    public function deleteById(int $id): void
+    {
+        $this->deleteRecord($this->table, ['id' => $id]);
+    }
+
     public function unreadCount(): int
     {
         return (int)$this->fetchColumn("SELECT COUNT(*) FROM {$this->table} WHERE is_read = 0");

@@ -313,6 +313,18 @@ class wsit_AdminController extends wsit_Controller
         $this->redirect('/mf-dashboard/messages');
     }
 
+    public function deleteContactMessage(wsit_Request $request, int $id): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/messages');
+        }
+
+        $this->contactMessageModel->deleteById($id);
+        $this->flash('success', trans('admin_deleted'));
+        $this->redirect('/mf-dashboard/messages');
+    }
+
     public function newsletterSubscribers(wsit_Request $request): string
     {
         $perPage = 30;
@@ -327,6 +339,18 @@ class wsit_AdminController extends wsit_Controller
             'page'        => $page,
             'perPage'     => $perPage,
         ], 'wsit_admin_material');
+    }
+
+    public function deleteNewsletterSubscriber(wsit_Request $request, int $id): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/subscribers');
+        }
+
+        $this->newsletterModel->deleteById($id);
+        $this->flash('success', trans('admin_deleted'));
+        $this->redirect('/mf-dashboard/subscribers');
     }
 
     public function settings(): string
