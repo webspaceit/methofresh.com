@@ -158,6 +158,25 @@ function public_path(string $path = ''): string
     return base_path('public') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
 }
 
+/**
+ * Base-aware URL for a bundled asset under public/assets/ (e.g. 'css/app.css'),
+ * with a cache-busting query string derived from the file's mtime.
+ *
+ * Bundled assets are served with a long, immutable Cache-Control (see the root
+ * .htaccess), so the ?v=... token is what makes a fresh deploy show up
+ * immediately instead of being served from a stale browser/edge cache.
+ */
+function asset_url(string $path): string
+{
+    $rel  = 'assets/' . ltrim($path, '/');
+    $url  = public_url($rel);
+    $file = public_path($rel);
+    if (is_file($file)) {
+        $url .= '?v=' . filemtime($file);
+    }
+    return $url;
+}
+
 function image_url(?string $path, string $fallbackText = '', int $size = 400): string
 {
     $path = trim((string)$path);
@@ -474,8 +493,9 @@ function footer_social_links(): array
 }
 
 /**
- * Material Symbols outlined icon names embedded as inline SVGs in
- * partials/wsit_icons.php. MUST stay in sync with the ICONS map there.
+ * Material Symbols outlined icon names embedded as inline SVGs by the icon
+ * engine in public/assets/js/icons.js (source: partials/wsit_icons.php).
+ * MUST stay in sync with the ICONS map there.
  */
 define('NAV_ICON_NAMES', [
     'account_balance_wallet', 'add', 'arrow_forward', 'bolt', 'calendar_today',

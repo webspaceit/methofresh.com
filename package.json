@@ -1,0 +1,15 @@
+{
+  "name": "methofresh-assets",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build pipeline for the storefront assets (Tailwind CSS, self-hosted fonts).",
+  "scripts": {
+    "fonts": "node resources/build/fetch-fonts.mjs",
+    "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --minify",
+    "build": "npm run fonts && npm run build:css",
+    "watch:css": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/app.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

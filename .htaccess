@@ -21,8 +21,10 @@ RewriteEngine On
 # Never expose project internals over HTTP (config, code, schema, tooling).
 # The front controller and real files stay reachable; only these paths 403.
 # ---------------------------------------------------------------------------
-RewriteRule ^(?:app|database|vendor)(?:/|$) - [F,L]
+RewriteRule ^(?:app|database|vendor|node_modules|resources)(?:/|$) - [F,L]
 RewriteRule ^composer\.(?:json|lock)$ - [F,L]
+RewriteRule ^(?:package|package-lock)\.json$ - [F,L]
+RewriteRule ^tailwind\.config\.js$ - [F,L]
 RewriteRule ^\.(?!well-known(?:/|$)) - [F,L]
 
 # Serve uploaded product images / assets that live under public/assets.
@@ -37,6 +39,22 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !/wsit_index\.php$
 RewriteRule ^ wsit_index.php [QSA,L]
 
+<IfModule mod_setenvif.c>
+    # Bundled assets (CSS/JS/fonts) are cache-busted with ?v=<mtime> via the
+    # asset_url() helper, so they can be cached "forever". Images are often
+    # overwritten in place, so they get a long but finite TTL instead.
+    SetEnvIf Request_URI "\.(?:css|js|woff2?|ttf)(\?.*)?$" MF_ASSET_LONG
+    SetEnvIf Request_URI "\.(?:svg|png|jpe?g|webp|gif|ico|avif)(\?.*)?$" MF_ASSET_IMG
+</IfModule>
+
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
+    Header set Cache-Control "public, max-age=31536000, immutable" env=MF_ASSET_LONG
+    Header set Cache-Control "public, max-age=2592000" env=MF_ASSET_IMG
+
+    # The app never varies its output by Accept-Encoding itself (compression is
+    # handled at the edge), but the server's compressor advertises it here and
+    # Cloudflare appends its own, producing a duplicate
+    # "Vary: Accept-Encoding, Accept-Encoding". Drop the origin copy.
+    Header unset Vary
 </IfModule>

@@ -142,6 +142,12 @@ if (str_starts_with($reqPath, '/mf-dashboard')) {
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header('Expires: 0');
+} else {
+    // Early Hints: Cloudflare turns this Link header into a 103 response so the
+    // browser can start fetching the storefront stylesheet while PHP is still
+    // rendering (origin TTFB is the slowest part of the request). Enable
+    // "Early Hints" in the Cloudflare dashboard for this to have any effect.
+    header('Link: <' . asset_url('css/app.css') . '>; rel=preload; as=style');
 }
 
 $app->run();

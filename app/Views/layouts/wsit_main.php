@@ -19,7 +19,11 @@ $locale = app_locale();
     <?php include views_path('partials/wsit_cart-drawer.php'); ?>
     <?php include views_path('partials/wsit_flash.php'); ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <?php // app.js must be requested BEFORE alpine.min.js (both `defer`, so they
+          // execute in document order): it registers the `alpine:init` listener
+          // that defines the store/liveSearch Alpine components. ?>
+    <script src="<?= e(asset_url('js/app.js')) ?>" defer></script>
+    <script src="<?= e(asset_url('js/alpine.min.js')) ?>" defer></script>
     <?php include views_path('partials/wsit_icons.php'); ?>
 </body>
 </html>
