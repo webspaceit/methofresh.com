@@ -45,14 +45,6 @@ RewriteRule ^ wsit_index.php [QSA,L]
     # overwritten in place, so they get a long but finite TTL instead.
     SetEnvIf Request_URI "\.(?:css|js|woff2?|ttf)(\?.*)?$" MF_ASSET_LONG
     SetEnvIf Request_URI "\.(?:svg|png|jpe?g|webp|gif|ico|avif)(\?.*)?$" MF_ASSET_IMG
-
-    # Leave CSS/JS uncompressed at the origin. Cloudflare never re-encodes an
-    # origin gzip as brotli/zstd -- it passes the gzip straight through -- so
-    # handing the edge an uncompressed body is the only way browsers get the
-    # better encoding (~10-18% smaller than gzip for these files). See the
-    # RequestHeader below, which does the same thing for any compressor that
-    # does not honour "no-gzip".
-    SetEnvIfNoCase Request_URI "\.(?:css|js)(\?.*)?$" no-gzip
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -65,14 +57,6 @@ RewriteRule ^ wsit_index.php [QSA,L]
     # Cloudflare appends its own, producing a duplicate
     # "Vary: Accept-Encoding, Accept-Encoding". Drop the origin copy.
     Header unset Vary
-
-    # Strip the client's Accept-Encoding before the compressor can act on it.
-    # Late-mode RequestHeader runs in the fixup phase, i.e. before Apache's
-    # output filters (mod_deflate's DEFLATE) are inserted, so the origin hands
-    # Cloudflare uncompressed CSS/JS and lets the edge pick the best encoding
-    # the client supports. Cloudflare does not recompress an origin gzip, so
-    # without this the browser only ever sees gzip.
-    RequestHeader unset Accept-Encoding
 
     # Standalone .php helpers dropped into the document root (e.g. the temporary
     # OPcache-clearing script used on deploy) advertise no cache policy of their
