@@ -18,6 +18,15 @@ class wsit_Page extends wsit_Model
         return $this->fetchAll($sql);
     }
 
+    /**
+     * Active pages only — mirrors wsit_Product::allActive() for callers (e.g.
+     * the sitemap) that treat every model the same way.
+     */
+    public function allActive(): array
+    {
+        return $this->all(true);
+    }
+
     public function find(int $id): ?array
     {
         return $this->fetch("SELECT * FROM {$this->table} WHERE id = ?", [$id]);

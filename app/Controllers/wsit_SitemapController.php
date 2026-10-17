@@ -23,7 +23,16 @@ class wsit_SitemapController extends wsit_Controller
         $pageModel     = new wsit_Page();
 
         $locales = locales();
-        $baseUrl = rtrim(base_url_path(), '/');
+
+        // <loc> entries must be absolute URLs, so prefer the configured canonical
+        // base (app.base_url) rather than base_url_path(), which returns only the
+        // request-relative sub-path ('' in production).
+        $baseUrl = rtrim((string) config('app.base_url', ''), '/');
+        if ($baseUrl === '') {
+            $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host    = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+            $baseUrl = rtrim($scheme . '://' . $host . base_url_path(), '/');
+        }
 
         $urls = [];
 
