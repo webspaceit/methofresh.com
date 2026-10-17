@@ -28,6 +28,13 @@ $deliveredCount = max(0, (int)$deliveredCount);
 $lowStockCount  = max(0, (int)$lowStockCount);
 $notifTotal     = max(0, $pendingCount + $todayOrders + $lowStockCount);
 
+// Unread contact-form messages — shown as a sidebar badge on the Messages link.
+try {
+    $unreadMessages = max(0, (int)(new \App\Models\wsit_ContactMessage())->unreadCount());
+} catch (\Throwable $e) {
+    $unreadMessages = 0;
+}
+
 $adminName = user_display_name($currentUser, $locale);
 $newProductUrl = locale_url('/mf-dashboard/products/create');
 $ordersUrl = locale_url('/mf-dashboard/orders');
@@ -87,6 +94,8 @@ $t = $isBn ? [
     'homepage'   => 'হোমপেজ',
     'footer'     => 'ফুটার',
     'header'     => 'হেডার / নেভিগেশন',
+    'messages'   => 'যোগাযোগ বার্তা',
+    'subscribers'=> 'নিউজলেটার সাবস্ক্রাইবার',
     'analytics'  => 'বিশ্লেষণ',
     'customers'  => 'গ্রাহক বিশ্লেষণ',
     'delivery'   => 'ডেলিভারি ট্র্যাকিং',
@@ -129,6 +138,8 @@ $t = $isBn ? [
     'homepage'   => 'Homepage',
     'footer'     => 'Footer',
     'header'     => 'Header / Navigation',
+    'messages'   => 'Contact Messages',
+    'subscribers'=> 'Newsletter Subscribers',
     'analytics'  => 'Analytics',
     'customers'  => 'Customer Analytics',
     'delivery'   => 'Delivery Tracking',
@@ -250,6 +261,8 @@ $navLink = function (string $url, string $icon, string $label, string $stateClas
             <?= $navLink($homepageUrl, 'home', $t['homepage'], $isNavActive('mf-dashboard/homepage')) ?>
             <?= $navLink($footerUrl, 'view_agenda', $t['footer'], $isNavActive('mf-dashboard/footer')) ?>
             <?= $navLink($headerUrl, 'web_asset', $t['header'], $isNavActive('mf-dashboard/header')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/messages'), 'mark_email_unread', $t['messages'], $isNavActive('mf-dashboard/messages'), $unreadMessages > 0, $fmtCount($unreadMessages)) ?>
+            <?= $navLink(locale_url('/mf-dashboard/subscribers'), 'mail', $t['subscribers'], $isNavActive('mf-dashboard/subscribers')) ?>
             <span class="px-space-md pt-space-sm pb-1 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"><?= e($t['analytics']) ?></span>
             <?= $navLink(locale_url('/mf-dashboard/customers'), 'group', $t['customers'], $isNavActive('mf-dashboard/customers')) ?>
             <?= $navLink(locale_url('/mf-dashboard/delivery-tracking'), 'local_shipping', $t['delivery'], $isNavActive('mf-dashboard/delivery-tracking')) ?>

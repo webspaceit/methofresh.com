@@ -7,13 +7,6 @@ use App\Core\wsit_Model;
 class wsit_ContactMessage extends wsit_Model
 {
     protected string $table = 'contact_messages';
-    private string $usersTable;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->usersTable = table('users');
-    }
 
     public function create(array $data): int
     {
@@ -22,10 +15,10 @@ class wsit_ContactMessage extends wsit_Model
 
     public function all(int $perPage = 20, int $offset = 0): array
     {
-        $sql = "SELECT cm.*, u.name AS user_name FROM {$this->table} cm
-                LEFT JOIN {$this->usersTable} u ON u.id = cm.user_id
-                ORDER BY cm.created_at DESC LIMIT ? OFFSET ?";
-        return $this->fetchAll($sql, [$perPage, $offset]);
+        return $this->fetchAll(
+            "SELECT * FROM {$this->table} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
+            [$perPage, $offset]
+        );
     }
 
     public function countAll(): int

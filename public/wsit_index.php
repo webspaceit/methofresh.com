@@ -124,6 +124,9 @@ $router->post('/mf-dashboard/shipping',                    [wsit_AdminController
 $router->get('/mf-dashboard/customers',                    [wsit_AdminController::class, 'customers']);
 $router->get('/mf-dashboard/delivery-tracking',            [wsit_AdminController::class, 'deliveryTracking']);
 $router->get('/mf-dashboard/support',                      [wsit_AdminController::class, 'support']);
+$router->get('/mf-dashboard/messages',                     [wsit_AdminController::class, 'contactMessages']);
+$router->post('/mf-dashboard/messages/{id}/read',          [wsit_AdminController::class, 'markContactMessageRead']);
+$router->get('/mf-dashboard/subscribers',                  [wsit_AdminController::class, 'newsletterSubscribers']);
 $router->post('/mf-dashboard/translate',                   [wsit_AdminController::class, 'translate']);
 
 // ---- Errors ----

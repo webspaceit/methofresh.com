@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\wsit_Controller;
 use App\Core\wsit_Request;
 use App\Models\wsit_Category;
+use App\Models\wsit_NewsletterSubscriber;
 use App\Models\wsit_Product;
 
 class wsit_HomeController extends wsit_Controller
@@ -30,12 +31,21 @@ class wsit_HomeController extends wsit_Controller
 
     public function newsletter(wsit_Request $request): void
     {
-        $email = $request->input('newsletter_email');
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->flash('success', trans('subscribe_success'));
-        } else {
-            $this->flash('error', trans('validate_email'));
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/');
         }
+
+        $email = trim((string)$request->input('newsletter_email'));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->flash('error', trans('validate_email'));
+            $this->redirect('/');
+        }
+
+        $subscribers = new wsit_NewsletterSubscriber();
+        $subscribers->subscribe($email, app_locale());
+
+        $this->flash('success', trans('subscribe_success'));
         $this->redirect('/');
     }
 }

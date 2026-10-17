@@ -154,6 +154,19 @@ CREATE TABLE IF NOT EXISTS wsit_contact_messages (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------------
+-- Newsletter subscribers (homepage footer "subscribe" form)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wsit_newsletter_subscribers (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email       VARCHAR(190) NOT NULL UNIQUE,
+    locale      VARCHAR(5)   NOT NULL DEFAULT 'en',
+    is_active   TINYINT(1)   NOT NULL DEFAULT 1,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_ns_created (created_at)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------------
 -- Storefront search log (drives the admin dashboard "most searched" widget)
 -- One row per search performed on the catalog results page.
 -- ---------------------------------------------------------------------------

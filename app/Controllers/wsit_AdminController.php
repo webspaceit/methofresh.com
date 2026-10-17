@@ -6,6 +6,8 @@ use App\Core\wsit_App;
 use App\Core\wsit_Controller;
 use App\Core\wsit_Request;
 use App\Models\wsit_CheckoutVisit;
+use App\Models\wsit_ContactMessage;
+use App\Models\wsit_NewsletterSubscriber;
 use App\Models\wsit_Order;
 use App\Models\wsit_Product;
 use App\Models\wsit_SearchLog;
@@ -20,6 +22,8 @@ class wsit_AdminController extends wsit_Controller
     private wsit_Setting $settingModel;
     private wsit_SearchLog $searchLogModel;
     private wsit_CheckoutVisit $checkoutVisitModel;
+    private wsit_ContactMessage $contactMessageModel;
+    private wsit_NewsletterSubscriber $newsletterModel;
 
     protected function before(): void
     {
@@ -35,6 +39,8 @@ class wsit_AdminController extends wsit_Controller
         $this->settingModel = new wsit_Setting();
         $this->searchLogModel = new wsit_SearchLog();
         $this->checkoutVisitModel = new wsit_CheckoutVisit();
+        $this->contactMessageModel = new wsit_ContactMessage();
+        $this->newsletterModel = new wsit_NewsletterSubscriber();
     }
 
     public function dashboard(wsit_Request $request): string
@@ -276,6 +282,50 @@ class wsit_AdminController extends wsit_Controller
                 app_locale() === 'bn' ? 'footer_address_bn' : 'footer_address_en',
                 $this->settingModel->get(app_locale() === 'bn' ? 'footer_address_en' : 'footer_address_bn', '')
             ),
+        ], 'wsit_admin_material');
+    }
+
+    public function contactMessages(wsit_Request $request): string
+    {
+        $perPage = 30;
+        $page    = max(1, (int)$request->query('page', 1));
+        $offset  = ($page - 1) * $perPage;
+
+        return $this->view('admin/wsit_messages', [
+            'pageTitle' => trans('admin_messages') . ' | ' . trans('admin'),
+            'messages'  => $this->contactMessageModel->all($perPage, $offset),
+            'total'     => $this->contactMessageModel->countAll(),
+            'unread'    => $this->contactMessageModel->unreadCount(),
+            'page'      => $page,
+            'perPage'   => $perPage,
+        ], 'wsit_admin_material');
+    }
+
+    public function markContactMessageRead(wsit_Request $request, int $id): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/messages');
+        }
+
+        $this->contactMessageModel->markAsRead($id);
+        $this->flash('success', trans('admin_message_marked_read'));
+        $this->redirect('/mf-dashboard/messages');
+    }
+
+    public function newsletterSubscribers(wsit_Request $request): string
+    {
+        $perPage = 30;
+        $page    = max(1, (int)$request->query('page', 1));
+        $offset  = ($page - 1) * $perPage;
+
+        return $this->view('admin/wsit_subscribers', [
+            'pageTitle'   => trans('admin_subscribers') . ' | ' . trans('admin'),
+            'subscribers' => $this->newsletterModel->all($perPage, $offset),
+            'total'       => $this->newsletterModel->countAll(),
+            'active'      => $this->newsletterModel->countActive(),
+            'page'        => $page,
+            'perPage'     => $perPage,
         ], 'wsit_admin_material');
     }
 
