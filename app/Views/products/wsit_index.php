@@ -121,7 +121,7 @@ $toItem = min($total, $page * $perPage);
 
         <!-- Filters Sidebar -->
         <aside class="mb-6 lg:mb-0 lg:sticky lg:top-24 space-y-5" x-data="{ mobileOpen: false }">
-            <div class="bg-card rounded-3xl border border-honey-600/15/90 shadow-sm p-5">
+            <div class="bg-card rounded-3xl border border-honey-600/15 shadow-sm p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-honey-600/15">
                     <div class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

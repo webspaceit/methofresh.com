@@ -44,3 +44,21 @@
 html[lang="bn"] body {
     font-family: 'Noto Sans Bengali', sans-serif;
 }
+
+/* Hide the horizontal scrollbar on the primary-nav scroll strip. The markup
+   already asks for `scrollbar-none`, but it is a plugin utility the runtime
+   Tailwind build never shipped, so the class has always been a no-op. */
+.scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+
+/* The markup uses Tailwind v4's `shadow-xs` name for what v3 calls `shadow-sm`.
+   The v3 build treated it as an unknown class and emitted nothing, so every
+   element asking for it rendered flat. Give it the intended subtle elevation. */
+.shadow-xs {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
