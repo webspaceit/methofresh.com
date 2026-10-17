@@ -188,19 +188,21 @@ class wsit_AdminProductController extends wsit_Controller
         $salePrice = $request->input('sale_price');
 
         return [
-            'category_id'    => (int)$request->input('category_id'),
-            'slug'           => slugify($request->input('slug', $request->input('name_en'))),
-            'sku'            => $request->input('sku'),
-            'name_en'        => $request->input('name_en'),
-            'name_bn'        => $request->input('name_bn', $request->input('name_en')),
-            'description_en' => $request->input('description_en'),
-            'description_bn' => $request->input('description_bn'),
-            'price'          => (float)$request->input('price', 0),
-            'sale_price'     => $salePrice !== '' && (float)$salePrice > 0 ? (float)$salePrice : null,
-            'stock'          => (int)$request->input('stock', 0),
-            'weight'         => max(0.0, (float)$request->input('weight', 0)),
-            'active'         => $active === '1' ? 1 : 0,
-            'featured'       => $featured === '1' ? 1 : 0,
+            'category_id'     => (int)$request->input('category_id'),
+            'slug'            => slugify($request->input('slug', $request->input('name_en'))),
+            'sku'             => $request->input('sku'),
+            'name_en'         => $request->input('name_en'),
+            'name_bn'         => $request->input('name_bn', $request->input('name_en')),
+            'description_en'  => $request->input('description_en'),
+            'description_bn'  => $request->input('description_bn'),
+            'seo_description' => trim((string)$request->input('seo_description', '')) ?: null,
+            'seo_og_image'    => trim((string)$request->input('seo_og_image', '')) ?: null,
+            'price'           => (float)$request->input('price', 0),
+            'sale_price'      => $salePrice !== '' && (float)$salePrice > 0 ? (float)$salePrice : null,
+            'stock'           => (int)$request->input('stock', 0),
+            'weight'          => max(0.0, (float)$request->input('weight', 0)),
+            'active'          => $active === '1' ? 1 : 0,
+            'featured'        => $featured === '1' ? 1 : 0,
         ];
     }
 

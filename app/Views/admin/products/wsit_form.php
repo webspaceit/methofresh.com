@@ -104,6 +104,21 @@ $formAction = $isEdit
             </label>
         </div>
 
+        <!-- SEO Settings -->
+        <div class="border-t border-stone-200 pt-5 space-y-4">
+            <h2 class="text-sm font-bold text-stone-700 uppercase tracking-wider">SEO</h2>
+            <div>
+                <label class="text-xs font-semibold text-stone-500">Meta Description</label>
+                <textarea name="seo_description" rows="2" maxlength="160" placeholder="Auto-generated from product description if empty" class="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"><?= e($p['seo_description'] ?? '') ?></textarea>
+                <p class="text-[11px] text-stone-400 mt-1">Max 160 characters. Leave empty to auto-generate.</p>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-stone-500">OG Image URL</label>
+                <input type="url" name="seo_og_image" value="<?= e($p['seo_og_image'] ?? '') ?>" placeholder="https://… (leave empty to use product image)" class="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <p class="text-[11px] text-stone-400 mt-1">Leave empty to use the default product image.</p>
+            </div>
+        </div>
+
         <div class="flex gap-3 pt-2">
             <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 text-sm font-bold"><?= e(trans('admin_save')) ?></button>
             <a href="<?= e(locale_url('/mf-dashboard/products')) ?>" class="rounded-xl border border-stone-300 px-6 py-3 text-sm font-semibold text-stone-600 hover:border-stone-400"><?= e(trans('admin_cancel')) ?></a>

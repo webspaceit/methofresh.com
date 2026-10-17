@@ -19,6 +19,7 @@
 // Tiny per-request config for the static assets/js/app.js bundle. Everything
 // else on the page is now cacheable.
 ?>
+<?php include views_path('partials/wsit_seo.php'); ?>
 <script>window.MF_CONFIG = <?= json_encode([
     'csrf'          => csrf_token(),
     'cartAdd'       => locale_url('/cart/add'),

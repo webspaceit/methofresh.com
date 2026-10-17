@@ -2188,6 +2188,101 @@ function homepage_section(string $key, ?string $locale = null): string
     return (string) ($sections['defaults'][$key][$locale] ?? ($sections['defaults'][$key]['en'] ?? $key));
 }
 
+// ---------------------------------------------------------------------------
+// SEO helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the canonical URL for the current request.
+ */
+function seo_canonical_url(): string
+{
+    $path = current_page_path();
+    $locale = app_locale();
+    $prefix = $locale ? '/' . $locale : '';
+    return rtrim(base_url_path(), '/') . $prefix . ($path ? '/' . $path : '/');
+}
+
+/**
+ * Generate Product JSON-LD structured data.
+ *
+ * @return list<array<string,mixed>>
+ */
+function seo_product_jsonld(array $product, string $description = '', string $image = ''): array
+{
+    $productName = $product['name'] ?? ($product['name_en'] ?? app_name());
+    $schemas = seo_default_jsonld($productName, $description, seo_canonical_url(), $image);
+    $schemas['product'] = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'Product',
+        'name'     => $productName,
+        'description' => $description,
+        'image'    => $image,
+        'url'      => seo_canonical_url(),
+        'sku'      => $product['sku'] ?? '',
+        'brand'    => ['@type' => 'Brand', 'name' => app_name()],
+        'offers'   => [
+            '@type'         => 'Offer',
+            'price'         => (string)($product['sale_price'] ?? $product['price']),
+            'priceCurrency' => 'BDT',
+            'availability'  => ((int)($product['stock'] ?? 0) > 0)
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'url'           => seo_canonical_url(),
+        ],
+    ];
+    return $schemas;
+}
+
+/**
+ * Get the default OG image from settings (Dashboard → SEO).
+ */
+function seo_default_og_image(): string
+{
+    return (string) site_setting('seo_og_image', '');
+}
+
+/**
+ * Build hreflang alternate links for all locales.
+ *
+ * @return list<array{lang:string,url:string}>
+ */
+function seo_hreflang_links(string $canonicalUrl): array
+{
+    $links = [];
+    $path = current_page_path();
+    foreach (locales() as $loc) {
+        $prefix = $loc ? '/' . $loc : '';
+        $links[] = [
+            'lang' => $loc,
+            'url'  => rtrim(base_url_path(), '/') . $prefix . ($path ? '/' . $path : '/'),
+        ];
+    }
+    return $links;
+}
+
+/**
+ * Generate default JSON-LD structured data.
+ *
+ * @return list<array<string,mixed>>
+ */
+function seo_default_jsonld(string $title, string $description, string $url, string $image = ''): array
+{
+    $schemas = [];
+
+    // Organization schema (always present)
+    $orgName = site_setting('seo_org_name', app_name());
+    $schemas['organization'] = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'Organization',
+        'name'     => $orgName,
+        'url'      => rtrim(base_url_path(), '/') . '/',
+        'logo'     => $image ?: seo_default_og_image(),
+    ];
+
+    return $schemas;
+}
+
 /**
  * Return the story section image path (stored as a standalone setting so it
  * can be uploaded independently of the hero slides).

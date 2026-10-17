@@ -396,10 +396,23 @@ class wsit_ProductController extends wsit_Controller
             app_locale()
         );
 
+        // SEO: per-product overrides or auto-generated values
+        $seoDescription = !empty($product['seo_description'])
+            ? $product['seo_description']
+            : mb_substr(strip_tags($product['description_en'] ?? $product['name_en']), 0, 160);
+        $seoOgImage = !empty($product['seo_og_image'])
+            ? $product['seo_og_image']
+            : image_url($product['image'], $product['name'], 1200);
+
         return $this->view('products/wsit_show', [
-            'pageTitle' => $product['name'],
-            'product'   => $product,
-            'related'   => $related,
+            'pageTitle'       => $product['name'] . ' | ' . app_name(),
+            'pageDescription' => $seoDescription,
+            'ogImage'         => $seoOgImage,
+            'ogType'          => 'product',
+            'canonicalUrl'    => seo_canonical_url(),
+            'jsonLd'          => seo_product_jsonld($product, $seoDescription, $seoOgImage),
+            'product'         => $product,
+            'related'         => $related,
         ]);
     }
 

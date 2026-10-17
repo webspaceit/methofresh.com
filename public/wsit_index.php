@@ -129,6 +129,8 @@ $router->post('/mf-dashboard/messages/{id}/read',          [wsit_AdminController
 $router->post('/mf-dashboard/messages/{id}/delete',        [wsit_AdminController::class, 'deleteContactMessage']);
 $router->get('/mf-dashboard/subscribers',                  [wsit_AdminController::class, 'newsletterSubscribers']);
 $router->post('/mf-dashboard/subscribers/{id}/delete',     [wsit_AdminController::class, 'deleteNewsletterSubscriber']);
+$router->get('/mf-dashboard/seo',                          [wsit_AdminController::class, 'seoSettings']);
+$router->post('/mf-dashboard/seo',                         [wsit_AdminController::class, 'updateSeoSettings']);
 $router->post('/mf-dashboard/translate',                   [wsit_AdminController::class, 'translate']);
 
 // ---- Errors ----

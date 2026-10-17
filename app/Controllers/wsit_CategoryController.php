@@ -56,14 +56,19 @@ class wsit_CategoryController extends wsit_Controller
 
         $category = $this->categoryModel->localized([$category], app_locale())[0];
 
+        $seoDescription = mb_substr(strip_tags($category['description_en'] ?? $category['name_en']), 0, 160);
+
         return $this->view('category/wsit_show', [
-            'pageTitle'  => $category['name'],
-            'category'   => $category,
-            'products'   => $products,
-            'page'       => $page,
-            'pages'      => $pages,
-            'total'      => $total,
-            'perPage'    => $perPage,
+            'pageTitle'       => $category['name'] . ' | ' . app_name(),
+            'pageDescription' => $seoDescription,
+            'ogType'          => 'website',
+            'canonicalUrl'    => seo_canonical_url(),
+            'category'        => $category,
+            'products'        => $products,
+            'page'            => $page,
+            'pages'           => $pages,
+            'total'           => $total,
+            'perPage'         => $perPage,
         ]);
     }
 }

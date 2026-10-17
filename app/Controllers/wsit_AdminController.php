@@ -364,6 +364,36 @@ class wsit_AdminController extends wsit_Controller
         ], 'wsit_admin_material');
     }
 
+    public function seoSettings(): string
+    {
+        return $this->view('admin/wsit_seo', [
+            'pageTitle' => trans('admin_seo') . ' | ' . trans('admin'),
+        ], 'wsit_admin_material');
+    }
+
+    public function updateSeoSettings(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/seo');
+        }
+
+        $fields = [
+            'seo_og_image',
+            'seo_org_name',
+            'seo_twitter_handle',
+            'seo_default_description',
+        ];
+
+        foreach ($fields as $field) {
+            $value = trim((string)$request->input($field, ''));
+            $this->settingModel->set($field, $value);
+        }
+
+        $this->flash('success', trans('admin_settings_saved'));
+        $this->redirect('/mf-dashboard/seo');
+    }
+
     public function updateSettings(wsit_Request $request): void
     {
         if (!verify_csrf($request->input('_token'))) {

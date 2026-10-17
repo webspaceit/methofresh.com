@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS wsit_products (
     new_arrival    TINYINT(1) NOT NULL DEFAULT 0,
     sold           INT NOT NULL DEFAULT 0,
     search_key     TEXT DEFAULT NULL,
+    seo_description TEXT DEFAULT NULL,
+    seo_og_image   VARCHAR(255) DEFAULT NULL,
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_products_category
       FOREIGN KEY (category_id) REFERENCES wsit_categories(id) ON DELETE CASCADE,

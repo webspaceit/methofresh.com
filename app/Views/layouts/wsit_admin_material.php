@@ -96,6 +96,7 @@ $t = $isBn ? [
     'header'     => 'হেডার / নেভিগেশন',
     'messages'   => 'যোগাযোগ বার্তা',
     'subscribers'=> 'নিউজলেটার সাবস্ক্রাইবার',
+    'seo'       => 'SEO সেটিংস',
     'analytics'  => 'বিশ্লেষণ',
     'customers'  => 'গ্রাহক বিশ্লেষণ',
     'delivery'   => 'ডেলিভারি ট্র্যাকিং',
@@ -140,6 +141,7 @@ $t = $isBn ? [
     'header'     => 'Header / Navigation',
     'messages'   => 'Contact Messages',
     'subscribers'=> 'Newsletter Subscribers',
+    'seo'       => 'SEO Settings',
     'analytics'  => 'Analytics',
     'customers'  => 'Customer Analytics',
     'delivery'   => 'Delivery Tracking',
@@ -207,7 +209,7 @@ $navLink = function (string $url, string $icon, string $label, string $stateClas
 };
 ?>
 <!DOCTYPE html>
-<html lang="<?= e($locale === 'bn' ? 'bn' : 'en') ?>"><head><meta charset="UTF-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/>
+<html lang="<?= e($locale === 'bn' ? 'bn' : 'en') ?>"><head><meta charset="UTF-8"><meta name="robots" content="noindex, nofollow">"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/>
 <title><?= e($pageTitle) ?></title>
 <?php $favicon = site_favicon_url(); ?>
 <?php if ($favicon !== ''): ?>
@@ -263,6 +265,7 @@ $navLink = function (string $url, string $icon, string $label, string $stateClas
             <?= $navLink($headerUrl, 'web_asset', $t['header'], $isNavActive('mf-dashboard/header')) ?>
             <?= $navLink(locale_url('/mf-dashboard/messages'), 'mark_email_unread', $t['messages'], $isNavActive('mf-dashboard/messages'), $unreadMessages > 0, $fmtCount($unreadMessages)) ?>
             <?= $navLink(locale_url('/mf-dashboard/subscribers'), 'mail', $t['subscribers'], $isNavActive('mf-dashboard/subscribers')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/seo'), 'tune', $t['seo'], $isNavActive('mf-dashboard/seo')) ?>
             <span class="px-space-md pt-space-sm pb-1 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"><?= e($t['analytics']) ?></span>
             <?= $navLink(locale_url('/mf-dashboard/customers'), 'group', $t['customers'], $isNavActive('mf-dashboard/customers')) ?>
             <?= $navLink(locale_url('/mf-dashboard/delivery-tracking'), 'local_shipping', $t['delivery'], $isNavActive('mf-dashboard/delivery-tracking')) ?>
