@@ -24,6 +24,11 @@
 # One-off archive (image backup, not referenced by the app)
 /public/assets/img.zip
 
+# Deploy scripts (never commit credentials or one-off helpers)
+/ftp_deploy.ps1
+/public/mf_deploy.php
+/tempdiff.txt
+
 # Environment & logs
 .env
 .env.*
