@@ -317,12 +317,13 @@ $navLink = function (
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link rel="preload" as="font" href="https://fonts.gstatic.com/s/notosansbengali/v16/r5Yodf1kK-2LrIQaT5fC6Igp9Tprq5T6s1qng2kC.woff2" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+Bengali:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet"/>
 <style>
 @font-face {
     font-family: 'Material Symbols Outlined';
     font-style: normal;
     font-weight: 100 700;
-    font-display: block;
+    font-display: swap;
     src: url('<?= e(public_url('assets/fonts/material-symbols-outlined.woff2')) ?>') format('woff2');
 }
 @layer base{html,body{margin:0;padding:0;font-family:<?= $locale === 'bn' ? "'Noto Sans Bengali',sans-serif" : "'Inter','Noto Sans Bengali',sans-serif" ?>;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}.shadow-xs{box-shadow:0 1px 2px 0 rgb(0 0 0/.05);}.material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;font-feature-settings:'liga';-webkit-font-feature-settings:'liga';-webkit-font-smoothing:antialiased;}
