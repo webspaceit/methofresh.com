@@ -426,16 +426,16 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
             <?= $navLink($homepageUrl, 'storefront', $t['homepage'], $isNavActive('mf-dashboard/homepage')) ?>
             <?= $navLink($pagesUrl, 'article', $t['pages'], $isNavActive('mf-dashboard/pages')) ?>
             <?= $navLink($headerUrl, 'web_asset', $t['header'], $isNavActive('mf-dashboard/header')) ?>
-            <?= $navLink($footerUrl, 'dock', $t['footer'], $isNavActive('mf-dashboard/footer')) ?>
+            <?= $navLink($footerUrl, 'view_day', $t['footer'], $isNavActive('mf-dashboard/footer')) ?>
         </div>
 
         <!-- 5. Finance & Settings -->
         <div class="flex flex-col gap-0.5">
             <?= $catHeader($t['catSystem'], 'settings_suggest', 'rose', '4') ?>
             <?= $navLink($revenueUrl, 'payments', $t['revenue'], $isNavActive('mf-dashboard/payment-methods')) ?>
-            <?= $navLink(locale_url('/mf-dashboard/shipping'), 'local_post_office', $t['shipping'], $isNavActive('mf-dashboard/shipping')) ?>
-            <?= $navLink(locale_url('/mf-dashboard/seo'), 'travel_explore', $t['seo'], $isNavActive('mf-dashboard/seo')) ?>
-            <?= $navLink($settingsUrl, 'settings', $t['settings'], $isNavActive('mf-dashboard/settings')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/shipping'), 'move_to_inbox', $t['shipping'], $isNavActive('mf-dashboard/shipping')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/seo'), 'search', $t['seo'], $isNavActive('mf-dashboard/seo')) ?>
+            <?= $navLink($settingsUrl, 'tune', $t['settings'], $isNavActive('mf-dashboard/settings')) ?>
         </div>
     </nav>
 
