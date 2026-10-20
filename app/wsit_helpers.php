@@ -2193,91 +2193,260 @@ function homepage_section(string $key, ?string $locale = null): string
 // ---------------------------------------------------------------------------
 
 /**
- * Build the canonical URL for the current request.
+ * Return the canonical base URL (scheme + host + base subpath) as an absolute URL.
+ */
+function canonical_base_url(): string
+{
+    $configUrl = rtrim((string) config('app.base_url', ''), '/');
+    if ($configUrl !== '') {
+        $parsed = parse_url($configUrl);
+        $configHost = $parsed['host'] ?? '';
+        $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        $serverHost = explode(':', $serverHost)[0];
+        if ($configHost !== '' && ($configHost === $serverHost || $serverHost === 'localhost' || $serverHost === '')) {
+            return $configUrl;
+        }
+        if ($serverHost !== '' && $configHost !== $serverHost) {
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            return rtrim($scheme . '://' . ($_SERVER['HTTP_HOST'] ?? $serverHost) . base_url_path(), '/');
+        }
+        return $configUrl;
+    }
+
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+    return rtrim($scheme . '://' . $host . base_url_path(), '/');
+}
+
+/**
+ * Convert any path or relative URL into a fully-qualified absolute URL.
+ */
+function absolute_url(string $path = ''): string
+{
+    $path = trim($path);
+    if ($path === '' || preg_match('#^[a-z][a-z0-9+.-]*://#i', $path)) {
+        return $path;
+    }
+    $base = canonical_base_url();
+    $basePath = rtrim(base_url_path(), '/');
+    if ($basePath !== '' && str_starts_with($path, $basePath . '/')) {
+        $path = substr($path, strlen($basePath));
+    }
+    return rtrim($base, '/') . '/' . ltrim($path, '/');
+}
+
+/**
+ * Return the site-wide default SEO description.
+ * Checks Dashboard → SEO override, then falls back to tagline.
+ */
+function seo_default_description(): string
+{
+    $adminDesc = trim((string) site_setting('seo_default_description', ''));
+    if ($adminDesc !== '') {
+        return $adminDesc;
+    }
+    return (string) site_setting('tagline_' . app_locale(), trans('tagline'));
+}
+
+/**
+ * Build the canonical absolute URL for the current request.
  */
 function seo_canonical_url(): string
 {
     $path = current_page_path();
     $locale = app_locale();
     $prefix = $locale ? '/' . $locale : '';
-    return rtrim(base_url_path(), '/') . $prefix . ($path ? '/' . $path : '/');
+    $rel = $prefix . ($path ? '/' . $path : '');
+    return absolute_url($rel ?: '/');
+}
+
+/**
+ * Get the default OG image as an absolute URL (Dashboard → SEO, or site logo).
+ */
+function seo_default_og_image(): string
+{
+    $img = (string) site_setting('seo_og_image', '');
+    if ($img !== '') {
+        return absolute_url($img);
+    }
+    $logo = site_logo_url();
+    if ($logo !== '') {
+        return absolute_url($logo);
+    }
+    return '';
+}
+
+/**
+ * Build hreflang alternate links for all locales, including x-default.
+ *
+ * @return list<array{lang:string,url:string}>
+ */
+function seo_hreflang_links(string $canonicalUrl = ''): array
+{
+    $links = [];
+    $path = current_page_path();
+
+    foreach (locales() as $loc) {
+        $prefix = $loc ? '/' . $loc : '';
+        $rel = $prefix . ($path ? '/' . $path : '');
+        $links[] = [
+            'lang' => $loc,
+            'url'  => absolute_url($rel ?: '/'),
+        ];
+    }
+
+    $defaultLoc = (string) config('app.default_locale', 'en');
+    $defaultRel = ($defaultLoc ? '/' . $defaultLoc : '') . ($path ? '/' . $path : '');
+    $links[] = [
+        'lang' => 'x-default',
+        'url'  => absolute_url($defaultRel ?: '/'),
+    ];
+
+    return $links;
+}
+
+/**
+ * Generate BreadcrumbList JSON-LD structured data.
+ *
+ * @param list<array{name:string,url:string}> $crumbs
+ * @return array<string,mixed>
+ */
+function seo_breadcrumb_jsonld(array $crumbs): array
+{
+    $listItems = [];
+    $position = 1;
+
+    foreach ($crumbs as $crumb) {
+        $name = trim((string)($crumb['name'] ?? ''));
+        $url  = trim((string)($crumb['url'] ?? ''));
+        if ($name === '') {
+            continue;
+        }
+        $item = [
+            '@type'    => 'ListItem',
+            'position' => $position++,
+            'name'     => $name,
+        ];
+        if ($url !== '') {
+            $item['item'] = absolute_url($url);
+        }
+        $listItems[] = $item;
+    }
+
+    if (empty($listItems)) {
+        return [];
+    }
+
+    return [
+        '@context'        => 'https://schema.org',
+        '@type'           => 'BreadcrumbList',
+        'itemListElement' => $listItems,
+    ];
+}
+
+/**
+ * Generate default JSON-LD structured data (Organization + WebSite with SearchAction).
+ *
+ * @return array<string,mixed>
+ */
+function seo_default_jsonld(string $title, string $description, string $url, string $image = ''): array
+{
+    $schemas = [];
+    $base = canonical_base_url();
+
+    // Determine official organization logo (never a product photo)
+    $orgLogo = seo_default_og_image();
+    if ($orgLogo === '') {
+        $logo = site_logo_url();
+        if ($logo !== '') {
+            $orgLogo = absolute_url($logo);
+        }
+    }
+
+    $orgName = site_setting('seo_org_name', app_name());
+    $phone   = site_setting('footer_phone', '');
+    $email   = site_setting('footer_email', '');
+    $address = site_setting('footer_address_' . app_locale(), site_setting('footer_address_en', ''));
+
+    $org = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'Organization',
+        'name'     => $orgName,
+        'url'      => rtrim($base, '/') . '/',
+    ];
+    if ($orgLogo !== '') {
+        $org['logo'] = $orgLogo;
+    }
+    if ($email !== '') {
+        $org['email'] = $email;
+    }
+    if ($phone !== '') {
+        $org['telephone'] = $phone;
+    }
+    if ($address !== '') {
+        $org['address'] = [
+            '@type'          => 'PostalAddress',
+            'streetAddress'  => $address,
+            'addressCountry' => 'BD',
+        ];
+    }
+    $schemas['organization'] = $org;
+
+    // WebSite schema with Sitelinks Searchbox
+    $schemas['website'] = [
+        '@context'        => 'https://schema.org',
+        '@type'           => 'WebSite',
+        'name'            => $orgName,
+        'url'             => rtrim($base, '/') . '/',
+        'potentialAction' => [
+            '@type'       => 'SearchAction',
+            'target'      => absolute_url('/' . app_locale() . '/products?q={search_term_string}'),
+            'query-input' => 'required name=search_term_string',
+        ],
+    ];
+
+    return $schemas;
 }
 
 /**
  * Generate Product JSON-LD structured data.
  *
- * @return list<array<string,mixed>>
+ * @return array<string,mixed>
  */
 function seo_product_jsonld(array $product, string $description = '', string $image = ''): array
 {
     $productName = $product['name'] ?? ($product['name_en'] ?? app_name());
-    $schemas = seo_default_jsonld($productName, $description, seo_canonical_url(), $image);
+    $productUrl  = seo_canonical_url();
+    $absImage    = $image !== '' ? absolute_url($image) : '';
+
+    $schemas = seo_default_jsonld($productName, $description, $productUrl, $absImage);
+
+    // Calculate actual active price
+    $hasSale = isset($product['sale_price']) && (float)$product['sale_price'] > 0;
+    $finalPrice = $hasSale ? (float)$product['sale_price'] : (float)($product['price'] ?? 0);
+
     $schemas['product'] = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'Product',
-        'name'     => $productName,
+        '@context'    => 'https://schema.org',
+        '@type'       => 'Product',
+        'name'        => $productName,
         'description' => $description,
-        'image'    => $image,
-        'url'      => seo_canonical_url(),
-        'sku'      => $product['sku'] ?? '',
-        'brand'    => ['@type' => 'Brand', 'name' => app_name()],
-        'offers'   => [
+        'image'       => $absImage ?: $productUrl,
+        'url'         => $productUrl,
+        'sku'         => !empty($product['sku']) ? (string)$product['sku'] : ('PROD-' . ($product['id'] ?? '0')),
+        'brand'       => [
+            '@type' => 'Brand',
+            'name'  => app_name(),
+        ],
+        'offers'      => [
             '@type'         => 'Offer',
-            'price'         => (string)($product['sale_price'] ?? $product['price']),
+            'price'         => number_format($finalPrice, 2, '.', ''),
             'priceCurrency' => 'BDT',
+            'itemCondition' => 'https://schema.org/NewCondition',
             'availability'  => ((int)($product['stock'] ?? 0) > 0)
                 ? 'https://schema.org/InStock'
                 : 'https://schema.org/OutOfStock',
-            'url'           => seo_canonical_url(),
+            'url'           => $productUrl,
         ],
-    ];
-    return $schemas;
-}
-
-/**
- * Get the default OG image from settings (Dashboard → SEO).
- */
-function seo_default_og_image(): string
-{
-    return (string) site_setting('seo_og_image', '');
-}
-
-/**
- * Build hreflang alternate links for all locales.
- *
- * @return list<array{lang:string,url:string}>
- */
-function seo_hreflang_links(string $canonicalUrl): array
-{
-    $links = [];
-    $path = current_page_path();
-    foreach (locales() as $loc) {
-        $prefix = $loc ? '/' . $loc : '';
-        $links[] = [
-            'lang' => $loc,
-            'url'  => rtrim(base_url_path(), '/') . $prefix . ($path ? '/' . $path : '/'),
-        ];
-    }
-    return $links;
-}
-
-/**
- * Generate default JSON-LD structured data.
- *
- * @return list<array<string,mixed>>
- */
-function seo_default_jsonld(string $title, string $description, string $url, string $image = ''): array
-{
-    $schemas = [];
-
-    // Organization schema (always present)
-    $orgName = site_setting('seo_org_name', app_name());
-    $schemas['organization'] = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'Organization',
-        'name'     => $orgName,
-        'url'      => rtrim(base_url_path(), '/') . '/',
-        'logo'     => $image ?: seo_default_og_image(),
     ];
 
     return $schemas;

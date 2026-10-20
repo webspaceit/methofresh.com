@@ -107,10 +107,17 @@ $tabCategories = array_values($categories ?? []);
                             <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"/></svg>
                             <span><?= e(site_setting('tagline_' . $locale, trans('tagline'))) ?></span>
                         </div>
+                        <?php if ($i === 0): ?>
                         <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
                             <?= e($title) ?>
                             <span class="text-brand-700 block mt-1 sm:mt-2"><?= e(homepage_section('land_hero_highlight')) ?></span>
                         </h1>
+                        <?php else: ?>
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
+                            <?= e($title) ?>
+                            <span class="text-brand-700 block mt-1 sm:mt-2"><?= e(homepage_section('land_hero_highlight')) ?></span>
+                        </h2>
+                        <?php endif; ?>
                         <?php if ($subtitle !== ''): ?>
                         <p class="text-stone-600 text-base sm:text-lg leading-relaxed max-w-2xl">
                             <?= e($subtitle) ?>

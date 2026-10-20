@@ -1,11 +1,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e($pageTitle) ?></title>
-<meta name="description" content="<?= e(trans('tagline')) ?>">
+<meta name="theme-color" content="#142e1c">
+<?php if (!empty($seoRobots)): ?>
+<meta name="robots" content="<?= e($seoRobots) ?>">
+<?php endif; ?>
 <?php $favicon = site_favicon_url(); ?>
 <?php include views_path('partials/wsit_pixel.php'); ?>
 <?php if ($favicon !== ''): ?>
 <link rel="icon" href="<?= e($favicon) ?>">
+<link rel="apple-touch-icon" href="<?= e($favicon) ?>">
 <?php else: ?>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍯</text></svg>">
 <?php endif; ?>

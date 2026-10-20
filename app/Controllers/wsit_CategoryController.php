@@ -29,8 +29,10 @@ class wsit_CategoryController extends wsit_Controller
         unset($category);
 
         return $this->view('category/wsit_index', [
-            'pageTitle'  => trans('nav_categories'),
-            'categories' => $categories,
+            'pageTitle'       => trans('nav_categories') . ' | ' . app_name(),
+            'pageDescription' => seo_default_description(),
+            'canonicalUrl'    => seo_canonical_url(),
+            'categories'      => $categories,
         ]);
     }
 
@@ -57,12 +59,27 @@ class wsit_CategoryController extends wsit_Controller
         $category = $this->categoryModel->localized([$category], app_locale())[0];
 
         $seoDescription = mb_substr(strip_tags($category['description_en'] ?? $category['name_en']), 0, 160);
+        if ($seoDescription === '') {
+            $seoDescription = seo_default_description();
+        }
+
+        $crumbs = [
+            ['name' => trans('nav_home'), 'url' => locale_url('/')],
+            ['name' => trans('nav_categories'), 'url' => locale_url('/categories')],
+            ['name' => $category['name'], 'url' => locale_url('/categories/' . $category['slug'])],
+        ];
+        $schemas = seo_default_jsonld($category['name'], $seoDescription, seo_canonical_url());
+        $breadcrumbSchema = seo_breadcrumb_jsonld($crumbs);
+        if (!empty($breadcrumbSchema)) {
+            $schemas['breadcrumbs'] = $breadcrumbSchema;
+        }
 
         return $this->view('category/wsit_show', [
             'pageTitle'       => $category['name'] . ' | ' . app_name(),
             'pageDescription' => $seoDescription,
             'ogType'          => 'website',
             'canonicalUrl'    => seo_canonical_url(),
+            'jsonLd'          => $schemas,
             'category'        => $category,
             'products'        => $products,
             'page'            => $page,

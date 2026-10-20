@@ -1,22 +1,39 @@
 User-agent: *
 Allow: /
 
-# Crawl-budget-friendly: skip assets we don't need indexed.
+# Admin dashboard
 Disallow: /mf-dashboard
-Disallow: /cart/add
-Disallow: /cart/update
-Disallow: /cart/remove
-Disallow: /cart/clear
-Disallow: /cart/coupon
-Disallow: /checkout
-Disallow: /login
-Disallow: /register
-Disallow: /logout
-Disallow: /order/success
-Disallow: /search/suggest
-Disallow: /search/log
-Disallow: /contact/submit
-Disallow: /contact/captcha
+Disallow: /*/mf-dashboard
 
-# Sitemap
-Sitemap: /sitemap.xml
+# Cart actions & checkout
+Disallow: /cart/
+Disallow: /*/cart/
+Disallow: /checkout
+Disallow: /*/checkout
+
+# User authentication & private account
+Disallow: /login
+Disallow: /*/login
+Disallow: /register
+Disallow: /*/register
+Disallow: /logout
+Disallow: /*/logout
+Disallow: /account/
+Disallow: /*/account/
+Disallow: /order/
+Disallow: /*/order/
+
+# Internal search logging & suggestions
+Disallow: /search/suggest
+Disallow: /*/search/suggest
+Disallow: /search/log
+Disallow: /*/search/log
+
+# Dynamic form endpoints
+Disallow: /contact/submit
+Disallow: /*/contact/submit
+Disallow: /contact/captcha
+Disallow: /*/contact/captcha
+
+# XML Sitemap
+Sitemap: https://methofresh.com/sitemap.xml

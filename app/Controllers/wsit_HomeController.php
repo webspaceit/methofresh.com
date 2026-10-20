@@ -20,12 +20,14 @@ class wsit_HomeController extends wsit_Controller
         $newArrivals = $productModel->localized($productModel->newArrivals(8), app_locale());
 
         return $this->view('home/wsit_index', [
-            'pageTitle'  => trans('site_name'),
-            'categories' => $categories,
-            'featured'   => $featured,
-            'newArrivals'=> $newArrivals,
-            'blocks'     => homepage_blocks(),
-            'heroSlides' => hero_slides(),
+            'pageTitle'       => app_name() . ' | ' . site_setting('tagline_' . app_locale(), trans('tagline')),
+            'pageDescription' => seo_default_description(),
+            'canonicalUrl'    => seo_canonical_url(),
+            'categories'      => $categories,
+            'featured'        => $featured,
+            'newArrivals'     => $newArrivals,
+            'blocks'          => homepage_blocks(),
+            'heroSlides'      => hero_slides(),
         ]);
     }
 

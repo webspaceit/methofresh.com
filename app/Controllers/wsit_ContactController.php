@@ -22,10 +22,23 @@ class wsit_ContactController extends wsit_Controller
         $captchaEnabled = contact_captcha_enabled();
         $captcha = $captchaEnabled ? $this->generateCaptcha() : null;
 
+        $crumbs = [
+            ['name' => trans('nav_home'), 'url' => locale_url('/')],
+            ['name' => trans('contact'), 'url' => locale_url('/contact')],
+        ];
+        $schemas = seo_default_jsonld(trans('contact'), seo_default_description(), seo_canonical_url());
+        $breadcrumbSchema = seo_breadcrumb_jsonld($crumbs);
+        if (!empty($breadcrumbSchema)) {
+            $schemas['breadcrumbs'] = $breadcrumbSchema;
+        }
+
         return $this->view('contact/wsit_index', [
-            'pageTitle'      => trans('contact') . ' | ' . trans('site_name'),
-            'captcha'        => $captcha,
-            'captchaEnabled' => $captchaEnabled,
+            'pageTitle'       => trans('contact') . ' | ' . app_name(),
+            'pageDescription' => seo_default_description(),
+            'canonicalUrl'    => seo_canonical_url(),
+            'jsonLd'          => $schemas,
+            'captcha'         => $captcha,
+            'captchaEnabled'  => $captchaEnabled,
         ], 'wsit_main');
     }
 

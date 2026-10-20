@@ -117,8 +117,25 @@ class wsit_ProductController extends wsit_Controller
             }
         }
 
+        $titlePrefix = '';
+        if ($activeCategory) {
+            $titlePrefix = $activeCategory['name'] . ' | ';
+        } elseif ($search !== '') {
+            $titlePrefix = trans('search_results') . ' "' . $search . '" | ';
+        }
+        $listingTitle = $titlePrefix . trans('products_title') . ' | ' . app_name();
+
+        $listingDesc = $activeCategory && !empty($activeCategory['description'])
+            ? mb_substr(strip_tags($activeCategory['description']), 0, 160)
+            : seo_default_description();
+
+        $hasFilters = ($search !== '' || $minPrice !== null || $maxPrice !== null || $inStock || $saleOnly || $sort !== 'newest');
+
         return $this->view('products/wsit_index', [
-            'pageTitle'         => trans('products_title'),
+            'pageTitle'         => $listingTitle,
+            'pageDescription'   => $listingDesc,
+            'canonicalUrl'      => seo_canonical_url(),
+            'seoRobots'         => $hasFilters ? 'noindex, follow' : null,
             'products'          => $products,
             'categories'        => $categories,
             'activeCategory'    => $activeCategory,
@@ -404,13 +421,34 @@ class wsit_ProductController extends wsit_Controller
             ? $product['seo_og_image']
             : image_url($product['image'], $product['name'], 1200);
 
+        $crumbs = [
+            ['name' => trans('nav_home'), 'url' => locale_url('/')],
+            ['name' => trans('nav_products'), 'url' => locale_url('/products')],
+        ];
+        if (!empty($product['category_slug'])) {
+            $crumbs[] = [
+                'name' => $product['category_name'] ?? ($product['category_name_en'] ?? ''),
+                'url'  => locale_url('/categories/' . $product['category_slug']),
+            ];
+        }
+        $crumbs[] = [
+            'name' => $product['name'],
+            'url'  => locale_url('/products/' . $product['slug']),
+        ];
+
+        $schemas = seo_product_jsonld($product, $seoDescription, $seoOgImage);
+        $breadcrumbSchema = seo_breadcrumb_jsonld($crumbs);
+        if (!empty($breadcrumbSchema)) {
+            $schemas['breadcrumbs'] = $breadcrumbSchema;
+        }
+
         return $this->view('products/wsit_show', [
             'pageTitle'       => $product['name'] . ' | ' . app_name(),
             'pageDescription' => $seoDescription,
             'ogImage'         => $seoOgImage,
             'ogType'          => 'product',
             'canonicalUrl'    => seo_canonical_url(),
-            'jsonLd'          => seo_product_jsonld($product, $seoDescription, $seoOgImage),
+            'jsonLd'          => $schemas,
             'product'         => $product,
             'related'         => $related,
         ]);

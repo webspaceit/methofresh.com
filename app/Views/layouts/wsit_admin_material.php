@@ -132,6 +132,8 @@ $t = $isBn ? [
     'notifToday'    => 'আজ {n}টি নতুন অর্ডার',
     'notifNone'     => 'কোনো নোটিফিকেশন নেই',
     'role'          => 'সুপার অ্যাডমিন',
+    'tagline'       => 'জৈব পণ্যের বিশ্বস্ত দোকান',
+    'live'          => 'লাইভ ↗',
 ] : [
     'brand'         => 'Metho Fresh',
     'outlet'        => 'Metho Fresh - Main outlet',
@@ -182,6 +184,8 @@ $t = $isBn ? [
     'notifToday'    => '{n} new orders today',
     'notifNone'     => 'No notifications',
     'role'          => 'Super Admin',
+    'tagline'       => 'Organic Merchant',
+    'live'          => 'Live ↗',
 ];
 
 // Report-period state for the header chip. On the dashboard ?period= drives
@@ -379,7 +383,7 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
             </div>
             <div class="flex flex-col min-w-0">
                 <span class="text-base font-bold text-stone-900 leading-tight truncate"><?= e($t['brand']) ?></span>
-                <span class="text-[10px] text-stone-600 uppercase tracking-widest font-semibold">Organic Merchant</span>
+                <span class="text-[10px] text-stone-600 uppercase tracking-widest font-semibold"><?= e($t['tagline']) ?></span>
             </div>
         </div>
         <div class="px-3 pt-2.5 pb-1">
@@ -471,7 +475,7 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
                 <span class="material-symbols-outlined text-[19px] text-stone-400 group-hover:text-primary transition-colors shrink-0">open_in_new</span>
                 <span><?= e($t['viewSite']) ?></span>
             </div>
-            <span class="text-[10px] text-stone-600 uppercase font-semibold">Live ↗</span>
+            <span class="text-[10px] text-stone-600 uppercase font-semibold"><?= e($t['live']) ?></span>
         </a>
 
         <a class="group flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-600 hover:text-red-700 hover:bg-red-50/80 font-medium transition-all text-[13px]" href="<?= e($logoutUrl) ?>">

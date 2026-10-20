@@ -23,29 +23,45 @@ class wsit_SitemapController extends wsit_Controller
         $pageModel     = new wsit_Page();
 
         $locales = locales();
-
-        // <loc> entries must be absolute URLs, so prefer the configured canonical
-        // base (app.base_url) rather than base_url_path(), which returns only the
-        // request-relative sub-path ('' in production).
-        $baseUrl = rtrim((string) config('app.base_url', ''), '/');
-        if ($baseUrl === '') {
-            $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host    = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
-            $baseUrl = rtrim($scheme . '://' . $host . base_url_path(), '/');
-        }
+        $baseUrl = rtrim(canonical_base_url(), '/');
 
         $urls = [];
 
-        // Homepage — every locale gets its own entry.
+        // Root entry (fallback / x-default target)
+        $urls[] = [
+            'loc'        => $baseUrl . '/',
+            'changefreq' => 'daily',
+            'priority'   => '1.0',
+        ];
+
+        // Homepage — each locale
         foreach ($locales as $loc) {
             $urls[] = [
-                'loc'      => $baseUrl . '/' . $loc,
+                'loc'        => $baseUrl . '/' . $loc,
                 'changefreq' => 'daily',
-                'priority' => '1.0',
+                'priority'   => '1.0',
             ];
         }
 
-        // Products — one entry per locale per product.
+        // Products catalog listing — each locale
+        foreach ($locales as $loc) {
+            $urls[] = [
+                'loc'        => $baseUrl . '/' . $loc . '/products',
+                'changefreq' => 'daily',
+                'priority'   => '0.9',
+            ];
+        }
+
+        // Categories index listing — each locale
+        foreach ($locales as $loc) {
+            $urls[] = [
+                'loc'        => $baseUrl . '/' . $loc . '/categories',
+                'changefreq' => 'weekly',
+                'priority'   => '0.8',
+            ];
+        }
+
+        // Products — one entry per locale per product with Google Image extensions
         foreach ($locales as $loc) {
             $products = $productModel->localized(
                 $productModel->allActive(),
@@ -55,16 +71,26 @@ class wsit_SitemapController extends wsit_Controller
                 $lastmod = !empty($p['updated_at'])
                     ? date('c', strtotime($p['updated_at']))
                     : date('c', strtotime($p['created_at']));
-                $urls[] = [
-                    'loc'      => $baseUrl . '/' . $loc . '/products/' . $p['slug'],
-                    'lastmod'  => $lastmod,
+
+                $item = [
+                    'loc'        => $baseUrl . '/' . $loc . '/products/' . $p['slug'],
+                    'lastmod'    => $lastmod,
                     'changefreq' => 'weekly',
-                    'priority' => '0.8',
+                    'priority'   => '0.8',
                 ];
+
+                if (!empty($p['image'])) {
+                    $item['image'] = [
+                        'loc'   => absolute_url(image_url($p['image'], $p['name'] ?? '', 1200)),
+                        'title' => $p['name'] ?? ($p['name_en'] ?? ''),
+                    ];
+                }
+
+                $urls[] = $item;
             }
         }
 
-        // Categories — one entry per locale per category.
+        // Categories — one entry per locale per category
         foreach ($locales as $loc) {
             $categories = $categoryModel->localized(
                 $categoryModel->allWithCounts(true),
@@ -72,40 +98,43 @@ class wsit_SitemapController extends wsit_Controller
             );
             foreach ($categories as $c) {
                 $urls[] = [
-                    'loc'      => $baseUrl . '/' . $loc . '/categories/' . $c['slug'],
+                    'loc'        => $baseUrl . '/' . $loc . '/categories/' . $c['slug'],
                     'changefreq' => 'weekly',
-                    'priority' => '0.7',
+                    'priority'   => '0.7',
                 ];
             }
         }
 
-        // Static pages — one entry per locale per active page.
+        // Static pages — exclude 'contact' to avoid duplicating the standalone /contact route
         foreach ($locales as $loc) {
             $pages = $pageModel->localized(
                 $pageModel->allActive(),
                 $loc
             );
             foreach ($pages as $pg) {
+                if (($pg['slug'] ?? '') === 'contact') {
+                    continue;
+                }
                 $urls[] = [
-                    'loc'      => $baseUrl . '/' . $loc . '/pages/' . $pg['slug'],
+                    'loc'        => $baseUrl . '/' . $loc . '/pages/' . $pg['slug'],
                     'changefreq' => 'monthly',
-                    'priority' => '0.5',
+                    'priority'   => '0.5',
                 ];
             }
         }
 
-        // Contact page — always indexable.
+        // Contact page — always indexable
         foreach ($locales as $loc) {
             $urls[] = [
-                'loc'      => $baseUrl . '/' . $loc . '/contact',
+                'loc'        => $baseUrl . '/' . $loc . '/contact',
                 'changefreq' => 'monthly',
-                'priority' => '0.5',
+                'priority'   => '0.5',
             ];
         }
 
         header('Content-Type: application/xml; charset=utf-8');
         echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
         foreach ($urls as $entry) {
             echo "  <url>\n";
             echo '    <loc>' . e($entry['loc']) . "</loc>\n";
@@ -114,6 +143,14 @@ class wsit_SitemapController extends wsit_Controller
             }
             echo '    <changefreq>' . e($entry['changefreq']) . "</changefreq>\n";
             echo '    <priority>' . e($entry['priority']) . "</priority>\n";
+            if (!empty($entry['image']['loc'])) {
+                echo "    <image:image>\n";
+                echo '      <image:loc>' . e($entry['image']['loc']) . "</image:loc>\n";
+                if (!empty($entry['image']['title'])) {
+                    echo '      <image:title>' . e($entry['image']['title']) . "</image:title>\n";
+                }
+                echo "    </image:image>\n";
+            }
             echo "  </url>\n";
         }
         echo "</urlset>\n";
