@@ -27,6 +27,11 @@ RewriteRule ^(?:package|package-lock)\.json$ - [F,L]
 RewriteRule ^tailwind\.config\.js$ - [F,L]
 RewriteRule ^\.(?!well-known(?:/|$)) - [F,L]
 
+# Serve the tracked robots.txt (public/robots.txt) at /robots.txt. A stray
+# robots.txt dropped at the site root by hosting tooling would otherwise shadow
+# it, because real files served from the docroot never reach these rules.
+RewriteRule ^robots\.txt$ public/robots.txt [L]
+
 # Serve uploaded product images / assets that live under public/assets.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
