@@ -107,6 +107,10 @@ $t = $isBn ? [
     'analytics'     => 'বিশ্লেষণ',
     'customers'     => 'গ্রাহক বিশ্লেষণ',
     'users'         => 'ব্যবহারকারী',
+    'catAutomation' => 'মেসেজিং ও অটোমেশন',
+    'messaging'     => 'মেসেজিং সেটআপ',
+    'messageLogs'   => 'মেসেজ লগ',
+    'conversations' => 'কনভার্সেশন',
     'delivery'      => 'ডেলিভারি ট্র্যাকিং',
     'shipping'      => 'শিপিং মেথড',
     'settings'      => 'স্টোর সেটিংস',
@@ -160,6 +164,10 @@ $t = $isBn ? [
     'analytics'     => 'Analytics',
     'customers'     => 'Customer Analytics',
     'users'         => 'Users',
+    'catAutomation' => 'Messaging & Automation',
+    'messaging'     => 'Messaging Setup',
+    'messageLogs'   => 'Message Logs',
+    'conversations' => 'Conversations',
     'delivery'      => 'Delivery Tracking',
     'shipping'      => 'Shipping Methods',
     'settings'      => 'Store Settings',
@@ -433,6 +441,14 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
             <?= $navLink(locale_url('/mf-dashboard/users'), 'manage_accounts', $t['users'], $isNavActive('mf-dashboard/users')) ?>
             <?= $navLink(locale_url('/mf-dashboard/messages'), 'mark_email_unread', $t['messages'], $isNavActive('mf-dashboard/messages'), $unreadMessages > 0, $fmtCount($unreadMessages), 'emerald') ?>
             <?= $navLink(locale_url('/mf-dashboard/subscribers'), 'mail', $t['subscribers'], $isNavActive('mf-dashboard/subscribers')) ?>
+        </div>
+
+        <!-- 3b. Messaging & Automation -->
+        <div class="flex flex-col gap-0.5">
+            <?= $catHeader($t['catAutomation'], 'smart_toy', 'emerald', '3') ?>
+            <?= $navLink(locale_url('/mf-dashboard/messaging'), 'chat', $t['messaging'], $isNavActive('mf-dashboard/messaging')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/message-logs'), 'forum', $t['messageLogs'], $isNavActive('mf-dashboard/message-logs')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/conversations'), 'support_agent', $t['conversations'], $isNavActive('mf-dashboard/conversations')) ?>
         </div>
 
         <!-- 4. Storefront CMS -->

@@ -44,6 +44,25 @@ class wsit_Order extends wsit_Model
     }
 
     /**
+     * Latest order for a phone number. Stored numbers are local format
+     * (01712345678) while messaging channels use E.164 (8801712345678),
+     * so match on the last 10 digits.
+     */
+    public function latestByPhone(string $phone): ?array
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?? '';
+        $last10 = substr($digits, -10);
+        if (strlen($last10) < 10) {
+            return null;
+        }
+
+        return $this->fetch(
+            "SELECT * FROM {$this->table} WHERE shipping_phone LIKE ? ORDER BY id DESC LIMIT 1",
+            ['%' . $last10]
+        );
+    }
+
+    /**
      * Find an order by its order_number and hydrate its line items.
      * Used by the order-success page so the Facebook Pixel Purchase event
      * can fire with the full contents list.
@@ -129,6 +148,31 @@ class wsit_Order extends wsit_Model
     public function updateStatus(int $id, string $status): void
     {
         $this->updateRecord($this->table, ['status' => $status], ['id' => $id]);
+    }
+
+    /**
+     * Orders awaiting delivery that have not received a delivery reminder in
+     * the last 20 hours — used by the daily messaging cron.
+     */
+    public function deliveryReminderCandidates(int $limit = 50): array
+    {
+        $logs  = table('message_logs');
+        $limit = max(1, $limit);
+
+        return $this->fetchAll(
+            "SELECT o.* FROM {$this->table} o
+             WHERE o.status IN ('processing', 'shipped')
+               AND o.created_at <= NOW()
+               AND NOT EXISTS (
+                   SELECT 1 FROM {$logs} l
+                   WHERE l.order_id = o.id
+                     AND l.template = 'delivery_reminder'
+                     AND l.direction = 'outbound'
+                     AND l.created_at >= DATE_SUB(NOW(), INTERVAL 20 HOUR)
+               )
+             ORDER BY o.created_at ASC
+             LIMIT {$limit}"
+        );
     }
 
     public function cancelPendingForUser(int $id, int $userId): ?array

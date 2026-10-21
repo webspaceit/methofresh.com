@@ -230,6 +230,20 @@ class wsit_AdminController extends wsit_Controller
                 send_order_status_email($order, $oldStatus, $status);
             }
 
+            // WhatsApp / Messenger status update (deferred, best effort).
+            if ($oldStatus !== $status && $order !== null) {
+                try {
+                    $updatedOrder = $this->orderModel->findWithItems($id);
+                    if ($updatedOrder !== null) {
+                        \App\Services\Messaging\MessagingDispatcher::defer(static function () use ($updatedOrder, $oldStatus, $status): void {
+                            (new \App\Services\Messaging\MessagingDispatcher())
+                                ->onStatusChanged($updatedOrder, $oldStatus, $status);
+                        });
+                    }
+                } catch (\Throwable) {
+                }
+            }
+
             $this->flash('success', trans('admin_updated'));
         }
 

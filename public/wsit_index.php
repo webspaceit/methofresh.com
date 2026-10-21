@@ -22,8 +22,11 @@ use App\Controllers\wsit_AdminController;
 use App\Controllers\wsit_AdminProductController;
 use App\Controllers\wsit_AdminCategoryController;
 use App\Controllers\wsit_AdminPageController;
+use App\Controllers\wsit_AdminMessagingController;
+use App\Controllers\wsit_MessengerWebhookController;
 use App\Controllers\wsit_PageController;
 use App\Controllers\wsit_SitemapController;
+use App\Controllers\wsit_WhatsAppWebhookController;
 
 $router = app()->router;
 
@@ -144,6 +147,21 @@ $router->post('/mf-dashboard/users/{id}/delete',          [wsit_AdminController:
 $router->get('/mf-dashboard/seo',                          [wsit_AdminController::class, 'seoSettings']);
 $router->post('/mf-dashboard/seo',                         [wsit_AdminController::class, 'updateSeoSettings']);
 $router->post('/mf-dashboard/translate',                   [wsit_AdminController::class, 'translate']);
+
+// ---- Messaging automation (dashboard) ----
+$router->get('/mf-dashboard/messaging',                    [wsit_AdminMessagingController::class, 'index']);
+$router->post('/mf-dashboard/messaging/save',              [wsit_AdminMessagingController::class, 'save']);
+$router->post('/mf-dashboard/messaging/test',              [wsit_AdminMessagingController::class, 'test']);
+$router->get('/mf-dashboard/message-logs',                 [wsit_AdminMessagingController::class, 'logs']);
+$router->post('/mf-dashboard/message-logs/clear',          [wsit_AdminMessagingController::class, 'clearLogs']);
+$router->get('/mf-dashboard/conversations',                [wsit_AdminMessagingController::class, 'conversations']);
+$router->post('/mf-dashboard/conversations/{id}/status',   [wsit_AdminMessagingController::class, 'updateConversationStatus']);
+
+// ---- Messaging automation (Meta webhooks — no locale prefix) ----
+$router->addRaw('GET',  '/api/whatsapp/webhook',           [wsit_WhatsAppWebhookController::class, 'verify']);
+$router->addRaw('POST', '/api/whatsapp/webhook',           [wsit_WhatsAppWebhookController::class, 'handle']);
+$router->addRaw('GET',  '/api/messenger/webhook',          [wsit_MessengerWebhookController::class, 'verify']);
+$router->addRaw('POST', '/api/messenger/webhook',          [wsit_MessengerWebhookController::class, 'handle']);
 
 // ---- Errors ----
 $router->get('/404',                               [wsit_ErrorController::class, 'notFound']);

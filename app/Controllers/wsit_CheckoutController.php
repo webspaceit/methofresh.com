@@ -230,6 +230,19 @@ class wsit_CheckoutController extends wsit_Controller
         } catch (\Throwable) {
         }
 
+        // WhatsApp order confirmation. Deferred so the redirect is instant and
+        // a Meta outage can never break checkout.
+        try {
+            $placedOrderId = $orderId;
+            \App\Services\Messaging\MessagingDispatcher::defer(static function () use ($placedOrderId): void {
+                $order = (new \App\Models\wsit_Order())->findWithItems($placedOrderId);
+                if ($order !== null) {
+                    (new \App\Services\Messaging\MessagingDispatcher())->onOrderPlaced($order);
+                }
+            });
+        } catch (\Throwable) {
+        }
+
         $orderNumber = $orderData['order_number'];
 
         $_SESSION['cart'] = [];
