@@ -1803,20 +1803,26 @@ function mail_rfc_date(): string
 
 /**
  * Unique `Message-ID:` value rooted in the sending domain. Missing Message-ID
- * is another strong spam signal, so the header is always emitted.
+ * is a strong spam signal, so the header is always emitted.
+ *
+ * The domain part must be the sending domain, never the machine's hostname:
+ * on shared hosting that is the node (ssh-node-gb.lhr.stackcp.net), and a
+ * Message-ID for an unrelated domain is itself a spam signal.
  */
 function mail_message_id(): string
 {
-    $domain = 'methofresh.com';
+    $domain = mail_domain();
+    return '<' . bin2hex(random_bytes(16)) . '.' . time() . '@' . $domain . '>';
+}
+
+/** The domain all storefront mail is sent from, taken from the From address. */
+function mail_domain(): string
+{
     $from = mail_from_address();
     if (preg_match('/@([A-Za-z0-9.-]+)$/', $from, $m)) {
-        $domain = $m[1];
+        return $m[1];
     }
-    $host = php_uname('n');
-    if ($host === '' || $host === false) {
-        $host = $domain;
-    }
-    return '<' . bin2hex(random_bytes(16)) . '.' . time() . '@' . $host . '>';
+    return 'methofresh.com';
 }
 
 /**
@@ -1871,6 +1877,7 @@ function mail_encode_header(string $value): string
  * @param string        $replyTo Reply-To address, ignored when not valid.
  * @param string        $from    From address; defaults to the storefront's.
  * @param string[]|null $unsub   Endpoints for List-Unsubscribe, or null.
+ * @param bool          $auto    Mark as machine-generated automatic mail.
  */
 function mf_send_mail(
     string $to,
@@ -1879,7 +1886,8 @@ function mf_send_mail(
     string $text = '',
     string $replyTo = '',
     string $from = '',
-    ?array $unsub = null
+    ?array $unsub = null,
+    bool $auto = true
 ): bool {
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return false;
@@ -1911,6 +1919,13 @@ function mf_send_mail(
     $headers[] = 'Message-ID: ' . mail_message_id();
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'X-Mailer: PHP/' . phpversion();
+    if ($auto) {
+        // Marks this as machine-generated correspondence (RFC 3834) rather
+        // than bulk mail, which is what order and contact messages are.
+        // Deliberately NOT Precedence: bulk — on transactional mail that
+        // works against delivery and is itself treated as a spam signal.
+        $headers[] = 'Auto-Submitted: auto-generated';
+    }
     if ($unsub !== null && $unsub) {
         $wrapped = [];
         foreach ($unsub as $endpoint) {
