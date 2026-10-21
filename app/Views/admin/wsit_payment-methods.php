@@ -2,6 +2,28 @@
 // Payment Methods Configuration Admin View
 // Expects: $methods (array of all payment methods config)
 ?>
+<?php
+/**
+ * Resolve the preview image for a payment method.
+ *
+ * `icon` is always a path to a bundled asset (never an emoji), and
+ * `custom_icon` is an uploaded path that wins when present. Only a value that
+ * is not a path is treated as literal emoji text.
+ */
+$methodIcon = static function (array $method): array {
+    $custom = trim((string)($method['custom_icon'] ?? ''));
+    if ($custom !== '' && file_exists(public_path($custom))) {
+        return ['type' => 'img', 'src' => asset_url($custom)];
+    }
+
+    $icon = trim((string)($method['icon'] ?? ''));
+    if ($icon !== '' && str_starts_with($icon, '/')) {
+        return ['type' => 'img', 'src' => str_starts_with($icon, '/assets/img/uploads/') ? asset_url($icon) : $icon];
+    }
+
+    return $icon !== '' ? ['type' => 'text', 'src' => $icon] : ['type' => 'text', 'src' => '💳'];
+};
+?>
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
         <h1 class="text-2xl font-extrabold text-stone-900"><?= e(trans('admin_payment_methods')) ?></h1>
@@ -38,10 +60,11 @@
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $codIcon = $methods['cod']['custom_icon'] ?? ''; ?>
-                        <?php if ($codIcon && file_exists(public_path($codIcon))): ?>
-                            <img src="<?= e(asset_url($codIcon)) ?>" alt="COD Icon" class="w-full h-full object-contain">
+                        <?php $codPreview = $methodIcon($methods['cod']); ?>
+                        <?php if ($codPreview['type'] === 'img'): ?>
+                            <img src="<?= e($codPreview['src']) ?>" alt="COD Icon" class="w-full h-full object-contain">
                         <?php else: ?>
-                            <span class="text-3xl"><?= e($methods['cod']['icon'] ?? '💵') ?></span>
+                            <span class="text-3xl"><?= e($codPreview['src']) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="flex-1">
@@ -126,10 +149,11 @@
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $bkashIcon = $methods['bkash']['custom_icon'] ?? ''; ?>
-                        <?php if ($bkashIcon && file_exists(public_path($bkashIcon))): ?>
-                            <img src="<?= e(asset_url($bkashIcon)) ?>" alt="bKash Icon" class="w-full h-full object-contain">
+                        <?php $bkashPreview = $methodIcon($methods['bkash']); ?>
+                        <?php if ($bkashPreview['type'] === 'img'): ?>
+                            <img src="<?= e($bkashPreview['src']) ?>" alt="bKash Icon" class="w-full h-full object-contain">
                         <?php else: ?>
-                            <span class="text-3xl"><?= e($methods['bkash']['icon'] ?? '📱') ?></span>
+                            <span class="text-3xl"><?= e($bkashPreview['src']) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="flex-1">
@@ -239,10 +263,11 @@
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $nagadIcon = $methods['nagad']['custom_icon'] ?? ''; ?>
-                        <?php if ($nagadIcon && file_exists(public_path($nagadIcon))): ?>
-                            <img src="<?= e(asset_url($nagadIcon)) ?>" alt="Nagad Icon" class="w-full h-full object-contain">
+                        <?php $nagadPreview = $methodIcon($methods['nagad']); ?>
+                        <?php if ($nagadPreview['type'] === 'img'): ?>
+                            <img src="<?= e($nagadPreview['src']) ?>" alt="Nagad Icon" class="w-full h-full object-contain">
                         <?php else: ?>
-                            <span class="text-3xl"><?= e($methods['nagad']['icon'] ?? '💳') ?></span>
+                            <span class="text-3xl"><?= e($nagadPreview['src']) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="flex-1">
@@ -351,10 +376,11 @@
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $rocketIcon = $methods['rocket']['custom_icon'] ?? ''; ?>
-                        <?php if ($rocketIcon && file_exists(public_path($rocketIcon))): ?>
-                            <img src="<?= e(asset_url($rocketIcon)) ?>" alt="Rocket Icon" class="w-full h-full object-contain">
+                        <?php $rocketPreview = $methodIcon($methods['rocket']); ?>
+                        <?php if ($rocketPreview['type'] === 'img'): ?>
+                            <img src="<?= e($rocketPreview['src']) ?>" alt="Rocket Icon" class="w-full h-full object-contain">
                         <?php else: ?>
-                            <span class="text-3xl"><?= e($methods['rocket']['icon'] ?? '🚀') ?></span>
+                            <span class="text-3xl"><?= e($rocketPreview['src']) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="flex-1">
@@ -463,10 +489,11 @@
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $bankIcon = $methods['bank']['custom_icon'] ?? ''; ?>
-                        <?php if ($bankIcon && file_exists(public_path($bankIcon))): ?>
-                            <img src="<?= e(asset_url($bankIcon)) ?>" alt="Bank Transfer Icon" class="w-full h-full object-contain">
+                        <?php $bankPreview = $methodIcon($methods['bank']); ?>
+                        <?php if ($bankPreview['type'] === 'img'): ?>
+                            <img src="<?= e($bankPreview['src']) ?>" alt="Bank Transfer Icon" class="w-full h-full object-contain">
                         <?php else: ?>
-                            <span class="text-3xl"><?= e($methods['bank']['icon'] ?? '🏦') ?></span>
+                            <span class="text-3xl"><?= e($bankPreview['src']) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="flex-1">
