@@ -1948,11 +1948,11 @@ function mf_send_mail(
 
     $subject = mail_encode_header($subject);
 
-    // -f sets the envelope sender, so bounces and SPF checks test the same
-    // domain that appears in From: instead of the shared host's default user.
-    $additional = '-f' . $from . ' -r' . $from;
-
-    return @mail($to, $subject, $body, implode("\r\n", $headers), $additional);
+    // No $additional_params: the host's sendmail wrapper does not tolerate
+    // envelope flags (-f/-r) and fails the whole call with them, so the
+    // message is sent with mail() defaults. Deliverability comes from the
+    // headers above plus DKIM at the mail host, not from the envelope.
+    return @mail($to, $subject, $body, implode("\r\n", $headers));
 }
 
 function send_order_status_email(array $order, string $oldStatus, string $newStatus): bool
