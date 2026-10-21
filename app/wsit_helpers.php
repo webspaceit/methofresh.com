@@ -642,6 +642,34 @@ function locale_url(string $path = ''): string
     return public_url(app_locale() . $path);
 }
 
+/**
+ * Validate a redirect target that came from the browser (e.g. ?redirect=).
+ * Only same-site absolute paths are allowed, so a crafted link can never
+ * bounce a visitor off to another host. Returns null when the path is not
+ * safe, so callers fall back to their default destination.
+ */
+function safe_redirect_path(mixed $path): ?string
+{
+    $path = trim((string)$path);
+    if ($path === '' || !str_starts_with($path, '/')) {
+        return null;
+    }
+    // "//evil.com" is protocol-relative, and "http://…" inside the path is
+    // never legitimate here.
+    if (str_starts_with($path, '//') || str_contains($path, '://') || str_contains($path, '\\')) {
+        return null;
+    }
+    // No path traversal and no query string.
+    if (str_contains($path, '..') || str_contains($path, '?')) {
+        return null;
+    }
+    // Only plain URL characters.
+    if (!preg_match('#^/[A-Za-z0-9/_-]*$#', $path)) {
+        return null;
+    }
+    return $path;
+}
+
 function locale_url_for(string $locale, string $path = ''): string
 {
     $base = rtrim(base_url_path(), '/');

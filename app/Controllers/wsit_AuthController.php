@@ -6,6 +6,7 @@ use App\Core\wsit_Controller;
 use App\Core\wsit_Request;
 use App\Core\wsit_Validator;
 use App\Models\wsit_User;
+use App\Models\wsit_Order;
 use App\Models\wsit_PasswordReset;
 
 class wsit_AuthController extends wsit_Controller
@@ -18,12 +19,18 @@ class wsit_AuthController extends wsit_Controller
         $this->userModel = new wsit_User();
     }
 
-    public function showLogin(): string
+    public function showLogin(wsit_Request $request): string
     {
         if (current_user()) {
             $this->redirect('/account');
         }
-        return $this->view('auth/wsit_login', ['pageTitle' => trans('login')]);
+        return $this->view('auth/wsit_login', [
+            'pageTitle' => trans('login'),
+            // Where to send the visitor after a successful sign-in. Only
+            // same-site paths are accepted (safe_redirect_path).
+            'redirect'  => safe_redirect_path($request->query('redirect', '')),
+            'email'     => trim((string)$request->query('email', '')),
+        ]);
     }
 
     public function showRegister(): string
@@ -148,6 +155,16 @@ class wsit_AuthController extends wsit_Controller
         session_regenerate_id(true);
         $this->flash('success', trans('login_success'));
 
+        // Come back where the visitor came from (e.g. the checkout page they
+        // were asked to sign in for). Admin pages stay off-limits for
+        // non-admin accounts.
+        $redirect = safe_redirect_path($request->input('redirect', ''))
+            ?: safe_redirect_path($request->query('redirect', ''));
+        if ($redirect !== null
+            && !(str_starts_with($redirect, '/mf-dashboard') && (int)$user['is_admin'] !== 1)) {
+            $this->redirect($redirect);
+        }
+
         $this->redirect((int)$user['is_admin'] === 1 ? '/mf-dashboard' : '/account');
     }
 
@@ -192,6 +209,13 @@ class wsit_AuthController extends wsit_Controller
             'password' => $data['password'],
             'is_admin' => 0,
         ]);
+
+        // Guest orders placed with this e-mail now belong to this account,
+        // so the customer's earlier orders appear in their order history.
+        try {
+            (new wsit_Order())->linkGuestOrders($id, $data['email']);
+        } catch (\Throwable) {
+        }
 
         $_SESSION['user_id'] = $id;
         session_regenerate_id(true);

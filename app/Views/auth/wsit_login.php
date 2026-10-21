@@ -10,9 +10,12 @@
 
         <form method="post" action="<?= e(locale_url('/login')) ?>" class="space-y-4">
             <?= csrf_field() ?>
+            <?php if (!empty($redirect)): ?>
+            <input type="hidden" name="redirect" value="<?= e($redirect) ?>">
+            <?php endif; ?>
             <div>
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('email')) ?> *</label>
-                <input type="email" name="email" required autofocus class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <input type="email" name="email" value="<?= e($email ?? '') ?>" required autofocus class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
             </div>
             <div>
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('password')) ?> *</label>

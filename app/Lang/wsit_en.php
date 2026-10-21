@@ -255,6 +255,9 @@ return [
     // Checkout
     'checkout'           => 'Checkout',
     'billing_details'    => 'Billing Details',
+    'checkout_email_registered'  => 'This email already has an account. Please sign in to place your order.',
+    'checkout_email_from_account'=> 'Your account email — used for this order and for order updates.',
+    'checkout_have_account'      => 'Already have an account?',
     'order_summary'      => 'Order Summary',
     'contact'            => 'Contact Us',
     'contact_subtitle'   => 'We would love to hear from you. Send us a message and we will respond as soon as possible.',

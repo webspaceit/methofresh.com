@@ -88,6 +88,30 @@ class wsit_Order extends wsit_Model
         );
     }
 
+    /**
+     * Attach guest orders to a newly created account.
+     *
+     * Guest checkout stores only the e-mail in shipping_email and leaves
+     * user_id NULL, so those orders never show up in the customer's order
+     * history. When the customer finally registers (or the owner creates
+     * the account for them) we link the matching guest orders so the whole
+     * history follows the account.
+     *
+     * Returns the number of orders linked.
+     */
+    public function linkGuestOrders(int $userId, string $email): int
+    {
+        $email = trim($email);
+        if ($userId <= 0 || $email === '') {
+            return 0;
+        }
+        return (int)$this->query(
+            "UPDATE {$this->table} SET user_id = ?
+             WHERE user_id IS NULL AND LOWER(shipping_email) = LOWER(?)",
+            [$userId, $email]
+        )->rowCount();
+    }
+
     public function generateNumber(): string
     {
         return 'MF-' . date('ymd') . '-' . strtoupper(substr(uniqid('', true), -6));

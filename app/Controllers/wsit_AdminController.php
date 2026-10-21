@@ -422,7 +422,7 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/users/create');
         }
 
-        $this->userModel->create([
+        $newId = $this->userModel->create([
             'name'     => $name,
             'email'    => $email,
             'phone'    => $phone,
@@ -430,6 +430,13 @@ class wsit_AdminController extends wsit_Controller
             'password' => $pass,
             'is_admin' => $isAdmin ? 1 : 0,
         ]);
+
+        // Guest orders placed with this e-mail now belong to this account,
+        // so they show up in the customer's order history.
+        try {
+            $this->orderModel->linkGuestOrders($newId, $email);
+        } catch (\Throwable) {
+        }
 
         $this->flash('success', trans('admin_created'));
         $this->redirect('/mf-dashboard/users');

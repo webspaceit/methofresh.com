@@ -17,6 +17,7 @@ class wsit_CheckoutController extends wsit_Controller
     private wsit_Order $orderModel;
     private wsit_OrderItem $orderItemModel;
     private wsit_Product $productModel;
+    private wsit_User $userModel;
 
     public function __construct()
     {
@@ -25,6 +26,7 @@ class wsit_CheckoutController extends wsit_Controller
         $this->orderModel = new wsit_Order();
         $this->orderItemModel = new wsit_OrderItem();
         $this->productModel = new wsit_Product();
+        $this->userModel = new wsit_User();
     }
 
     public function show(): string
@@ -72,7 +74,21 @@ class wsit_CheckoutController extends wsit_Controller
             'paymentMethods' => $activeMethods,
             'shippingCfg'    => shipping_config(),
             'shippingWeight' => cart_total_weight(),
+            // Details the visitor already typed before being asked to sign
+            // in — restored so the form is not thrown away.
+            'pending'        => $this->takePendingDetails(),
         ]);
+    }
+
+    /**
+     * Checkout details kept while the visitor signs in. Read once and
+     * cleared, so a later visit does not resurrect stale details.
+     */
+    private function takePendingDetails(): array
+    {
+        $pending = $_SESSION['checkout_pending'] ?? [];
+        unset($_SESSION['checkout_pending']);
+        return is_array($pending) ? $pending : [];
     }
 
     public function place(wsit_Request $request): void
@@ -114,6 +130,47 @@ class wsit_CheckoutController extends wsit_Controller
             $first = reset($errors);
             $this->flash('error', is_array($first) ? reset($first) : (string)$first);
             $this->redirect('/checkout');
+        }
+
+        // ------------------------------------------------------------------
+        // One e-mail = one customer.
+        //
+        // Guest checkout used to accept any e-mail, so the same person could
+        // place endless guest orders that never appeared in their order
+        // history (and could never be password-reset, because no account
+        // existed). Now:
+        //   • a signed-in customer always orders under their account e-mail
+        //     — the form field is locked to match, so the two can never
+        //     drift apart;
+        //   • a guest whose e-mail already has an account is asked to sign
+        //     in first instead of quietly creating another guest order.
+        // ------------------------------------------------------------------
+        $user = current_user();
+
+        if ($user === null) {
+            $account = $this->userModel->findByEmail(strtolower(trim($data['email'])));
+            if ($account !== null) {
+                // Keep what they typed — the form is restored after sign-in.
+                $_SESSION['checkout_pending'] = [
+                    'name'        => $data['name'],
+                    'email'       => $data['email'],
+                    'phone'       => $data['phone'],
+                    'address'     => $data['address'],
+                    'city'        => $data['city'],
+                    'postal_code' => $data['postal_code'],
+                    'notes'       => $data['notes'],
+                ];
+                $this->flash('error', trans('checkout_email_registered'));
+                $this->redirect(
+                    '/login?redirect=' . urlencode('/checkout')
+                    . '&email=' . urlencode($data['email'])
+                );
+            }
+        } else {
+            // The account e-mail wins over whatever was posted.
+            $data['email'] = trim((string)($user['email'] ?? '')) !== ''
+                ? (string)$user['email']
+                : $data['email'];
         }
 
         // Validate stock before placing order.
@@ -174,8 +231,6 @@ class wsit_CheckoutController extends wsit_Controller
             $this->flash('error', trans('payment_trx_id_required'));
             $this->redirect('/checkout');
         }
-
-        $user = current_user();
 
         $accessToken = bin2hex(random_bytes(32));
         $orderData = [

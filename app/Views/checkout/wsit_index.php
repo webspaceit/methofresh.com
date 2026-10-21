@@ -1,11 +1,23 @@
 <?php
 $grandTotal = $subtotal - $discount + $shipping;
-$defaultName = $user ? user_display_name($user) : '';
+
+// Details the visitor typed before being asked to sign in win over the saved
+// profile, so the form is not thrown away. The e-mail always comes from the
+// account once signed in — it is the customer's identity.
+$pending = $pending ?? [];
+$pendingVal = static function (string $key) use ($pending): string {
+    $v = trim((string)($pending[$key] ?? ''));
+    return $v;
+};
+$defaultName = $pendingVal('name') !== ''
+    ? $pendingVal('name')
+    : ($user ? user_display_name($user) : '');
 $defaultEmail = $user['email'] ?? '';
-$defaultPhone = $user['phone'] ?? '';
-$defaultAddress = $user['address'] ?? '';
-$defaultCity = $user['city'] ?? '';
-$defaultPostal = $user['postal_code'] ?? '';
+$defaultPhone = $pendingVal('phone') !== '' ? $pendingVal('phone') : (string)($user['phone'] ?? '');
+$defaultAddress = $pendingVal('address') !== '' ? $pendingVal('address') : (string)($user['address'] ?? '');
+$defaultCity = $pendingVal('city') !== '' ? $pendingVal('city') : (string)($user['city'] ?? '');
+$defaultPostal = $pendingVal('postal_code') !== '' ? $pendingVal('postal_code') : (string)($user['postal_code'] ?? '');
+$defaultNotes = $pendingVal('notes');
 $cities = checkout_cities(); // [] (cleared in dashboard) = text-input fallback
 
 // ---- Delivery methods (conditional by locality + cart weight) -------------
@@ -197,8 +209,19 @@ function checkoutShip(p) {
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-stone-500"><?= e(trans('email')) ?> *</label>
+                    <?php if ($user): ?>
+                    <input type="email" name="email" value="<?= e($defaultEmail) ?>" required readonly
+                           class="mt-1 w-full rounded-xl border border-honey-600/15 bg-stone-50 px-3.5 py-2.5 text-sm text-stone-600 cursor-not-allowed">
+                    <p class="mt-1 text-xs text-stone-500"><?= e(trans('checkout_email_from_account')) ?></p>
+                    <?php else: ?>
                     <input type="email" name="email" value="<?= e($defaultEmail) ?>" required
                            class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    <p class="mt-1 text-xs text-stone-500">
+                        <?= e(trans('checkout_have_account')) ?>
+                        <a href="<?= e(locale_url('/login?redirect=' . urlencode('/checkout'))) ?>"
+                           class="font-semibold text-brand-700 hover:underline"><?= e(trans('sign_in')) ?></a>
+                    </p>
+                    <?php endif; ?>
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-stone-500"><?= e(trans('phone')) ?> *</label>
@@ -253,7 +276,7 @@ function checkoutShip(p) {
                 <div class="sm:col-span-2">
                     <label class="text-xs font-semibold text-stone-500"><?= e(trans('order_notes')) ?></label>
                     <textarea name="notes" rows="3" placeholder="<?= e(trans('notes_placeholder')) ?>"
-                              class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+                              class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"><?= e($defaultNotes) ?></textarea>
                 </div>
 <?php if ($shipSection): ?>
                 <!-- Delivery method: availability + charge depend on the city

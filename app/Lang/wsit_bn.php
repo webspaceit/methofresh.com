@@ -255,6 +255,9 @@ return [
     // Checkout
     'checkout'           => 'চেকআউট',
     'billing_details'    => 'বিলিং তথ্য',
+    'checkout_email_registered'  => 'এই ইমেইলে ইতিমধ্যে একটি অ্যাকাউন্ট আছে। অর্ডার করতে দয়া করে সাইন ইন করুন।',
+    'checkout_email_from_account'=> 'আপনার অ্যাকাউন্টের ইমেইল — এই অর্ডার ও অর্ডার আপডেটে ব্যবহৃত হবে।',
+    'checkout_have_account'      => 'আগে থেকেই অ্যাকাউন্ট আছে?',
     'order_summary'      => 'অর্ডার সারসংক্ষেপ',
     'full_name'          => 'সম্পূর্ণ নাম',
     'email'              => 'ইমেইল ঠিকানা',
