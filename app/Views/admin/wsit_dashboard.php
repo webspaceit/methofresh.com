@@ -33,10 +33,14 @@ $groupIndian = static function (string $intPart): string {
 };
 
 $fmtNum = static function ($value, int $decimals = 0) use ($isBn, $bnDigitsOnly, $groupIndian) {
-    $num = number_format((float)$value, $decimals);
     if (!$isBn) {
-        return $num;
+        return number_format((float)$value, $decimals);
     }
+    // Build the integer part WITHOUT a thousands separator. number_format()
+    // would already insert a comma, and $groupIndian() adds the lakh
+    // separators itself — feeding it an already-comma'd string produced a
+    // doubled comma (৳ ১,,৮৬৫).
+    $num = number_format((float)$value, $decimals, '.', '');
     [$intPart, $decPart] = array_pad(explode('.', $num), 2, '');
     $out = $groupIndian($intPart);
     if ($decimals > 0) {
@@ -396,7 +400,7 @@ foreach ($segments as $seg) {
         . '" stroke-linecap="round" stroke-width="18"></circle>';
     $segOffset += $len;
 }
-$lakhStr = rtrim(rtrim(number_format($gAmount / 100000, 2), '0'), '.');
+$lakhStr = rtrim(rtrim(number_format($gAmount / 100000, 2, '.', ''), '0'), '.');
 $lakhStr = $isBn ? $bnDigitsOnly($lakhStr) : $lakhStr;
 // Lakh notation is only meaningful above ৳1,00,000; otherwise show the real amount.
 $centerLabel = $gAmount >= 100000
@@ -512,7 +516,7 @@ $chartFor = static function (array $data, string $p) use ($isBn, $bnDigitsOnly, 
         } else {
             $rounded = round($value, -3);
             if ($rounded >= 100000) {
-                $lakh = rtrim(rtrim(number_format($rounded / 100000, 2), '0'), '.');
+                $lakh = rtrim(rtrim(number_format($rounded / 100000, 2, '.', ''), '0'), '.');
                 $gridLabels[] = '৳' . ($isBn ? $bnDigitsOnly($lakh) : $lakh) . ($isBn ? 'লক্ষ' : 'L');
             } else {
                 $k = (int)round($rounded / 1000);
