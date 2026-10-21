@@ -63,12 +63,11 @@ html[lang="bn"] body {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
-/* `.leading-tight` is intentionally neutralized: its 1.25 line-height
-   rendered too tight, so the declaration is commented out in the compiled
-   output (public/assets/css/app.css). Tailwind regenerates that utility on
-   every build, so re-neutralize it here — this rule sits after
-   @tailwind utilities and wins the cascade. line-height is an inherited
-   property, so `inherit` is equivalent to the class having no declaration. */
+/* `.leading-tight` is overridden: Tailwind's 1.25 line-height rendered too
+   tight, so the compiled output (public/assets/css/app.css) deliberately sets
+   1.5 instead. Tailwind regenerates that utility on every build, so re-apply
+   the intended value here — this rule sits after @tailwind utilities and wins
+   the cascade. */
 .leading-tight {
-    line-height: inherit;
+    line-height: 1.5;
 }
