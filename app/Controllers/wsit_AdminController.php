@@ -378,16 +378,18 @@ class wsit_AdminController extends wsit_Controller
         $page     = max(1, (int)$request->query('page', 1));
         $offset   = ($page - 1) * $perPage;
         $total    = $this->userModel->countAll($search);
+        $guestOrders = $this->userModel->guestOrderEmails();
 
         return $this->view('admin/wsit_users', [
-            'pageTitle' => trans('admin_users') . ' | ' . trans('admin'),
-            'users'     => $this->userModel->allPaginated($search, $perPage, $offset),
-            'total'     => $total,
-            'customers' => $this->userModel->count(),
-            'admins'    => $this->userModel->countAdmins(),
-            'search'    => $search,
-            'page'      => $page,
-            'perPage'   => $perPage,
+            'pageTitle'   => trans('admin_users') . ' | ' . trans('admin'),
+            'users'       => $this->userModel->allPaginated($search, $perPage, $offset),
+            'total'       => $total,
+            'customers'   => $this->userModel->count(),
+            'admins'      => $this->userModel->countAdmins(),
+            'search'      => $search,
+            'page'        => $page,
+            'perPage'     => $perPage,
+            'guestOrders' => $guestOrders,
         ], 'wsit_admin_material');
     }
 
@@ -540,6 +542,59 @@ class wsit_AdminController extends wsit_Controller
 
         $this->userModel->deleteById($id);
         $this->flash('success', trans('admin_deleted'));
+        $this->redirect('/mf-dashboard/users');
+    }
+
+    /**
+     * Create the missing accounts for guest orders.
+     *
+     * Guest checkout creates the account automatically now, but orders that
+     * were placed before that (or imported) are still floating with no
+     * customer behind them. This creates an account for every such e-mail
+     * and links the orders to it.
+     */
+    public function createGuestAccounts(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/users');
+        }
+
+        $created = 0;
+        $linked  = 0;
+
+        foreach ($this->userModel->guestOrderEmails() as $row) {
+            $email = strtolower(trim((string)($row['email'] ?? '')));
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            // An account that already exists just needs the orders attached.
+            $existing = $this->userModel->findByEmail($email);
+            if ($existing !== null) {
+                $linked += $this->orderModel->linkGuestOrders((int)$existing['id'], $email);
+                continue;
+            }
+            $id = $this->userModel->createForGuestOrder([
+                'email'   => $email,
+                'name'    => (string)($row['name'] ?? ''),
+                'phone'   => (string)($row['phone'] ?? ''),
+                'address' => (string)($row['address'] ?? ''),
+                'city'    => (string)($row['city'] ?? ''),
+            ]);
+            if ($id > 0) {
+                $created++;
+                $linked += $this->orderModel->linkGuestOrders($id, $email);
+            }
+        }
+
+        if ($created === 0 && $linked === 0) {
+            $this->flash('info', trans('admin_users_no_guest_orders'));
+        } else {
+            $this->flash('success', trans('admin_users_guest_orders_done', [
+                'created' => $created,
+                'linked'  => $linked,
+            ]));
+        }
         $this->redirect('/mf-dashboard/users');
     }
 

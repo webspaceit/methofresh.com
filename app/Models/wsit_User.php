@@ -85,6 +85,33 @@ class wsit_User extends wsit_Model
         return $user !== null && (int)($user['auto_registered'] ?? 0) === 1;
     }
 
+    /**
+     * Guest e-mail addresses that have orders but no account.
+     *
+     * Used by Dashboard -> Users to create the missing accounts in one go
+     * (for orders placed before guest checkout created accounts).
+     */
+    public function guestOrderEmails(): array
+    {
+        $orders = table('orders');
+        return $this->fetchAll(
+            "SELECT o.shipping_email AS email,
+                    COUNT(*) AS orders,
+                    MAX(NULLIF(o.shipping_name, '')) AS name,
+                    MAX(NULLIF(o.shipping_phone, '')) AS phone,
+                    MAX(NULLIF(o.shipping_city, '')) AS city,
+                    MAX(NULLIF(o.shipping_address, '')) AS address,
+                    MIN(o.created_at) AS first_order_at
+             FROM {$orders} o
+             WHERE o.user_id IS NULL
+               AND o.status <> 'cancelled'
+               AND o.shipping_email IS NOT NULL
+               AND o.shipping_email <> ''
+             GROUP BY o.shipping_email
+             ORDER BY orders DESC, first_order_at ASC"
+        );
+    }
+
     public function all(string $search = '', string $orderBy = 'id DESC'): array
     {
         $sql = "SELECT id, name, email, phone, city, is_admin, created_at FROM {$this->table}";

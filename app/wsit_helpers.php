@@ -691,7 +691,13 @@ function current_page_path(): string
     return implode('/', array_filter($segments));
 }
 
-function trans(string|null $key): string
+/**
+ * Translate a key.
+ *
+ * $replace fills {name} placeholders in the string, e.g.
+ * trans('admin_x_done', ['count' => 3]) with "Created {count} customers".
+ */
+function trans(string|null $key, array $replace = []): string
 {
     if ($key === null || $key === '') {
         return '';
@@ -702,7 +708,11 @@ function trans(string|null $key): string
         $file = base_path('app/Lang/wsit_' . $locale . '.php');
         $strings[$locale] = file_exists($file) ? require $file : [];
     }
-    return $strings[$locale][$key] ?? $key;
+    $text = $strings[$locale][$key] ?? $key;
+    foreach ($replace as $name => $value) {
+        $text = str_replace('{' . $name . '}', (string)$value, $text);
+    }
+    return $text;
 }
 
 // ---------------------------------------------------------------------------

@@ -139,6 +139,7 @@ $router->post('/mf-dashboard/messages/{id}/delete',        [wsit_AdminController
 $router->get('/mf-dashboard/subscribers',                  [wsit_AdminController::class, 'newsletterSubscribers']);
 $router->post('/mf-dashboard/subscribers/{id}/delete',     [wsit_AdminController::class, 'deleteNewsletterSubscriber']);
 $router->get('/mf-dashboard/users',                       [wsit_AdminController::class, 'users']);
+$router->post('/mf-dashboard/users/guest-accounts',       [wsit_AdminController::class, 'createGuestAccounts']);
 $router->get('/mf-dashboard/users/create',                [wsit_AdminController::class, 'createUserForm']);
 $router->post('/mf-dashboard/users/create',               [wsit_AdminController::class, 'createUser']);
 $router->get('/mf-dashboard/users/{id}/edit',             [wsit_AdminController::class, 'editUserForm']);

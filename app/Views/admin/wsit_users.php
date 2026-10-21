@@ -8,6 +8,7 @@ $page      = max(1, (int)($page ?? 1));
 $perPage   = max(1, (int)($perPage ?? 20));
 $pages     = max(1, (int)ceil($total / $perPage));
 $search    = (string)($search ?? '');
+$guestOrders = (array)($guestOrders ?? []);
 $baseUrl   = locale_url('/mf-dashboard/users');
 
 $pageUrl = static function (int $n) use ($baseUrl, $search): string {
@@ -44,6 +45,30 @@ $pageUrl = static function (int $n) use ($baseUrl, $search): string {
         </a>
     </div>
 </section>
+
+<?php if (!empty($guestOrders)): ?>
+<!-- Orders from before guest checkout created accounts: they have no
+     customer behind them yet. One click fixes that. -->
+<section class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+    <div class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-[22px] text-amber-700 shrink-0">person_alert</span>
+        <div>
+            <p class="text-sm font-semibold text-amber-900"><?= e(trans('admin_users_guest_orders_title')) ?></p>
+            <p class="text-xs text-amber-800 mt-0.5"><?= e(trans('admin_users_guest_orders_notice', [
+                'emails' => count($guestOrders),
+                'orders' => array_sum(array_map(static fn($g) => (int)($g['orders'] ?? 0), $guestOrders)),
+            ])) ?></p>
+        </div>
+    </div>
+    <form method="post" action="<?= e(locale_url('/mf-dashboard/users/guest-accounts')) ?>"
+          onsubmit="return confirm('<?= e(trans('admin_users_guest_orders_confirm')) ?>')">
+        <?= csrf_field() ?>
+        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-label-md font-label-md font-bold transition-colors">
+            <span class="material-symbols-outlined text-[18px]">person_add</span><?= e(trans('admin_users_guest_orders_btn')) ?>
+        </button>
+    </form>
+</section>
+<?php endif; ?>
 
 <!-- Search -->
 <section class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm">
