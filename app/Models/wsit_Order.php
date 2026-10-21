@@ -131,6 +131,38 @@ class wsit_Order extends wsit_Model
         $this->updateRecord($this->table, ['status' => $status], ['id' => $id]);
     }
 
+    public function cancelPendingForUser(int $id, int $userId): ?array
+    {
+        $this->beginTransaction();
+        try {
+            $order = $this->fetch(
+                "SELECT * FROM {$this->table} WHERE id = ? AND user_id = ? AND status = 'pending' AND (payment_method = 'cod' OR transaction_id IS NULL) FOR UPDATE",
+                [$id, $userId]
+            );
+            if ($order === null) {
+                $this->rollBack();
+                return null;
+            }
+            $items = $this->fetchAll("SELECT product_id, quantity FROM {$this->itemsTable} WHERE order_id = ?", [$id]);
+            $this->updateRecord($this->table, ['status' => 'cancelled'], ['id' => $id]);
+            $productsTable = table('products');
+            foreach ($items as $item) {
+                if (!empty($item['product_id'])) {
+                    $this->query(
+                        "UPDATE {$productsTable} SET stock = stock + ?, sold = GREATEST(0, sold - ?) WHERE id = ?",
+                        [(int)$item['quantity'], (int)$item['quantity'], (int)$item['product_id']]
+                    );
+                }
+            }
+            $order['items'] = $this->fetchAll("SELECT * FROM {$this->itemsTable} WHERE order_id = ?", [$id]);
+            $this->commit();
+            return $order;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            throw $e;
+        }
+    }
+
     public function revenue(): float
     {
         return (float)$this->fetchColumn(

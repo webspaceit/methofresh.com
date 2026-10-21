@@ -106,6 +106,7 @@ $t = $isBn ? [
     'seo'           => 'SEO সেটিংস',
     'analytics'     => 'বিশ্লেষণ',
     'customers'     => 'গ্রাহক বিশ্লেষণ',
+    'users'         => 'ব্যবহারকারী',
     'delivery'      => 'ডেলিভারি ট্র্যাকিং',
     'shipping'      => 'শিপিং মেথড',
     'settings'      => 'স্টোর সেটিংস',
@@ -158,6 +159,7 @@ $t = $isBn ? [
     'seo'           => 'SEO Settings',
     'analytics'     => 'Analytics',
     'customers'     => 'Customer Analytics',
+    'users'         => 'Users',
     'delivery'      => 'Delivery Tracking',
     'shipping'      => 'Shipping Methods',
     'settings'      => 'Store Settings',
@@ -351,9 +353,16 @@ $navLink = function (
 [lang="bn"], [lang="bn"] *, :lang(bn), .font-bengali {
     font-family: 'Noto Sans Bengali', sans-serif !important;
 }
+/* Keep Material Symbols ligatures on their icon font in the Bengali UI. */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+}
 <?php if ($locale === 'bn'): ?>
 html, body, button, input, select, textarea, [class*="font-"] {
     font-family: 'Noto Sans Bengali', sans-serif !important;
+}
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
 }
 <?php endif; ?>
 </style>
@@ -421,6 +430,7 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
         <div class="flex flex-col gap-0.5">
             <?= $catHeader($t['catCustomers'], 'groups', 'blue', '3') ?>
             <?= $navLink(locale_url('/mf-dashboard/customers'), 'group', $t['customers'], $isNavActive('mf-dashboard/customers')) ?>
+            <?= $navLink(locale_url('/mf-dashboard/users'), 'manage_accounts', $t['users'], $isNavActive('mf-dashboard/users')) ?>
             <?= $navLink(locale_url('/mf-dashboard/messages'), 'mark_email_unread', $t['messages'], $isNavActive('mf-dashboard/messages'), $unreadMessages > 0, $fmtCount($unreadMessages), 'emerald') ?>
             <?= $navLink(locale_url('/mf-dashboard/subscribers'), 'mail', $t['subscribers'], $isNavActive('mf-dashboard/subscribers')) ?>
         </div>

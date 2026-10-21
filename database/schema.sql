@@ -85,6 +85,8 @@ CREATE TABLE IF NOT EXISTS wsit_orders (
     shipping        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     total           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     payment_method  VARCHAR(30) NOT NULL DEFAULT 'cod',
+    transaction_id  VARCHAR(120) DEFAULT NULL,
+    access_token_hash CHAR(64) DEFAULT NULL,
     shipping_name   VARCHAR(120) NOT NULL,
     shipping_email  VARCHAR(190) DEFAULT NULL,
     shipping_phone  VARCHAR(30)  NOT NULL,
@@ -96,6 +98,21 @@ CREATE TABLE IF NOT EXISTS wsit_orders (
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_orders_user (user_id),
     INDEX idx_orders_status (status)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------------
+-- One-time password reset links (only the SHA-256 token hash is persisted)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wsit_password_resets (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT UNSIGNED NOT NULL,
+    token_hash  CHAR(64) NOT NULL UNIQUE,
+    expires_at  DATETIME NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_password_resets_user
+      FOREIGN KEY (user_id) REFERENCES wsit_users(id) ON DELETE CASCADE,
+    INDEX idx_password_resets_user_created (user_id, created_at),
+    INDEX idx_password_resets_expiry (expires_at)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------------

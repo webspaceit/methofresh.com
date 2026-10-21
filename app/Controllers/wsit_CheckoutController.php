@@ -177,6 +177,7 @@ class wsit_CheckoutController extends wsit_Controller
 
         $user = current_user();
 
+        $accessToken = bin2hex(random_bytes(32));
         $orderData = [
             'user_id'          => $user ? (int)$user['id'] : null,
             'order_number'     => $this->orderModel->generateNumber(),
@@ -187,6 +188,7 @@ class wsit_CheckoutController extends wsit_Controller
             'total'            => $total,
             'payment_method'   => $selectedKey,
             'transaction_id'   => $data['trx_id'] !== '' ? $data['trx_id'] : null,
+            'access_token_hash' => hash('sha256', $accessToken),
             'shipping_name'    => $data['name'],
             'shipping_email'   => $data['email'],
             'shipping_phone'   => $data['phone'],
@@ -234,15 +236,30 @@ class wsit_CheckoutController extends wsit_Controller
         unset($_SESSION['cart_coupon']);
 
         $this->flash('success', trans('order_placed'));
-        $this->redirect('/order/success/' . $orderNumber);
+        $this->redirect('/order/success/' . $orderNumber . '?access=' . $accessToken);
     }
 
-    public function success(string $orderNumber): string
+    public function success(wsit_Request $request, string $orderNumber): string
     {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Referrer-Policy: no-referrer');
         $order = $this->orderModel->findWithItemsByNumber($orderNumber);
         if ($order === null) {
             $this->flash('error', trans('order_not_found'));
             $this->redirect('/');
+        }
+
+        // The order number is public-facing and must not grant access by itself.
+        $user = current_user();
+        $authorized = $user && (int)($order['user_id'] ?? 0) === (int)$user['id'];
+        $accessToken = trim((string)$request->query('access', ''));
+        if (!$authorized && $accessToken !== '') {
+            $storedHash = (string)($order['access_token_hash'] ?? '');
+            $authorized = $storedHash !== '' && hash_equals($storedHash, hash('sha256', $accessToken));
+        }
+        if (!$authorized) {
+            http_response_code(404);
+            return $this->view('errors/wsit_404', ['pageTitle' => '404']);
         }
 
         return $this->view('checkout/wsit_success', [

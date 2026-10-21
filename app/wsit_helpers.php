@@ -1336,7 +1336,7 @@ function payment_methods_config(): array
             'title_bn'    => 'বিকাশ',
             'desc_en'     => 'Send money to our bKash number and enter the transaction ID.',
             'desc_bn'     => 'আমাদের বিকাশ নম্বরে টাকা পাঠিয়ে ট্রানজেকশন আইডি প্রদান করুন।',
-            'account_no'  => '01711-111111',
+            'account_no'  => '',
             'account_type'=> 'personal',
             'require_trx' => true,
         ],
@@ -1410,6 +1410,11 @@ function active_payment_methods(string|null $locale = null): array
     $active = [];
     foreach ($all as $key => $method) {
         if (!empty($method['enabled'])) {
+            // A mobile wallet must never be offered with an example or empty
+            // destination number. Set the real merchant number in the admin.
+            if (in_array($key, ['bkash', 'nagad', 'rocket'], true) && trim((string)($method['account_no'] ?? '')) === '') {
+                continue;
+            }
             $method['title'] = $locale === 'bn' ? ($method['title_bn'] ?: $method['title_en']) : $method['title_en'];
             $method['desc']  = $locale === 'bn' ? ($method['desc_bn'] ?: $method['desc_en']) : $method['desc_en'];
             $active[$key] = $method;

@@ -6,6 +6,7 @@ use App\Core\wsit_Controller;
 use App\Core\wsit_Request;
 use App\Core\wsit_Validator;
 use App\Models\wsit_User;
+use App\Models\wsit_PasswordReset;
 
 class wsit_AuthController extends wsit_Controller
 {
@@ -31,6 +32,91 @@ class wsit_AuthController extends wsit_Controller
             $this->redirect('/account');
         }
         return $this->view('auth/wsit_register', ['pageTitle' => trans('register')]);
+    }
+
+    public function showForgotPassword(): string
+    {
+        return $this->view('auth/wsit_forgot_password', ['pageTitle' => trans('forgot_password')]);
+    }
+
+    public function requestPasswordReset(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/forgot-password');
+        }
+
+        $email = strtolower(trim((string)$request->input('email', '')));
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $user = $this->userModel->findByEmail($email);
+            if ($user) {
+                $resets = new wsit_PasswordReset();
+                if (!$resets->recentlyIssued((int)$user['id'])) {
+                    $token = bin2hex(random_bytes(32));
+                    $resets->issue((int)$user['id'], hash('sha256', $token));
+                    $baseUrl = rtrim((string)config('app.base_url', ''), '/');
+                    $link = $baseUrl . '/' . app_locale() . '/reset-password?token=' . rawurlencode($token);
+                    $subject = app_locale() === 'bn' ? 'পাসওয়ার্ড রিসেট অনুরোধ' : 'Password reset request';
+                    $body = app_locale() === 'bn'
+                        ? "আপনার পাসওয়ার্ড পরিবর্তন করতে এই লিংকটি এক ঘণ্টার মধ্যে খুলুন:\n\n{$link}\n\nআপনি অনুরোধ না করলে এই ইমেইল উপেক্ষা করুন।"
+                        : "Use this link within one hour to reset your password:\n\n{$link}\n\nIf you did not request this, you can ignore this email.";
+                    $headers = "From: MethoFresh <support@methofresh.com>\r\nContent-Type: text/plain; charset=UTF-8";
+                    @mail($email, $subject, $body, $headers);
+                }
+            }
+        }
+
+        // Keep the response identical whether or not this email has an account.
+        $this->flash('success', trans('password_reset_sent'));
+        $this->redirect('/forgot-password');
+    }
+
+    public function showResetPassword(wsit_Request $request): string
+    {
+        $token = trim((string)$request->query('token', ''));
+        $reset = $token !== '' ? (new wsit_PasswordReset())->findValid(hash('sha256', $token)) : null;
+        if (!$reset) {
+            $this->flash('error', trans('password_reset_invalid'));
+            $this->redirect('/forgot-password');
+        }
+        return $this->view('auth/wsit_reset_password', [
+            'pageTitle' => trans('reset_password'),
+            'token' => $token,
+        ]);
+    }
+
+    public function resetPassword(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/forgot-password');
+        }
+        $token = trim((string)$request->input('token', ''));
+        $password = (string)$request->input('password', '');
+        $confirmation = (string)$request->input('password_confirmation', '');
+        $resetModel = new wsit_PasswordReset();
+        $resetModel->beginTransaction();
+        try {
+            $reset = $token !== '' ? $resetModel->findValidForUpdate(hash('sha256', $token)) : null;
+            if (!$reset) {
+                $resetModel->rollBack();
+                $this->flash('error', trans('password_reset_invalid'));
+                $this->redirect('/forgot-password');
+            }
+            if (strlen($password) < 8 || $password !== $confirmation) {
+                $resetModel->rollBack();
+                $this->flash('error', trans('password_reset_password_rules'));
+                $this->redirect('/reset-password?token=' . rawurlencode($token));
+            }
+            $this->userModel->updatePassword((int)$reset['user_id'], $password);
+            $resetModel->consume((int)$reset['id']);
+            $resetModel->commit();
+        } catch (\Throwable $e) {
+            $resetModel->rollBack();
+            throw $e;
+        }
+        $this->flash('success', trans('password_reset_complete'));
+        $this->redirect('/login');
     }
 
     public function login(wsit_Request $request): void

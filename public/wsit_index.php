@@ -64,11 +64,17 @@ $router->get('/login',                   [wsit_AuthController::class, 'showLogin
 $router->post('/login',                  [wsit_AuthController::class, 'login']);
 $router->get('/register',                [wsit_AuthController::class, 'showRegister']);
 $router->post('/register',               [wsit_AuthController::class, 'register']);
+$router->get('/forgot-password',          [wsit_AuthController::class, 'showForgotPassword']);
+$router->post('/forgot-password',         [wsit_AuthController::class, 'requestPasswordReset']);
+$router->get('/reset-password',           [wsit_AuthController::class, 'showResetPassword']);
+$router->post('/reset-password',          [wsit_AuthController::class, 'resetPassword']);
 $router->get('/logout',                  [wsit_AuthController::class, 'logout']);
 
 // ---- Account ----
 $router->get('/account',                 [wsit_OrderController::class, 'account']);
 $router->get('/account/orders/{id}',     [wsit_OrderController::class, 'show']);
+$router->post('/account/orders/{id}/cancel', [wsit_OrderController::class, 'cancel']);
+$router->post('/account/orders/{id}/return-request', [wsit_OrderController::class, 'requestReturn']);
 
 // ---- Admin ----
 $router->get('/mf-dashboard',                              [wsit_AdminController::class, 'dashboard']);
@@ -129,6 +135,12 @@ $router->post('/mf-dashboard/messages/{id}/read',          [wsit_AdminController
 $router->post('/mf-dashboard/messages/{id}/delete',        [wsit_AdminController::class, 'deleteContactMessage']);
 $router->get('/mf-dashboard/subscribers',                  [wsit_AdminController::class, 'newsletterSubscribers']);
 $router->post('/mf-dashboard/subscribers/{id}/delete',     [wsit_AdminController::class, 'deleteNewsletterSubscriber']);
+$router->get('/mf-dashboard/users',                       [wsit_AdminController::class, 'users']);
+$router->get('/mf-dashboard/users/create',                [wsit_AdminController::class, 'createUserForm']);
+$router->post('/mf-dashboard/users/create',               [wsit_AdminController::class, 'createUser']);
+$router->get('/mf-dashboard/users/{id}/edit',             [wsit_AdminController::class, 'editUserForm']);
+$router->post('/mf-dashboard/users/{id}/edit',            [wsit_AdminController::class, 'updateUser']);
+$router->post('/mf-dashboard/users/{id}/delete',          [wsit_AdminController::class, 'deleteUser']);
 $router->get('/mf-dashboard/seo',                          [wsit_AdminController::class, 'seoSettings']);
 $router->post('/mf-dashboard/seo',                         [wsit_AdminController::class, 'updateSeoSettings']);
 $router->post('/mf-dashboard/translate',                   [wsit_AdminController::class, 'translate']);

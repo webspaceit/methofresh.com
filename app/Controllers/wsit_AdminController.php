@@ -353,6 +353,175 @@ class wsit_AdminController extends wsit_Controller
         $this->redirect('/mf-dashboard/subscribers');
     }
 
+    // ------------------------------------------------------------------
+    // User management (registered customers + staff accounts).
+    // ------------------------------------------------------------------
+
+    public function users(wsit_Request $request): string
+    {
+        $search   = trim((string)$request->query('q', ''));
+        $perPage  = 20;
+        $page     = max(1, (int)$request->query('page', 1));
+        $offset   = ($page - 1) * $perPage;
+        $total    = $this->userModel->countAll($search);
+
+        return $this->view('admin/wsit_users', [
+            'pageTitle' => trans('admin_users') . ' | ' . trans('admin'),
+            'users'     => $this->userModel->allPaginated($search, $perPage, $offset),
+            'total'     => $total,
+            'customers' => $this->userModel->count(),
+            'admins'    => $this->userModel->countAdmins(),
+            'search'    => $search,
+            'page'      => $page,
+            'perPage'   => $perPage,
+        ], 'wsit_admin_material');
+    }
+
+    public function createUserForm(): string
+    {
+        return $this->view('admin/wsit_user_form', [
+            'pageTitle' => trans('admin_user_create') . ' | ' . trans('admin'),
+            'user'      => null,
+        ], 'wsit_admin_material');
+    }
+
+    public function createUser(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/users/create');
+        }
+
+        $name  = trim((string)$request->input('name', ''));
+        $email = strtolower(trim((string)$request->input('email', '')));
+        $phone = trim((string)$request->input('phone', ''));
+        $city  = trim((string)$request->input('city', ''));
+        $pass  = (string)$request->input('password', '');
+        $isAdmin = (int)$request->input('is_admin', 0) === 1;
+
+        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($pass) < 6) {
+            $this->flash('error', trans('admin_user_invalid'));
+            $this->redirect('/mf-dashboard/users/create');
+        }
+        if ($this->userModel->findByEmail($email)) {
+            $this->flash('error', trans('admin_user_email_taken'));
+            $this->redirect('/mf-dashboard/users/create');
+        }
+
+        $this->userModel->create([
+            'name'     => $name,
+            'email'    => $email,
+            'phone'    => $phone,
+            'city'     => $city,
+            'password' => $pass,
+            'is_admin' => $isAdmin ? 1 : 0,
+        ]);
+
+        $this->flash('success', trans('admin_created'));
+        $this->redirect('/mf-dashboard/users');
+    }
+
+    public function editUserForm(int $id): string
+    {
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            $this->flash('error', trans('admin_not_found'));
+            $this->redirect('/mf-dashboard/users');
+        }
+
+        return $this->view('admin/wsit_user_form', [
+            'pageTitle' => trans('admin_user_edit') . ' | ' . trans('admin'),
+            'user'      => $user,
+        ], 'wsit_admin_material');
+    }
+
+    public function updateUser(wsit_Request $request, int $id): void
+    {
+        $back = '/mf-dashboard/users/' . $id . '/edit';
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect($back);
+        }
+
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            $this->flash('error', trans('admin_not_found'));
+            $this->redirect('/mf-dashboard/users');
+        }
+
+        $name  = trim((string)$request->input('name', ''));
+        $email = strtolower(trim((string)$request->input('email', '')));
+        $phone = trim((string)$request->input('phone', ''));
+        $city  = trim((string)$request->input('city', ''));
+        $pass  = (string)$request->input('password', '');
+        $isAdmin = (int)$request->input('is_admin', 0) === 1;
+        $current = current_user();
+
+        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->flash('error', trans('admin_user_invalid'));
+            $this->redirect($back);
+        }
+        if ($this->userModel->findByEmailExcluding($email, $id)) {
+            $this->flash('error', trans('admin_user_email_taken'));
+            $this->redirect($back);
+        }
+        // Never let the last admin (or anyone) demote their own account —
+        // otherwise the dashboard could end up with no way back in.
+        if ((int)$user['is_admin'] === 1 && (!$isAdmin || ($current && (int)$current['id'] === $id))) {
+            if ($this->userModel->countAdmins() <= 1) {
+                $this->flash('error', trans('admin_user_last_admin'));
+                $this->redirect($back);
+            }
+        }
+
+        $data = [
+            'name'     => $name,
+            'email'    => $email,
+            'phone'    => $phone,
+            'city'     => $city,
+            'is_admin' => $isAdmin ? 1 : 0,
+        ];
+        if ($pass !== '') {
+            if (strlen($pass) < 6) {
+                $this->flash('error', trans('admin_user_invalid'));
+                $this->redirect($back);
+            }
+            $data['password'] = password_hash($pass, PASSWORD_DEFAULT);
+        }
+
+        $this->userModel->updateProfile($id, $data);
+        $this->flash('success', trans('admin_saved'));
+        $this->redirect('/mf-dashboard/users');
+    }
+
+    public function deleteUser(wsit_Request $request, int $id): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/users');
+        }
+
+        $current = current_user();
+        if ($current && (int)$current['id'] === $id) {
+            $this->flash('error', trans('admin_user_cannot_delete_self'));
+            $this->redirect('/mf-dashboard/users');
+        }
+
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            $this->flash('error', trans('admin_not_found'));
+            $this->redirect('/mf-dashboard/users');
+        }
+        if ((int)$user['is_admin'] === 1 && $this->userModel->countAdmins() <= 1) {
+            $this->flash('error', trans('admin_user_last_admin'));
+            $this->redirect('/mf-dashboard/users');
+        }
+
+        $this->userModel->deleteById($id);
+        $this->flash('success', trans('admin_deleted'));
+        $this->redirect('/mf-dashboard/users');
+    }
+
     public function settings(): string
     {
         $globalLocale = $this->settingModel->get('default_locale', default_locale());

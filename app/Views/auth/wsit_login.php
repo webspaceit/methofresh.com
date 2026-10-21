@@ -18,6 +18,7 @@
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('password')) ?> *</label>
                 <input type="password" name="password" required class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
             </div>
+            <p class="-mt-2 text-right"><a class="text-xs font-semibold text-brand-700 hover:underline" href="<?= e(locale_url('/forgot-password')) ?>"><?= e(trans('forgot_password')) ?></a></p>
             <button type="submit" class="w-full rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 text-sm transition shadow-lg shadow-brand-600/20">
                 <?= e(trans('sign_in')) ?>
             </button>

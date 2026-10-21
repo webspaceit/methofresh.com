@@ -84,4 +84,27 @@ $statusColors = [
             <div class="flex justify-between font-bold border-t border-honey-600/15 pt-2 text-base"><span><?= e(trans('grand_total')) ?></span><span class="text-brand-700"><?= e(format_price((float)$order['total'])) ?></span></div>
         </div>
     </div>
+
+    <?php if ($order['status'] === 'pending' && ($order['payment_method'] === 'cod' || empty($order['transaction_id']))): ?>
+    <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <h2 class="font-bold text-amber-900"><?= e(trans('cancel_order')) ?></h2>
+        <p class="mt-1 text-sm text-amber-800"><?= e(trans('cancel_order_help')) ?></p>
+        <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/cancel')) ?>" class="mt-3" onsubmit="return confirm('<?= e(trans('cancel_order_confirm')) ?>')">
+            <?= csrf_field() ?>
+            <button class="rounded-xl bg-amber-700 px-4 py-2 text-sm font-bold text-white hover:bg-amber-800"><?= e(trans('cancel_order')) ?></button>
+        </form>
+    </div>
+    <?php elseif ($order['status'] === 'delivered'): ?>
+    <div class="mt-6 rounded-2xl border border-honey-600/20 bg-white p-5">
+        <h2 class="font-bold text-brand-800"><?= e(trans('return_request')) ?></h2>
+        <p class="mt-1 text-sm text-stone-500"><?= e(trans('return_request_help')) ?></p>
+        <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/return-request')) ?>" class="mt-3 space-y-3">
+            <?= csrf_field() ?>
+            <label class="block text-xs font-semibold text-stone-600"><?= e(trans('return_request_details')) ?>
+                <textarea name="details" required minlength="10" rows="4" class="mt-1 w-full rounded-xl border border-honey-600/20 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+            </label>
+            <button class="rounded-xl bg-brand-700 px-4 py-2 text-sm font-bold text-white hover:bg-brand-800"><?= e(trans('return_request_send')) ?></button>
+        </form>
+    </div>
+    <?php endif; ?>
 </section>
