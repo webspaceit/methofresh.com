@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS wsit_password_resets (
       FOREIGN KEY (user_id) REFERENCES wsit_users(id) ON DELETE CASCADE,
     INDEX idx_password_resets_user_created (user_id, created_at),
     INDEX idx_password_resets_expiry (expires_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

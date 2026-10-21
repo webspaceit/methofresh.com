@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS wsit_users (
     language    VARCHAR(5) NOT NULL DEFAULT 'en',
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Categories (bilingual names/descriptions)
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS wsit_categories (
     image          VARCHAR(255) DEFAULT NULL,
     active         TINYINT(1) NOT NULL DEFAULT 1,
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Products (bilingual names/descriptions)
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS wsit_products (
     INDEX idx_products_category_active (category_id, active),
     INDEX idx_products_active (active),
     INDEX idx_products_featured (featured, active)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Orders
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS wsit_orders (
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_orders_user (user_id),
     INDEX idx_orders_status (status)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- One-time password reset links (only the SHA-256 token hash is persisted)
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS wsit_password_resets (
       FOREIGN KEY (user_id) REFERENCES wsit_users(id) ON DELETE CASCADE,
     INDEX idx_password_resets_user_created (user_id, created_at),
     INDEX idx_password_resets_expiry (expires_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Messaging automation (WhatsApp Cloud API + Facebook Messenger)
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS wsit_message_logs (
     INDEX idx_message_logs_channel_dir (channel, direction),
     INDEX idx_message_logs_order (order_id),
     INDEX idx_message_logs_created (created_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS wsit_conversations (
     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS wsit_conversations (
     UNIQUE KEY uniq_conversations_channel_psid (channel, psid),
     INDEX idx_conversations_status (status),
     INDEX idx_conversations_last (last_message_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Order items
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS wsit_order_items (
     total           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     CONSTRAINT fk_items_order
       FOREIGN KEY (order_id) REFERENCES wsit_orders(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Site-wide settings (key/value store)
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS wsit_order_items (
 CREATE TABLE IF NOT EXISTS wsit_settings (
     `key`   VARCHAR(60)  NOT NULL PRIMARY KEY,
     `value` TEXT NOT NULL
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- CMS pages (header menu + footer pages, bilingual)
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS wsit_pages (
     active         TINYINT(1) NOT NULL DEFAULT 1,
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_pages_active (active, menu_order)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Contact messages
@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS wsit_contact_messages (
     is_read         TINYINT(1) NOT NULL DEFAULT 0,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_contact_read (is_read)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Newsletter subscribers (homepage footer "subscribe" form)
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS wsit_newsletter_subscribers (
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_ns_created (created_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Storefront search log (drives the admin dashboard "most searched" widget)
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS wsit_search_logs (
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_search_logs_created (created_at),
     INDEX idx_search_logs_query (query)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Checkout funnel (drives the admin dashboard "Checkout funnel" widget)
@@ -256,7 +256,7 @@ CREATE TABLE IF NOT EXISTS wsit_checkout_visits (
     created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_cv_created (created_at),
     INDEX idx_cv_session (session_hash, created_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ===========================================================================
 -- SEED DATA

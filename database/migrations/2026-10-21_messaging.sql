@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS wsit_message_logs (
     INDEX idx_message_logs_channel_dir (channel, direction),
     INDEX idx_message_logs_order (order_id),
     INDEX idx_message_logs_created (created_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS wsit_conversations (
     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -35,4 +35,4 @@ CREATE TABLE IF NOT EXISTS wsit_conversations (
     UNIQUE KEY uniq_conversations_channel_psid (channel, psid),
     INDEX idx_conversations_status (status),
     INDEX idx_conversations_last (last_message_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
