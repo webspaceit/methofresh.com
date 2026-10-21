@@ -374,6 +374,16 @@ html, body, button, input, select, textarea, [class*="font-"] {
 }
 <?php endif; ?>
 </style>
+<!-- The Tailwind CDN build (loaded above) injects its own utilities at runtime,
+     including .leading-tight{line-height:1.25}. That lands after the compiled
+     stylesheet, so it wins the cascade. Re-assert the intended 1.5 line-height
+     for the sidebar menu here, after the CDN script, with !important. -->
+<style>
+aside .leading-tight,
+.sidebar-scroll .leading-tight {
+    line-height: 1.5 !important;
+}
+</style>
 <script>
 // Show icons only after Material Symbols font is loaded to prevent ligature text flash
 document.fonts.load('1em Material Symbols Outlined').then(function(){

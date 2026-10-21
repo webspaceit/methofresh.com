@@ -67,7 +67,8 @@ html[lang="bn"] body {
    tight, so the compiled output (public/assets/css/app.css) deliberately sets
    1.5 instead. Tailwind regenerates that utility on every build, so re-apply
    the intended value here — this rule sits after @tailwind utilities and wins
-   the cascade. */
+   the cascade. `!important` is required because the admin layouts also load
+   the Tailwind CDN build, which injects its own .leading-tight at runtime. */
 .leading-tight {
-    line-height: 1.5;
+    line-height: 1.5 !important;
 }
