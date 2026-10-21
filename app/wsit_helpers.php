@@ -1866,6 +1866,127 @@ function send_order_status_email(array $order, string $oldStatus, string $newSta
 }
 
 /**
+ * Order confirmation for the customer, sent the moment checkout succeeds.
+ *
+ * Distinct from send_order_status_email(), which only fires when an admin
+ * moves the order off `pending`; without this, a customer who just bought
+ * something hears nothing at all. Best effort — returns false rather than
+ * throwing so a mail failure can never affect checkout.
+ */
+function send_customer_order_confirmation_email(array $order): bool
+{
+    $email = trim((string)($order['shipping_email'] ?? ''));
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+
+    $siteName = app_name();
+    $locale = app_locale();
+
+    $itemsHtml = '';
+    foreach (($order['items'] ?? []) as $item) {
+        $itemsHtml .= '<tr>
+            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . '</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:center;">' . (int)$item['quantity'] . '</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:right;">' . e(format_price((float)$item['total'])) . '</td>
+        </tr>';
+    }
+
+    $orderNumber = (string)($order['order_number'] ?? '');
+    $subject = '[' . $siteName . '] ' . ($locale === 'bn' ? 'অর্ডার নিশ্চিত হয়েছে' : 'Order Confirmed') . ' — ' . $orderNumber;
+
+    $row = static function (string $label, string $value): string {
+        if (trim($value) === '') {
+            return '';
+        }
+        return '<tr>'
+            . '<td style="padding:6px 12px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b;white-space:nowrap;vertical-align:top;">' . e($label) . '</td>'
+            . '<td style="padding:6px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#333;">' . $value . '</td>'
+            . '</tr>';
+    };
+
+    $address = trim((string)($order['shipping_address'] ?? ''));
+    $cityLine = trim((string)($order['shipping_city'] ?? ''));
+    if (trim((string)($order['shipping_postal'] ?? '')) !== '') {
+        $cityLine .= ($cityLine !== '' ? ' - ' : '') . trim((string)$order['shipping_postal']);
+    }
+
+    $body = '
+    <div style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+        <div style="background:#16a34a; color:#fff; padding:16px 20px; border-radius:8px 8px 0 0; font-size:18px; font-weight:bold;">
+            ' . e($siteName) . '
+        </div>
+        <div style="border:1px solid #e2e8f0; border-top:none; padding:24px; background:#fff; border-radius:0 0 8px 8px;">
+            <h2 style="font-size:17px; color:#166534; margin:0 0 12px;">' . ($locale === 'bn' ? 'আপনার অর্ডার নিশ্চিত হয়েছে' : 'Your order is confirmed') . '</h2>
+            <p style="font-size:15px; color:#333; margin:0 0 6px;">' . sprintf(
+                $locale === 'bn' ? 'ধন্যবাদ! আপনার অর্ডার %s সফলভাবে গ্রহণ করা হয়েছে।' : 'Thank you! We have received your order %s.',
+                '<strong>' . e($orderNumber) . '</strong>'
+            ) . '</p>
+            <p style="font-size:14px; color:#555; margin:0 0 20px;">' . ($locale === 'bn'
+                ? 'আমরা শীঘ্রই ডেলিভারি নিশ্চিত করতে আপনার সাথে যোগাযোগ করব।'
+                : 'We will contact you shortly to confirm delivery.') . '</p>
+
+            <h3 style="font-size:14px; color:#333; margin:0 0 8px;">' . ($locale === 'bn' ? 'ডেলিভারি ঠিকানা' : 'Delivery Details') . '</h3>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                ' . $row($locale === 'bn' ? 'নাম' : 'Name', e((string)($order['shipping_name'] ?? ''))) . '
+                ' . $row($locale === 'bn' ? 'ফোন' : 'Phone', e((string)($order['shipping_phone'] ?? ''))) . '
+                ' . $row($locale === 'bn' ? 'ঠিকানা' : 'Address', nl2br(e($address))) . '
+                ' . $row($locale === 'bn' ? 'শহর' : 'City', e($cityLine)) . '
+                ' . $row($locale === 'bn' ? 'শিপিং' : 'Shipping', e((string)($order['shipping_method'] ?? ''))) . '
+            </table>
+
+            <h3 style="font-size:14px; color:#333; margin:0 0 8px;">' . ($locale === 'bn' ? 'অর্ডার আইটেম' : 'Order Items') . '</h3>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:8px 12px; text-align:left; font-size:12px; color:#64748b; border-bottom:2px solid #e2e8f0; text-transform:uppercase;">' . ($locale === 'bn' ? 'পণ্য' : 'Item') . '</th>
+                        <th style="padding:8px 12px; text-align:center; font-size:12px; color:#64748b; border-bottom:2px solid #e2e8f0; text-transform:uppercase;">' . ($locale === 'bn' ? 'পরিমাণ' : 'Qty') . '</th>
+                        <th style="padding:8px 12px; text-align:right; font-size:12px; color:#64748b; border-bottom:2px solid #e2e8f0; text-transform:uppercase;">' . ($locale === 'bn' ? 'মোট' : 'Total') . '</th>
+                    </tr>
+                </thead>
+                <tbody>' . $itemsHtml . '</tbody>
+            </table>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                <tr>
+                    <td style="padding:4px 12px; font-size:13px; color:#64748b; text-align:right;">' . ($locale === 'bn' ? 'সাবটোটাল:' : 'Subtotal:') . '</td>
+                    <td style="padding:4px 12px; font-size:13px; color:#333; text-align:right; width:120px;">' . e(format_price((float)($order['subtotal'] ?? 0))) . '</td>
+                </tr>
+                ' . ((float)($order['discount'] ?? 0) > 0 ? '<tr>
+                    <td style="padding:4px 12px; font-size:13px; color:#64748b; text-align:right;">' . ($locale === 'bn' ? 'ছাড়:' : 'Discount:') . '</td>
+                    <td style="padding:4px 12px; font-size:13px; color:#333; text-align:right;">- ' . e(format_price((float)$order['discount'])) . '</td>
+                </tr>' : '') . '
+                <tr>
+                    <td style="padding:4px 12px; font-size:13px; color:#64748b; text-align:right;">' . ($locale === 'bn' ? 'শিপিং:' : 'Shipping:') . '</td>
+                    <td style="padding:4px 12px; font-size:13px; color:#333; text-align:right;">' . e(format_price((float)($order['shipping'] ?? 0))) . '</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 12px; font-size:14px; color:#333; text-align:right; border-top:2px solid #e2e8f0;"><strong>' . ($locale === 'bn' ? 'সর্বমোট:' : 'Grand Total:') . '</strong></td>
+                    <td style="padding:8px 12px; font-size:14px; color:#16a34a; text-align:right; border-top:2px solid #e2e8f0;"><strong>' . e(format_price((float)($order['total'] ?? 0))) . '</strong></td>
+                </tr>
+            </table>
+
+            <hr style="border:none; border-top:1px solid #e2e8f0; margin:20px 0;">
+
+            <p style="font-size:12px; color:#94a3b8; margin:0;">
+                ' . ($locale === 'bn'
+                    ? 'এই ইমেইলটি ' . e($siteName) . ' থেকে পাঠানো হয়েছে। কোনো প্রশ্ন থাকলে '
+                    : 'This email was sent by ' . e($siteName) . '. For any questions, please contact ')
+                . '<a href="mailto:support@methofresh.com" style="color:#16a34a;">support@methofresh.com</a>.
+            </p>
+        </div>
+    </div>';
+
+    $headers  = "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=utf-8\r\n";
+    $headers .= "From: " . $siteName . " <support@methofresh.com>\r\n";
+    $headers .= "Reply-To: support@methofresh.com\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+
+    return @mail($email, $subject, $body, $headers);
+}
+
+/**
  * Notify the shop owner that a new order came in.
  *
  * Sent to the same address as contact-form mail (Dashboard → Settings →

@@ -243,17 +243,23 @@ class wsit_CheckoutController extends wsit_Controller
         } catch (\Throwable) {
         }
 
-        // New-order email to the shop owner. Also deferred: sendmail can be slow
-        // or unavailable, and neither case should delay or break checkout.
+        // New-order emails: confirmation to the customer, notification to the
+        // shop owner. Also deferred: sendmail can be slow or unavailable, and
+        // neither case should delay or break checkout.
         try {
             $emailOrderId = $orderId;
             \App\Services\Messaging\MessagingDispatcher::defer(static function () use ($emailOrderId): void {
                 $order = (new \App\Models\wsit_Order())->findWithItems($emailOrderId);
-                if ($order !== null) {
-                    try {
-                        send_admin_new_order_email($order);
-                    } catch (\Throwable) {
-                    }
+                if ($order === null) {
+                    return;
+                }
+                try {
+                    send_customer_order_confirmation_email($order);
+                } catch (\Throwable) {
+                }
+                try {
+                    send_admin_new_order_email($order);
+                } catch (\Throwable) {
                 }
             });
         } catch (\Throwable) {
