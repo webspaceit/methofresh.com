@@ -34,8 +34,11 @@ class wsit_Database
 
         try {
             $this->pdo = new PDO($dsn, $config['username'], $config['password'], $options);
+            // Force the connection charset AFTER connecting. Note: do NOT follow this
+            // with "SET CHARACTER SET utf8mb4" — that statement sets the connection
+            // charset to character_set_database (latin1 on this host) and silently
+            // reverts the connection to latin1, corrupting non-Latin-1 text to '?'.
             $this->pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
-            $this->pdo->exec("SET CHARACTER SET utf8mb4");
         } catch (PDOException $e) {
             throw new PDOException('Database connection failed: ' . $e->getMessage());
         }
