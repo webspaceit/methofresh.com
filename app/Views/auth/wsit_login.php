@@ -17,6 +17,15 @@
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('email')) ?> *</label>
                 <input type="email" name="email" value="<?= e($email ?? '') ?>" required autofocus class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
             </div>
+            <?php if (!empty($autoAccount)): ?>
+            <!-- The account was created automatically when this customer
+                 ordered; they still have to choose a password of their own. -->
+            <div class="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-xs text-amber-900 leading-relaxed">
+                <p class="font-semibold mb-1"><?= e(trans('login_auto_account_title')) ?></p>
+                <p><?= e(trans('login_auto_account_body')) ?></p>
+                <a class="font-semibold text-brand-700 hover:underline" href="<?= e(locale_url('/forgot-password')) ?>"><?= e(trans('login_auto_account_cta')) ?></a>
+            </div>
+            <?php endif; ?>
             <div>
                 <label class="text-xs font-semibold text-stone-500"><?= e(trans('password')) ?> *</label>
                 <input type="password" name="password" required class="mt-1 w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">

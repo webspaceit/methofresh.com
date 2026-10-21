@@ -16,11 +16,20 @@ class wsit_PasswordReset extends wsit_Model
         );
     }
 
-    public function issue(int $userId, string $tokenHash): void
+    /**
+     * Store a one-time token for the user.
+     *
+     * $hours controls how long the link stays valid: 1 hour for a regular
+     * "forgot password" request, longer for the "set your password" link
+     * that travels with an order confirmation (the customer may open it
+     * days later).
+     */
+    public function issue(int $userId, string $tokenHash, int $hours = 1): void
     {
+        $hours = max(1, min(720, (int)$hours));
         $this->query("DELETE FROM {$this->table} WHERE user_id = ? OR expires_at <= NOW()", [$userId]);
         $this->query(
-            "INSERT INTO {$this->table} (user_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))",
+            "INSERT INTO {$this->table} (user_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL {$hours} HOUR))",
             [$userId, $tokenHash]
         );
     }

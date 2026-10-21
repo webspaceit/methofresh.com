@@ -24,12 +24,26 @@ class wsit_AuthController extends wsit_Controller
         if (current_user()) {
             $this->redirect('/account');
         }
+        $email = trim((string)$request->query('email', ''));
+
+        // The customer may already have an account that was created for them
+        // automatically when they ordered. They never chose a password, so
+        // point them at the one they can set instead of failing at login.
+        $autoAccount = null;
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $found = $this->userModel->findByEmail(strtolower($email));
+            if ($this->userModel->isAutoRegistered($found)) {
+                $autoAccount = $found;
+            }
+        }
+
         return $this->view('auth/wsit_login', [
             'pageTitle' => trans('login'),
             // Where to send the visitor after a successful sign-in. Only
             // same-site paths are accepted (safe_redirect_path).
             'redirect'  => safe_redirect_path($request->query('redirect', '')),
-            'email'     => trim((string)$request->query('email', '')),
+            'email'     => $email,
+            'autoAccount' => $autoAccount,
         ]);
     }
 
@@ -147,7 +161,14 @@ class wsit_AuthController extends wsit_Controller
         $user = $this->userModel->findByEmail($email);
 
         if ($user === null || !$this->userModel->verifyPassword($password, $user['password'])) {
-            $this->flash('error', trans('login_failed'));
+            // An account that was created automatically at checkout has a
+            // password nobody knows, so say that instead of "invalid
+            // password" - the customer needs to set one, not try harder.
+            if ($this->userModel->isAutoRegistered($user)) {
+                $this->flash('error', trans('login_auto_account_notice'));
+            } else {
+                $this->flash('error', trans('login_failed'));
+            }
             $this->redirect('/login');
         }
 
@@ -184,6 +205,22 @@ class wsit_AuthController extends wsit_Controller
             'password' => $request->input('password'),
         ];
         $confirm = $request->input('password_confirmation');
+
+        // An account may already exist for this e-mail - often because the
+        // customer ordered before (guest checkout creates the account for
+        // them). Send them to sign in instead of showing "email taken".
+        $email = strtolower(trim((string)$data['email']));
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $existing = $this->userModel->findByEmail($email);
+            if ($existing !== null) {
+                $this->flash('error', trans(
+                    $this->userModel->isAutoRegistered($existing)
+                        ? 'register_auto_account_exists'
+                        : 'register_email_exists'
+                ));
+                $this->redirect('/login?email=' . urlencode($email));
+            }
+        }
 
         $validator = new wsit_Validator();
         $rules = [

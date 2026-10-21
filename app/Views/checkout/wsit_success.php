@@ -31,6 +31,17 @@ $pixelEventEnabled = facebook_pixel_enabled() && facebook_pixel_event_enabled('p
             <a href="<?= e(locale_url('/account')) ?>" class="rounded-xl border border-honey-600/30 px-6 py-3 text-sm font-bold text-brand-800 hover:border-brand-600"><?= e(trans('nav_orders')) ?></a>
             <?php endif; ?>
         </div>
+
+        <?php if (!empty($setupLink)): ?>
+        <!-- An account was created automatically for this order. The customer
+             still has to pick a password before they can sign in. -->
+        <div class="mt-6 rounded-2xl bg-green-50 border border-green-200 p-5 text-left">
+            <h3 class="text-sm font-bold text-green-900 mb-1"><?= e(trans('account_created_title')) ?></h3>
+            <p class="text-xs text-green-800 leading-relaxed mb-4"><?= e(trans('account_created_body')) ?></p>
+            <a href="<?= e($setupLink) ?>" class="inline-block rounded-xl bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 text-sm font-bold"><?= e(trans('account_created_cta')) ?></a>
+            <p class="text-[11px] text-green-700/70 mt-3"><?= e(trans('account_created_hint')) ?></p>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 

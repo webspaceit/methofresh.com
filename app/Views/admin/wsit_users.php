@@ -85,6 +85,7 @@ $pageUrl = static function (int $n) use ($baseUrl, $search): string {
             $uPhone  = (string)($u['phone'] ?? '');
             $uCity   = (string)($u['city'] ?? '');
             $uAdmin  = (int)($u['is_admin'] ?? 0) === 1;
+            $uAuto   = (int)($u['auto_registered'] ?? 0) === 1;
             $initial = mb_strtoupper(mb_substr($uName !== '' ? $uName : $uEmail, 0, 1));
         ?>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 items-center px-space-lg py-3.5 hover:bg-surface-container-low transition-colors">
@@ -103,13 +104,21 @@ $pageUrl = static function (int $n) use ($baseUrl, $search): string {
                 <a href="tel:<?= e($uPhone) ?>" class="block font-body-sm text-body-sm text-on-surface-variant truncate hover:text-primary hover:underline"><?= e($uPhone) ?></a>
                 <?php endif; ?>
             </div>
-            <div class="col-span-2 pl-12 sm:pl-0">
+            <div class="col-span-2 pl-12 sm:pl-0 flex flex-wrap items-center gap-1.5">
                 <?php if ($uAdmin): ?>
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-fixed/50 text-primary font-label-sm text-label-sm font-semibold">
                     <span class="material-symbols-outlined text-[14px]">shield</span><?= e(trans('admin_users_admin')) ?>
                 </span>
                 <?php else: ?>
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold"><?= e(trans('admin_users_customer')) ?></span>
+                <?php endif; ?>
+                <?php if ($uAuto): ?>
+                <!-- Created automatically at checkout; the customer has not
+                     chosen a password yet. -->
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-label-sm text-label-sm font-semibold"
+                      title="<?= e(trans('admin_users_auto_hint')) ?>">
+                    <span class="material-symbols-outlined text-[14px]">key</span><?= e(trans('admin_users_auto')) ?>
+                </span>
                 <?php endif; ?>
             </div>
             <div class="col-span-1 pl-12 sm:pl-0">

@@ -2058,6 +2058,33 @@ function mf_send_mail(
     return @mail($to, $subject, $body, implode("\r\n", $headers));
 }
 
+/**
+ * "Set your password" link for an account that was created automatically
+ * when the customer placed an order.
+ *
+ * The customer never chose a password (a random one is stored that nobody
+ * knows), so this is how they get one. It reuses the same one-time token
+ * store as the forgot-password flow, but with a longer lifetime because it
+ * travels with an order confirmation the customer may open days later.
+ *
+ * Returns null when the token cannot be issued - a missing link must never
+ * break the order it belongs to.
+ */
+function account_setup_link(int $userId, int $hours = 168): ?string
+{
+    if ($userId <= 0) {
+        return null;
+    }
+    try {
+        $token = bin2hex(random_bytes(32));
+        (new \App\Models\wsit_PasswordReset())->issue($userId, hash('sha256', $token), $hours);
+        $baseUrl = rtrim((string)config('app.base_url', ''), '/');
+        return $baseUrl . '/' . app_locale() . '/reset-password?token=' . rawurlencode($token);
+    } catch (\Throwable) {
+        return null;
+    }
+}
+
 function send_order_status_email(array $order, string $oldStatus, string $newStatus): bool
 {
     $email = trim((string)($order['shipping_email'] ?? ''));
@@ -2142,13 +2169,32 @@ function send_order_status_email(array $order, string $oldStatus, string $newSta
  * something hears nothing at all. Best effort — returns false rather than
  * throwing so a mail failure can never affect checkout.
  */
-function send_customer_order_confirmation_email(array $order): bool
+/**
+ * Order confirmation to the customer.
+ *
+ * $setupLink is passed when the customer's account was created automatically
+ * at checkout and they have not set a password yet; the mail then carries a
+ * button that lets them choose one.
+ */
+function send_customer_order_confirmation_email(array $order, ?string $setupLink = null): bool
 {
     $email = trim((string)($order['shipping_email'] ?? ''));
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
 
+    $mail = order_confirmation_mail($order, $setupLink);
+    return mf_send_mail($email, $mail['subject'], $mail['body'], '', 'support@methofresh.com');
+}
+
+/**
+ * Subject and HTML body of the customer order confirmation.
+ *
+ * Kept apart from the sender so the layout can be inspected without
+ * actually mailing anything.
+ */
+function order_confirmation_mail(array $order, ?string $setupLink = null): array
+{
     $siteName = app_name();
     $locale = app_locale();
 
@@ -2178,6 +2224,26 @@ function send_customer_order_confirmation_email(array $order): bool
     $cityLine = trim((string)($order['shipping_city'] ?? ''));
     if (trim((string)($order['shipping_postal'] ?? '')) !== '') {
         $cityLine .= ($cityLine !== '' ? ' - ' : '') . trim((string)$order['shipping_postal']);
+    }
+
+    // "Set your password" block - shown when the account was created
+    // automatically for this order.
+    $setupBlock = '';
+    if ($setupLink !== null && trim($setupLink) !== '') {
+        $setupBlock = '
+            <div style="margin:24px 0 0; padding:16px 18px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;">
+                <p style="font-size:14px; color:#166534; margin:0 0 6px; font-weight:bold;">'
+                    . ($locale === 'bn' ? 'আপনার অ্যাকাউন্ট তৈরি হয়েছে' : 'Your account is ready')
+                . '</p>
+                <p style="font-size:13px; color:#333; margin:0 0 14px; line-height:1.6;">'
+                    . ($locale === 'bn'
+                        ? 'ভবিষ্যতে দ্রুত অর্ডার করতে এখনই একটি পাসওয়ার্ড সেট করে নিন। এই লিংক ৭ দিন সক্রিয় থাকবে।'
+                        : 'Set a password now so your next order is quicker. This link stays active for 7 days.')
+                . '</p>
+                <a href="' . e($setupLink) . '" style="display:inline-block; background:#16a34a; color:#fff; padding:11px 20px; border-radius:8px; font-size:14px; font-weight:bold; text-decoration:none;">'
+                    . ($locale === 'bn' ? 'পাসওয়ার্ড সেট করুন' : 'Set your password')
+                . '</a>
+            </div>';
     }
 
     $body = '
@@ -2237,6 +2303,8 @@ function send_customer_order_confirmation_email(array $order): bool
 
             <hr style="border:none; border-top:1px solid #e2e8f0; margin:20px 0;">
 
+            ' . $setupBlock . '
+
             <p style="font-size:12px; color:#94a3b8; margin:0;">
                 ' . ($locale === 'bn'
                     ? 'এই ইমেইলটি ' . e($siteName) . ' থেকে পাঠানো হয়েছে। কোনো প্রশ্ন থাকলে '
@@ -2246,7 +2314,7 @@ function send_customer_order_confirmation_email(array $order): bool
         </div>
     </div>';
 
-    return mf_send_mail($email, $subject, $body, '', 'support@methofresh.com');
+    return ['subject' => $subject, 'body' => $body];
 }
 
 /**

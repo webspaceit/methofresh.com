@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS wsit_users (
     city        VARCHAR(120) DEFAULT NULL,
     postal_code VARCHAR(20)  DEFAULT NULL,
     is_admin    TINYINT(1) NOT NULL DEFAULT 0,
+    -- 1 = the account was created automatically when the customer placed an
+    -- order, and they have not chosen a password yet. Cleared the moment a
+    -- password is set (the "set your password" link in the order email).
+    auto_registered TINYINT(1) NOT NULL DEFAULT 0,
     language    VARCHAR(5) NOT NULL DEFAULT 'en',
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

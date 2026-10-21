@@ -334,7 +334,19 @@ return [
     'register_success'   => 'Account created successfully. Welcome!',
     'logout_success'     => 'You have been logged out.',
     'login_failed'       => 'Invalid email or password.',
+    'login_auto_account_notice' => 'This account was created automatically when you placed your order. Please set a password first - use the link we emailed you, or request a new one.',
+    'login_auto_account_title'  => 'You already have an account',
+    'login_auto_account_body'   => 'We created it automatically when you placed an order, so you never had to choose a password. Set one now to sign in and see your orders.',
+    'login_auto_account_cta'    => 'Set your password',
     'email_taken'        => 'That email is already registered.',
+    'register_email_exists' => 'That email is already registered. Please sign in to your account instead.',
+    'register_auto_account_exists' => 'You already have an account - it was created automatically when you placed your order. Please set a password to sign in.',
+
+    // Auto-registered account (created at checkout)
+    'account_created_title' => 'Your account is ready',
+    'account_created_body'  => 'We created an account for you when you ordered, so your orders and delivery details stay in one place. Choose a password to sign in next time.',
+    'account_created_cta'   => 'Set your password',
+    'account_created_hint'  => 'You can also skip this - you can still order with this email.',
 
     // Account & Orders
     'account'            => 'My Account',
@@ -497,6 +509,8 @@ return [
     'admin_users_customers'        => 'Customers',
     'admin_users_admin'            => 'Admin',
     'admin_users_customer'         => 'Customer',
+    'admin_users_auto'             => 'Auto',
+    'admin_users_auto_hint'        => 'Account was created automatically when the customer ordered. They have not set a password yet.',
     'admin_user_create'            => 'Add User',
     'admin_user_create_sub'        => 'Create a new customer or staff account.',
     'admin_user_edit'              => 'Edit User',
