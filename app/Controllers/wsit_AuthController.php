@@ -60,8 +60,7 @@ class wsit_AuthController extends wsit_Controller
                     $body = app_locale() === 'bn'
                         ? "আপনার পাসওয়ার্ড পরিবর্তন করতে এই লিংকটি এক ঘণ্টার মধ্যে খুলুন:\n\n{$link}\n\nআপনি অনুরোধ না করলে এই ইমেইল উপেক্ষা করুন।"
                         : "Use this link within one hour to reset your password:\n\n{$link}\n\nIf you did not request this, you can ignore this email.";
-                    $headers = "From: MethoFresh <support@methofresh.com>\r\nContent-Type: text/plain; charset=UTF-8";
-                    @mail($email, $subject, $body, $headers);
+                    mf_send_mail($email, $subject, '', $body);
                 }
             }
         }

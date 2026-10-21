@@ -1785,6 +1785,176 @@ function shipping_method_name(array $method, string|null $locale = null): string
     return $en !== '' ? $en : ($bn !== '' ? $bn : trans('shipping'));
 }
 
+/** The address all storefront mail is sent from and replies to. */
+function mail_from_address(): string
+{
+    $email = trim((string)site_setting('contact_email', 'support@methofresh.com'));
+    return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : 'support@methofresh.com';
+}
+
+/**
+ * RFC 5322 `Date:` value. PHP's mail() omits the header, and its absence is a
+ * spam signal — so every message we build carries an explicit one.
+ */
+function mail_rfc_date(): string
+{
+    return date('D, j M Y H:i:s O');
+}
+
+/**
+ * Unique `Message-ID:` value rooted in the sending domain. Missing Message-ID
+ * is another strong spam signal, so the header is always emitted.
+ */
+function mail_message_id(): string
+{
+    $domain = 'methofresh.com';
+    $from = mail_from_address();
+    if (preg_match('/@([A-Za-z0-9.-]+)$/', $from, $m)) {
+        $domain = $m[1];
+    }
+    $host = php_uname('n');
+    if ($host === '' || $host === false) {
+        $host = $domain;
+    }
+    return '<' . bin2hex(random_bytes(16)) . '.' . time() . '@' . $host . '>';
+}
+
+/**
+ * Strip HTML down to a readable plain-text alternative. Spam filters penalise
+ * HTML-only mail, so every HTML message ships a text/plain part alongside it.
+ */
+function mail_html_to_text(string $html): string
+{
+    $text = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', '', $html);
+    $text = preg_replace('#<br\s*/?>#i', "\n", $text);
+    // Cells become tab-separated so a row reads as a line, not stacked words.
+    $text = preg_replace('#</t[dh]>#i', "\t", $text);
+    $text = preg_replace('#</(p|div|tr|table|h[1-6]|li)>#i', "\n", $text);
+    $text = strip_tags($text);
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = str_replace("\xc2\xa0", ' ', $text);
+    $text = preg_replace('/[ \t]+/', ' ', $text);
+    $text = preg_replace('/ *\n */', "\n", $text);
+    $text = preg_replace('/\t+/', "\t", $text);
+    $text = preg_replace('/\n{3,}/', "\n\n", $text);
+    return trim($text);
+}
+
+/**
+ * Encode one MIME header value, folding long ASCII runs so no line exceeds the
+ * RFC 2047 / 5322 limits (long Subjects otherwise get truncated or garbled).
+ */
+function mail_encode_header(string $value): string
+{
+    $value = trim(str_replace(["\r", "\n"], ' ', $value));
+    if ($value === '') {
+        return '';
+    }
+    if (preg_match('/[\x80-\xFF]/', $value)) {
+        return '=?UTF-8?B?' . base64_encode($value) . '?=';
+    }
+    return preg_replace('/(.{76})(?=.)/', "$1\r\n ", $value);
+}
+
+/**
+ * Single place that builds and sends storefront mail.
+ *
+ * Adds the headers PHP's mail() leaves out (Date, Message-ID), sends a
+ * multipart/alternative body when HTML is supplied, and adds List-Unsubscribe
+ * for bulk/marketing mail. Every caller is best-effort: this returns false
+ * instead of throwing so a mail failure can never break a request.
+ *
+ * @param string        $to      Recipient address.
+ * @param string        $subject Subject line, encoded as needed.
+ * @param string        $html    HTML body, or '' for a plain-text message.
+ * @param string        $text    Plain-text body; derived from $html when ''.
+ * @param string        $replyTo Reply-To address, ignored when not valid.
+ * @param string        $from    From address; defaults to the storefront's.
+ * @param string[]|null $unsub   Endpoints for List-Unsubscribe, or null.
+ */
+function mf_send_mail(
+    string $to,
+    string $subject,
+    string $html = '',
+    string $text = '',
+    string $replyTo = '',
+    string $from = '',
+    ?array $unsub = null
+): bool {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    if (!filter_var($from, FILTER_VALIDATE_EMAIL)) {
+        $from = mail_from_address();
+    }
+
+    $html = trim($html);
+    $text = trim($text);
+    if ($text === '' && $html !== '') {
+        $text = mail_html_to_text($html);
+    }
+    if ($text === '') {
+        $text = trim(strip_tags($html));
+    }
+    if ($text === '') {
+        return false;
+    }
+
+    $hasHtml = $html !== '';
+
+    $headers = [];
+    $headers[] = 'From: ' . mail_encode_header(app_name()) . ' <' . $from . '>';
+    if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+        $headers[] = 'Reply-To: <' . $replyTo . '>';
+    }
+    $headers[] = 'Date: ' . mail_rfc_date();
+    $headers[] = 'Message-ID: ' . mail_message_id();
+    $headers[] = 'MIME-Version: 1.0';
+    $headers[] = 'X-Mailer: PHP/' . phpversion();
+    if ($unsub !== null && $unsub) {
+        $wrapped = [];
+        foreach ($unsub as $endpoint) {
+            $endpoint = trim((string)$endpoint);
+            if ($endpoint === '') {
+                continue;
+            }
+            // Tolerate callers that already supplied the angle brackets.
+            $wrapped[] = ($endpoint[0] === '<') ? $endpoint : '<' . $endpoint . '>';
+        }
+        if ($wrapped) {
+            $headers[] = 'List-Unsubscribe: ' . implode(', ', $wrapped);
+        }
+    }
+
+    if ($hasHtml) {
+        // text/plain first, as RFC 2046 says the least-faithful part goes first.
+        $boundary = '=_mf_' . bin2hex(random_bytes(12));
+        $headers[] = 'Content-Type: multipart/alternative; boundary="' . $boundary . '"';
+
+        $body = "--{$boundary}\r\n"
+                . "Content-Type: text/plain; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: base64\r\n\r\n"
+                . chunk_split(base64_encode($text), 76, "\r\n") . "\r\n"
+                . "--{$boundary}\r\n"
+                . "Content-Type: text/html; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: base64\r\n\r\n"
+                . chunk_split(base64_encode($html), 76, "\r\n") . "\r\n"
+                . "--{$boundary}--";
+    } else {
+        $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+        $headers[] = 'Content-Transfer-Encoding: base64';
+        $body = chunk_split(base64_encode($text), 76, "\r\n");
+    }
+
+    $subject = mail_encode_header($subject);
+
+    // -f sets the envelope sender, so bounces and SPF checks test the same
+    // domain that appears in From: instead of the shared host's default user.
+    $additional = '-f' . $from . ' -r' . $from;
+
+    return @mail($to, $subject, $body, implode("\r\n", $headers), $additional);
+}
+
 function send_order_status_email(array $order, string $oldStatus, string $newStatus): bool
 {
     $email = trim((string)($order['shipping_email'] ?? ''));
@@ -1856,13 +2026,9 @@ function send_order_status_email(array $order, string $oldStatus, string $newSta
         </div>
     </div>';
 
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=utf-8\r\n";
-    $headers .= "From: " . $siteName . " <support@methofresh.com>\r\n";
-    $headers .= "Reply-To: support@methofresh.com\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion();
-
-    return @mail($email, $subject, $body, $headers);
+    // Envelope sender = published From address, so bounces and SPF test the
+    // same domain. -f is not offered here: $email is the envelope recipient.
+    return mf_send_mail($email, $subject, $body, '', 'support@methofresh.com');
 }
 
 /**
@@ -1977,13 +2143,7 @@ function send_customer_order_confirmation_email(array $order): bool
         </div>
     </div>';
 
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=utf-8\r\n";
-    $headers .= "From: " . $siteName . " <support@methofresh.com>\r\n";
-    $headers .= "Reply-To: support@methofresh.com\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion();
-
-    return @mail($email, $subject, $body, $headers);
+    return mf_send_mail($email, $subject, $body, '', 'support@methofresh.com');
 }
 
 /**
@@ -2105,15 +2265,7 @@ function send_admin_new_order_email(array $order): bool
         </div>
     </div>';
 
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=utf-8\r\n";
-    $headers .= "From: " . $siteName . " <support@methofresh.com>\r\n";
-    if (filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
-        $headers .= "Reply-To: <" . $customerEmail . ">\r\n";
-    }
-    $headers .= "X-Mailer: PHP/" . phpversion();
-
-    return @mail($to, $subject, $body, $headers);
+    return mf_send_mail($to, $subject, $body, '', $customerEmail);
 }
 
 function contact_recipient_email(): string
@@ -2168,15 +2320,14 @@ function send_contact_message_email(array $data): bool
         </div>
     </div>';
 
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=utf-8\r\n";
-    $headers .= "From: " . $siteName . " <support@methofresh.com>\r\n";
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $headers .= "Reply-To: " . ($name !== '' ? $name . ' ' : '') . "<" . $email . ">\r\n";
-    }
-    $headers .= "X-Mailer: PHP/" . phpversion();
-
-    return @mail($to, $mailSubject, $body, $headers);
+    return mf_send_mail(
+        $to,
+        $mailSubject,
+        $body,
+        '',
+        filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : '',
+        // Contact-form mail is correspondence, not bulk: no List-Unsubscribe.
+    );
 }
 
 function whatsapp_order_url(): string
