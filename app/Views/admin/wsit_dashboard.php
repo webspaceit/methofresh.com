@@ -149,6 +149,8 @@ $t = $isBn ? [
     'ckRecentGuests'=> 'সাম্প্রতিক অতিথি ভিজিট',
     'ckGuestsSub'   => 'নিবন্ধিত নয় এমন দর্শক — সর্বশেষ প্রথমে',
     'ckNoGuests'    => 'এখনো কোনো অতিথি ভিজিট আসেনি।',
+    'ckVisitor'     => 'অতিথি',
+    'ckUniqueGuests'=> 'অনন্য অতিথি',
     'ckDidOrder'    => 'অর্ডার করেছে',
     'ckNoOrder'     => 'ছেড়ে গেছে',
     'ckInCart'      => 'কার্টে',
@@ -269,6 +271,8 @@ $t = $isBn ? [
     'ckRecentGuests'=> 'Recent guest visits',
     'ckGuestsSub'   => 'Unregistered visitors, newest first',
     'ckNoGuests'    => 'No guest visits yet.',
+    'ckVisitor'     => 'Visitor',
+    'ckUniqueGuests'=> 'unique visitors',
     'ckDidOrder'    => 'Ordered',
     'ckNoOrder'     => 'Left',
     'ckInCart'      => 'In cart',
@@ -1186,20 +1190,49 @@ $searchNums = $searchPages <= 7
         <p class="mt-3 pt-3 border-t border-surface-container font-label-sm text-label-sm text-on-surface-variant"><?= e($t['ckNote']) ?></p>
     </div>
     <!-- Recent guest visits (4 Cols) -->
+    <?php
+    // One stable identity per visitor. IPv6 addresses rotate between
+    // sessions, so the panel groups on the /64 prefix (visitor_ip_key())
+    // and numbers the groups newest-first. The full address stays in the
+    // database and in the row tooltip.
+    $ckVisitorKeys   = [];
+    $ckVisitorLabels = [];
+    foreach ((array)($checkoutGuests ?? []) as $ckIdx => $ckGuest) {
+        $ckKey = visitor_ip_key((string)($ckGuest['ip'] ?? ''));
+        if ($ckKey === '') {
+            $ckKey = 'unknown';
+        }
+        $ckVisitorKeys[$ckIdx] = $ckKey;
+        if (!isset($ckVisitorLabels[$ckKey])) {
+            $ckVisitorLabels[$ckKey] = count($ckVisitorLabels) + 1;
+        }
+    }
+    $ckUniqueVisitors = count($ckVisitorLabels);
+    ?>
     <div class="lg:col-span-4 flex flex-col p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm">
-        <div class="flex items-center gap-2 pb-space-sm border-b border-surface-container">
-            <span class="material-symbols-outlined text-primary text-[22px]">person_search</span>
-            <div>
-                <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold"><?= e($t['ckRecentGuests']) ?></h2>
-                <p class="font-body-sm text-body-sm text-on-surface-variant"><?= e($t['ckGuestsSub']) ?></p>
+        <div class="flex items-center justify-between gap-2 pb-space-sm border-b border-surface-container">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="material-symbols-outlined text-primary text-[22px] shrink-0">person_search</span>
+                <div class="min-w-0">
+                    <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold"><?= e($t['ckRecentGuests']) ?></h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant"><?= e($t['ckGuestsSub']) ?></p>
+                </div>
             </div>
+            <?php if ($ckUniqueVisitors > 0): ?>
+            <span class="shrink-0 px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-bold"><?= e($fmtNum($ckUniqueVisitors)) ?> <?= e($t['ckUniqueGuests']) ?></span>
+            <?php endif; ?>
         </div>
         <?php if (empty($checkoutGuests)): ?>
             <p class="py-6 text-center font-body-sm text-body-sm text-on-surface-variant"><?= e($t['ckNoGuests']) ?></p>
         <?php else: ?>
         <div class="flex flex-col divide-y divide-surface-container">
-            <?php foreach ($checkoutGuests as $ckGuest):
+            <?php foreach ($checkoutGuests as $ckIdx => $ckGuest):
                 $ckDone = (int)$ckGuest['converted'] === 1;
+                // Visitor identity: a short label plus the shortened address
+                // (IPv6 /64 prefix). The full address stays in the tooltip.
+                $ckIp     = (string)($ckGuest['ip'] ?? '');
+                $ckKey    = $ckVisitorKeys[$ckIdx] ?? visitor_ip_key($ckIp);
+                $ckName   = $t['ckVisitor'] . ' ' . $fmtNum($ckVisitorLabels[$ckKey] ?? 1);
                 // Cart snapshot taken when they reached checkout: [{id,en,bn,qty}].
                 $ckItems = json_decode((string)($ckGuest['cart_items'] ?? ''), true);
                 $ckLabels = [];
@@ -1223,9 +1256,9 @@ $searchNums = $searchPages <= 7
                 }
                 $ckCartTitle = implode(', ', $ckPlain);
                 ?>
-            <div class="flex items-center justify-between gap-2 py-2" title="<?= e((string)$ckGuest['referrer']) ?>">
+            <div class="flex items-center justify-between gap-2 py-2" title="<?= e($ckIp . ' · ' . (string)$ckGuest['referrer']) ?>">
                 <span class="flex flex-col min-w-0">
-                    <span class="font-label-md text-label-md font-semibold text-on-surface truncate"><?= e((string)$ckGuest['ip']) ?></span>
+                    <span class="font-label-md text-label-md font-semibold text-on-surface truncate"><?= e($ckName) ?><span class="font-label-sm text-label-sm font-normal text-on-surface-variant"> · <?= e($ckKey) ?></span></span>
                     <span class="font-label-sm text-label-sm text-on-surface-variant truncate"><?= e($fmtDate((string)$ckGuest['created_at'])) ?> · <?= e($fmtPrice((float)$ckGuest['cart_value'])) ?></span>
                     <?php if ($ckLabels !== []): ?><span class="font-label-sm text-label-sm text-on-surface-variant truncate" title="<?= e($ckCartTitle) ?>"><?= e($t['ckInCart']) ?>: <?= implode(', ', $ckLabels) ?></span><?php endif; ?>
                 </span>

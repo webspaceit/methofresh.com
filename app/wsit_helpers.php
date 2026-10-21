@@ -1094,6 +1094,66 @@ function admin_price(int|float|string $amount): string
     return '৳ ' . number_format($amount);
 }
 
+/**
+ * Stable visitor identity for an IP address.
+ *
+ * IPv6 addresses on mobile and ISP connections rotate (privacy extensions
+ * and per-session prefixes), so the full address is not a usable identity —
+ * the same person shows up under several different addresses. The /64
+ * prefix is stable for the subscriber line, so we group on that. IPv4
+ * addresses do not rotate and are already short, so they are used as-is.
+ *
+ * Returns '' when the address is empty or cannot be parsed.
+ */
+function visitor_ip_key(string $ip): string
+{
+    $ip = trim($ip);
+    if ($ip === '') {
+        return '';
+    }
+
+    // IPv4-mapped IPv6 (::ffff:203.0.113.7) — treat it as plain IPv4.
+    if (stripos($ip, '::ffff:') === 0) {
+        $ip = substr($ip, 7);
+    }
+
+    if (strpos($ip, ':') === false) {
+        return $ip;
+    }
+
+    $packed = @inet_pton($ip);
+    if ($packed === false || strlen($packed) !== 16) {
+        return $ip; // unparseable — keep it as-is rather than invent a key
+    }
+
+    // Loopback and the unspecified address have no meaningful /64.
+    if ($packed === inet_pton('::1')) {
+        return '::1';
+    }
+    if ($packed === inet_pton('::')) {
+        return '::';
+    }
+
+    // First 8 bytes of an IPv6 address = the /64 prefix.
+    $groups = unpack('n4', substr($packed, 0, 8));
+    $parts  = [];
+    for ($i = 1; $i <= 4; $i++) {
+        $parts[] = sprintf('%x', $groups[$i]);
+    }
+
+    // Compress trailing zero groups: 2001:db8:0:0 => "2001:db8::".
+    $trailing = 0;
+    while (count($parts) - $trailing > 1 && $parts[count($parts) - 1 - $trailing] === '0') {
+        $trailing++;
+    }
+    if ($trailing > 0) {
+        $parts = array_slice($parts, 0, count($parts) - $trailing);
+        return implode(':', $parts) . '::';
+    }
+
+    return implode(':', $parts);
+}
+
 function format_date(string $date, string $format = 'Y-m-d H:i'): string
 {
     $ts = strtotime($date);
