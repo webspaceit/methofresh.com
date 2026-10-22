@@ -374,11 +374,6 @@ $firstMethodKey = array_key_first($paymentMethods);
                                 <div class="flex flex-wrap items-center justify-between gap-2">
                                     <div>
                                         <span class="text-xs font-bold text-stone-800"><?= e(trans('payment_send_money_to')) ?></span>
-                                        <?php if (!empty($method['account_type'])): ?>
-                                        <span class="ml-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-stone-200 text-stone-700">
-                                            <?= e(trans('type_' . $method['account_type']) ?? $method['account_type']) ?>
-                                        </span>
-                                        <?php endif; ?>
                                     </div>
                                     <?php if (!empty($method['account_no'])): ?>
                                     <div class="flex items-center gap-1.5 bg-card border border-honey-600/15 px-2.5 py-1 rounded-lg">
