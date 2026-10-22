@@ -23,6 +23,22 @@ $methodIcon = static function (array $method): array {
 
     return $icon !== '' ? ['type' => 'text', 'src' => $icon] : ['type' => 'text', 'src' => '💳'];
 };
+
+/**
+ * Mobile wallets are never offered at checkout while their merchant number
+ * is empty - there would be nowhere for the customer to send the money. The
+ * dashboard says so out loud, otherwise a switched-on method looks broken.
+ */
+$needsNumber = static function (array $methods, string $key): bool {
+    return !empty($methods[$key]['enabled'])
+        && trim((string)($methods[$key]['account_no'] ?? '')) === '';
+};
+$walletsNeedingNumber = [];
+foreach (['bkash', 'nagad', 'rocket'] as $walletKey) {
+    if ($needsNumber($methods, $walletKey)) {
+        $walletsNeedingNumber[$walletKey] = trans('payment_method_' . $walletKey);
+    }
+}
 ?>
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
@@ -30,6 +46,18 @@ $methodIcon = static function (array $method): array {
         <p class="text-sm text-stone-500 mt-1"><?= e(trans('admin_payment_methods_desc')) ?></p>
     </div>
 </div>
+
+<?php if ($walletsNeedingNumber): ?>
+<!-- These are switched on but stay hidden at checkout until a merchant
+     number is filled in. -->
+<div class="mb-6 flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    <span class="material-symbols-outlined text-[20px] shrink-0 text-amber-700">info</span>
+    <div>
+        <p class="font-bold"><?= e(trans('payment_hidden_title')) ?></p>
+        <p class="mt-0.5 leading-relaxed"><?= e(trans('payment_hidden_body', ['methods' => implode(', ', $walletsNeedingNumber)])) ?></p>
+    </div>
+</div>
+<?php endif; ?>
 
 <form method="post" action="<?= e(locale_url('/mf-dashboard/payment-methods')) ?>" enctype="multipart/form-data" class="space-y-6 max-w-4xl">
     <?= csrf_field() ?>
@@ -175,6 +203,12 @@ $methodIcon = static function (array $method): array {
                     <input type="text" name="methods[bkash][account_no]" placeholder="017XXXXXXXX"
                            value="<?= e($methods['bkash']['account_no'] ?? '') ?>"
                            class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm font-mono focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    <?php if ($needsNumber($methods, 'bkash')): ?>
+                    <p class="mt-1.5 flex items-start gap-1.5 text-xs text-amber-700">
+                        <span class="material-symbols-outlined text-[14px] shrink-0">warning</span>
+                        <span><?= e(trans('payment_number_required_hint')) ?></span>
+                    </p>
+                    <?php endif; ?>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_account_type')) ?></label>
@@ -289,6 +323,12 @@ $methodIcon = static function (array $method): array {
                     <input type="text" name="methods[nagad][account_no]" placeholder="018XXXXXXXX"
                            value="<?= e($methods['nagad']['account_no'] ?? '') ?>"
                            class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm font-mono focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    <?php if ($needsNumber($methods, 'nagad')): ?>
+                    <p class="mt-1.5 flex items-start gap-1.5 text-xs text-amber-700">
+                        <span class="material-symbols-outlined text-[14px] shrink-0">warning</span>
+                        <span><?= e(trans('payment_number_required_hint')) ?></span>
+                    </p>
+                    <?php endif; ?>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_account_type')) ?></label>
@@ -402,6 +442,12 @@ $methodIcon = static function (array $method): array {
                     <input type="text" name="methods[rocket][account_no]" placeholder="019XXXXXXXXX"
                            value="<?= e($methods['rocket']['account_no'] ?? '') ?>"
                            class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm font-mono focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    <?php if ($needsNumber($methods, 'rocket')): ?>
+                    <p class="mt-1.5 flex items-start gap-1.5 text-xs text-amber-700">
+                        <span class="material-symbols-outlined text-[14px] shrink-0">warning</span>
+                        <span><?= e(trans('payment_number_required_hint')) ?></span>
+                    </p>
+                    <?php endif; ?>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-stone-600 mb-1"><?= e(trans('payment_account_type')) ?></label>

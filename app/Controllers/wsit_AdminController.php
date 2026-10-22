@@ -1717,7 +1717,20 @@ class wsit_AdminController extends wsit_Controller
 
         $this->settingModel->set('payment_methods', json_encode($cleaned, JSON_UNESCAPED_UNICODE));
 
-        $this->flash('success', trans('payment_methods_saved'));
+        // Say it out loud when a method is switched on but will stay hidden at
+        // checkout because it has no merchant number yet - otherwise it looks
+        // like the toggle did not work.
+        $hidden = [];
+        foreach (['bkash', 'nagad', 'rocket'] as $wallet) {
+            if (!empty($cleaned[$wallet]['enabled']) && trim((string)($cleaned[$wallet]['account_no'] ?? '')) === '') {
+                $hidden[] = trans('payment_method_' . $wallet);
+            }
+        }
+        if ($hidden) {
+            $this->flash('info', trans('payment_hidden_body', ['methods' => implode(', ', $hidden)]));
+        } else {
+            $this->flash('success', trans('payment_methods_saved'));
+        }
         $this->redirect('/mf-dashboard/payment-methods');
     }
 
