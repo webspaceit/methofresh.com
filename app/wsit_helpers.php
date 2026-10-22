@@ -2096,6 +2096,33 @@ function account_setup_link(int $userId, int $hours = 168): ?string
 }
 
 /**
+ * Resolve the icon of a payment method for display.
+ *
+ * The stored value is either a path to an image (a bundled asset under
+ * public/assets/, or an uploaded custom icon) or literal text such as an
+ * emoji. Returns ['type' => 'img'|'text', 'src' => ...] so a view never
+ * prints a file path as if it were text.
+ *
+ * An uploaded custom icon wins over the bundled one.
+ */
+function payment_method_icon(array $method): array
+{
+    $custom = trim((string)($method['custom_icon'] ?? ''));
+    if ($custom !== '' && file_exists(public_path($custom))) {
+        return ['type' => 'img', 'src' => public_url(ltrim($custom, '/'))];
+    }
+
+    $icon = trim((string)($method['icon'] ?? ''));
+    if ($icon !== '' && str_starts_with($icon, '/')) {
+        // A path to an image. Resolve it against the site root so it also
+        // works when the shop lives in a sub folder.
+        return ['type' => 'img', 'src' => public_url(ltrim($icon, '/'))];
+    }
+
+    return $icon !== '' ? ['type' => 'text', 'src' => $icon] : ['type' => 'text', 'src' => '💳'];
+}
+
+/**
  * Generate a strong random password for an account that is created for the
  * customer automatically when they order.
  *

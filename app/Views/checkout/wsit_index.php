@@ -344,7 +344,12 @@ $firstMethodKey = array_key_first($paymentMethods);
                             <input type="radio" name="payment_method" value="<?= e($key) ?>"
                                    x-model="selectedMethod"
                                    class="accent-brand-600 shrink-0">
-                            <span class="text-2xl shrink-0"><?= e($method['icon'] ?? '💳') ?></span>
+                            <?php $pmIcon = payment_method_icon($method); ?>
+                            <?php if ($pmIcon['type'] === 'img'): ?>
+                            <img src="<?= e($pmIcon['src']) ?>" alt="<?= e($method['title'] ?? '') ?>" class="w-8 h-8 object-contain shrink-0">
+                            <?php else: ?>
+                            <span class="text-2xl shrink-0" aria-hidden="true"><?= e($pmIcon['src']) ?></span>
+                            <?php endif; ?>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm font-bold text-brand-800 leading-tight"><?= e($method['title']) ?></p>
                                 <?php if (!empty($method['account_type']) && in_array($key, ['bkash', 'nagad', 'rocket'])): ?>

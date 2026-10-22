@@ -277,12 +277,12 @@ $quickLinks = array_values(array_filter(footer_quick_links(), static fn($l) => !
                         <div class="ft-pay-icons grid grid-cols-2 gap-2">
                             <?php foreach ($orderedPayments as $method): ?>
                                 <?php $spanClass = $method['_span'] ?? 'col'; ?>
-                                <?php $iconSrc = !empty($method['custom_icon']) ? asset_url($method['custom_icon']) : (str_starts_with($method['icon'] ?? '', '/') ? $method['icon'] : ''); ?>
+                                <?php $pmIcon = payment_method_icon($method); ?>
                                 <span class="ft-pay-icon <?= $spanClass === 'col-span-2' ? 'col-span-2' : '' ?>" title="<?= e((string) ($method['title'] ?? '')) ?>">
-                                    <?php if ($iconSrc && (str_starts_with($iconSrc, '/assets/img/uploads/') || str_starts_with($method['icon'] ?? '', '/assets/img/'))): ?>
-                                        <img src="<?= e($iconSrc ?: $method['icon']) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-8 h-8 object-contain" />
-                                    <?php elseif (!empty($method['icon'])): ?>
-                                        <span class="text-lg" aria-hidden="true"><?= e($method['icon']) ?></span>
+                                    <?php if ($pmIcon['type'] === 'img'): ?>
+                                        <img src="<?= e($pmIcon['src']) ?>" alt="<?= e((string) ($method['title'] ?? '')) ?>" class="w-8 h-8 object-contain" />
+                                    <?php else: ?>
+                                        <span class="text-lg" aria-hidden="true"><?= e($pmIcon['src']) ?></span>
                                     <?php endif; ?>
                                     <span class="ft-pay-label"><?= e((string) ($method['title'] ?? '')) ?></span>
                                 </span>

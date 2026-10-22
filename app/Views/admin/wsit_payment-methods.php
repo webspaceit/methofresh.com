@@ -4,27 +4,6 @@
 ?>
 <?php
 /**
- * Resolve the preview image for a payment method.
- *
- * `icon` is always a path to a bundled asset (never an emoji), and
- * `custom_icon` is an uploaded path that wins when present. Only a value that
- * is not a path is treated as literal emoji text.
- */
-$methodIcon = static function (array $method): array {
-    $custom = trim((string)($method['custom_icon'] ?? ''));
-    if ($custom !== '' && file_exists(public_path($custom))) {
-        return ['type' => 'img', 'src' => asset_url($custom)];
-    }
-
-    $icon = trim((string)($method['icon'] ?? ''));
-    if ($icon !== '' && str_starts_with($icon, '/')) {
-        return ['type' => 'img', 'src' => str_starts_with($icon, '/assets/img/uploads/') ? asset_url($icon) : $icon];
-    }
-
-    return $icon !== '' ? ['type' => 'text', 'src' => $icon] : ['type' => 'text', 'src' => '💳'];
-};
-
-/**
  * Mobile wallets are never offered at checkout while their merchant number
  * is empty - there would be nowhere for the customer to send the money. The
  * dashboard says so out loud, otherwise a switched-on method looks broken.
@@ -88,7 +67,7 @@ foreach (['bkash', 'nagad', 'rocket'] as $walletKey) {
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $codIcon = $methods['cod']['custom_icon'] ?? ''; ?>
-                        <?php $codPreview = $methodIcon($methods['cod']); ?>
+                        <?php $codPreview = payment_method_icon($methods['cod']); ?>
                         <?php if ($codPreview['type'] === 'img'): ?>
                             <img src="<?= e($codPreview['src']) ?>" alt="COD Icon" class="w-full h-full object-contain">
                         <?php else: ?>
@@ -177,7 +156,7 @@ foreach (['bkash', 'nagad', 'rocket'] as $walletKey) {
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $bkashIcon = $methods['bkash']['custom_icon'] ?? ''; ?>
-                        <?php $bkashPreview = $methodIcon($methods['bkash']); ?>
+                        <?php $bkashPreview = payment_method_icon($methods['bkash']); ?>
                         <?php if ($bkashPreview['type'] === 'img'): ?>
                             <img src="<?= e($bkashPreview['src']) ?>" alt="bKash Icon" class="w-full h-full object-contain">
                         <?php else: ?>
@@ -297,7 +276,7 @@ foreach (['bkash', 'nagad', 'rocket'] as $walletKey) {
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $nagadIcon = $methods['nagad']['custom_icon'] ?? ''; ?>
-                        <?php $nagadPreview = $methodIcon($methods['nagad']); ?>
+                        <?php $nagadPreview = payment_method_icon($methods['nagad']); ?>
                         <?php if ($nagadPreview['type'] === 'img'): ?>
                             <img src="<?= e($nagadPreview['src']) ?>" alt="Nagad Icon" class="w-full h-full object-contain">
                         <?php else: ?>
@@ -416,7 +395,7 @@ foreach (['bkash', 'nagad', 'rocket'] as $walletKey) {
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $rocketIcon = $methods['rocket']['custom_icon'] ?? ''; ?>
-                        <?php $rocketPreview = $methodIcon($methods['rocket']); ?>
+                        <?php $rocketPreview = payment_method_icon($methods['rocket']); ?>
                         <?php if ($rocketPreview['type'] === 'img'): ?>
                             <img src="<?= e($rocketPreview['src']) ?>" alt="Rocket Icon" class="w-full h-full object-contain">
                         <?php else: ?>
@@ -535,7 +514,7 @@ foreach (['bkash', 'nagad', 'rocket'] as $walletKey) {
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center overflow-hidden bg-white">
                         <?php $bankIcon = $methods['bank']['custom_icon'] ?? ''; ?>
-                        <?php $bankPreview = $methodIcon($methods['bank']); ?>
+                        <?php $bankPreview = payment_method_icon($methods['bank']); ?>
                         <?php if ($bankPreview['type'] === 'img'): ?>
                             <img src="<?= e($bankPreview['src']) ?>" alt="Bank Transfer Icon" class="w-full h-full object-contain">
                         <?php else: ?>
