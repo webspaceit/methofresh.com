@@ -20,6 +20,8 @@ class wsit_OrderController extends wsit_Controller
     public function account(): string
     {
         $this->requireLogin();
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Referrer-Policy: no-referrer');
         $user = current_user();
         $orders = $this->orderModel->history((int)$user['id']);
         return $this->view('account/wsit_index', [
@@ -32,6 +34,8 @@ class wsit_OrderController extends wsit_Controller
     public function show(int $id): string
     {
         $this->requireLogin();
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Referrer-Policy: no-referrer');
         $user = current_user();
         $order = $this->orderModel->findWithItems($id, (int)$user['id']);
 

@@ -72,7 +72,20 @@ $statusColors = [
                     <td class="px-4 py-3"><span class="inline-block rounded-full px-2.5 py-1 text-[11px] font-bold <?= $statusColors[$order['status']] ?? 'bg-stone-100 text-stone-600' ?>"><?= e($statusLabels[$order['status']] ?? $order['status']) ?></span></td>
                     <td class="px-4 py-3 font-semibold"><?= e(format_price((float)$order['total'])) ?></td>
                     <td class="px-4 py-3 text-right">
-                        <a href="<?= e(locale_url('/account/orders/' . $order['id'])) ?>" class="inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline"><?= e(trans('view')) ?> →</a>
+                        <div class="inline-flex items-center justify-end gap-3">
+                            <?php if ($order['status'] === 'pending' && ($order['payment_method'] === 'cod' || empty($order['transaction_id']))): ?>
+                            <!-- Cancel straight from the list, so nobody has to
+                                 open the order first. -->
+                            <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/cancel')) ?>"
+                                  onsubmit="return confirm('<?= e(trans('cancel_order_confirm')) ?>')">
+                                <?= csrf_field() ?>
+                                <button class="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100">
+                                    <?= e(trans('cancel_order')) ?>
+                                </button>
+                            </form>
+                            <?php endif; ?>
+                            <a href="<?= e(locale_url('/account/orders/' . $order['id'])) ?>" class="inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline"><?= e(trans('view')) ?> →</a>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -13,6 +13,11 @@ $statusColors = [
     'delivered' => 'bg-green-100 text-green-700',
     'cancelled' => 'bg-red-100 text-red-700',
 ];
+
+// What the customer is allowed to do with this order.
+$canCancel = $order['status'] === 'pending'
+    && ($order['payment_method'] === 'cod' || empty($order['transaction_id']));
+$canReturn = $order['status'] === 'delivered';
 ?>
 <section class="max-w-4xl mx-auto px-4 py-8">
     <nav class="text-xs text-stone-400 mb-6">
@@ -25,8 +30,31 @@ $statusColors = [
 
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 class="text-2xl font-extrabold text-brand-800"><?= e(trans('order_details')) ?> <span class="text-brand-700">#<?= e($order['order_number']) ?></span></h1>
-        <span class="inline-block rounded-full px-3 py-1 text-xs font-bold <?= $statusColors[$order['status']] ?? 'bg-stone-100 text-stone-600' ?>"><?= e($statusLabels[$order['status']] ?? $order['status']) ?></span>
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-block rounded-full px-3 py-1 text-xs font-bold <?= $statusColors[$order['status']] ?? 'bg-stone-100 text-stone-600' ?>"><?= e($statusLabels[$order['status']] ?? $order['status']) ?></span>
+            <?php if ($canCancel): ?>
+            <!-- The action sits right next to the status, so it can never be
+                 missed at the bottom of a long page. -->
+            <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/cancel')) ?>"
+                  onsubmit="return confirm('<?= e(trans('cancel_order_confirm')) ?>')">
+                <?= csrf_field() ?>
+                <button class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <?= e(trans('cancel_order')) ?>
+                </button>
+            </form>
+            <?php elseif ($canReturn): ?>
+            <span class="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-bold text-stone-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 109-9M3 4v5h5"/></svg>
+                <?= e(trans('return_request')) ?>
+            </span>
+            <?php endif; ?>
+        </div>
     </div>
+
+    <?php if ($canCancel): ?>
+    <p class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800"><?= e(trans('cancel_order_help')) ?></p>
+    <?php endif; ?>
 
     <div class="grid md:grid-cols-2 gap-4 mb-6">
         <div class="bg-card rounded-2xl border border-honey-600/15 p-5">
@@ -85,16 +113,7 @@ $statusColors = [
         </div>
     </div>
 
-    <?php if ($order['status'] === 'pending' && ($order['payment_method'] === 'cod' || empty($order['transaction_id']))): ?>
-    <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-        <h2 class="font-bold text-amber-900"><?= e(trans('cancel_order')) ?></h2>
-        <p class="mt-1 text-sm text-amber-800"><?= e(trans('cancel_order_help')) ?></p>
-        <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/cancel')) ?>" class="mt-3" onsubmit="return confirm('<?= e(trans('cancel_order_confirm')) ?>')">
-            <?= csrf_field() ?>
-            <button class="rounded-xl bg-amber-700 px-4 py-2 text-sm font-bold text-white hover:bg-amber-800"><?= e(trans('cancel_order')) ?></button>
-        </form>
-    </div>
-    <?php elseif ($order['status'] === 'delivered'): ?>
+    <?php if ($canReturn): ?>
     <div class="mt-6 rounded-2xl border border-honey-600/20 bg-white p-5">
         <h2 class="font-bold text-brand-800"><?= e(trans('return_request')) ?></h2>
         <p class="mt-1 text-sm text-stone-500"><?= e(trans('return_request_help')) ?></p>
