@@ -366,18 +366,14 @@ $firstMethodKey = array_key_first($paymentMethods);
                     <?php foreach ($paymentMethods as $key => $method): ?>
                     <div x-show="selectedMethod === '<?= e($key) ?>'" x-cloak class="mt-4 rounded-xl border border-honey-600/15 bg-cream/70 p-4 space-y-3 transition">
                         <?php if ($key === 'cod'): ?>
-                            <div class="flex items-start gap-2.5 text-xs text-stone-600">
-                                <span class="text-base">💵</span>
-                                <div>
-                                    <p class="font-semibold text-stone-800"><?= e($method['title']) ?></p>
-                                    <p class="text-stone-500 mt-0.5"><?= e(!empty($method['desc']) ? $method['desc'] : 'Pay with cash upon delivery of your order.') ?></p>
-                                </div>
-                            </div>
+                            <!-- The name is already on the card above, so the
+                                 panel only carries the explanation. -->
+                            <p class="text-xs text-stone-600 leading-relaxed"><?= e(!empty($method['desc']) ? $method['desc'] : 'Pay with cash upon delivery of your order.') ?></p>
                         <?php elseif (in_array($key, ['bkash', 'nagad', 'rocket'])): ?>
                             <div class="space-y-2.5 text-xs text-stone-600">
                                 <div class="flex flex-wrap items-center justify-between gap-2">
                                     <div>
-                                        <span class="text-xs font-bold text-stone-800"><?= e($method['title']) ?></span>
+                                        <span class="text-xs font-bold text-stone-800"><?= e(trans('payment_send_money_to')) ?></span>
                                         <?php if (!empty($method['account_type'])): ?>
                                         <span class="ml-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-stone-200 text-stone-700">
                                             <?= e(trans('type_' . $method['account_type']) ?? $method['account_type']) ?>
@@ -412,7 +408,6 @@ $firstMethodKey = array_key_first($paymentMethods);
                             </div>
                         <?php elseif ($key === 'bank'): ?>
                             <div class="space-y-3 text-xs text-stone-600">
-                                <p class="font-bold text-stone-800 text-sm"><?= e($method['title']) ?></p>
                                 <div class="grid sm:grid-cols-2 gap-2 bg-card p-3 rounded-xl border border-honey-600/15 text-xs">
                                     <?php if (!empty($method['bank_name'])): ?>
                                     <div><span class="text-stone-400 block"><?= e(trans('payment_bank_name')) ?>:</span> <span class="font-bold text-stone-800"><?= e($method['bank_name']) ?></span></div>

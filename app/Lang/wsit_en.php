@@ -343,9 +343,9 @@ return [
     'login_auto_account_body'   => 'We created it automatically when you placed an order, so you never had to choose a password. Set one now to sign in and see your orders.',
     'login_auto_account_cta'    => 'Set your password',
     'email_taken'        => 'That email is already registered.',
-    'payment_hidden_title' => 'These methods are switched on but stay hidden at checkout',
-    'payment_hidden_body'  => '{methods} will not appear at checkout until you enter the number customers should send the money to. Fill it in and it shows up straight away.',
+    'payment_hidden_title' => 'These methods are switched on but stay hidden at checkout',    'payment_hidden_body'  => '{methods} will not appear at checkout until you enter the number customers should send the money to. Fill it in and it shows up straight away.',
     'payment_number_required_hint' => 'Enter the number customers should send the money to. Until then this method stays hidden at checkout.',
+    'payment_send_money_to' => 'Send money to',
     'register_email_exists' => 'That email is already registered. Please sign in to your account instead.',
     'register_auto_account_exists' => 'You already have an account - it was created automatically when you placed your order. Please set a password to sign in.',
 
