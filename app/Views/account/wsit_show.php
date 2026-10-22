@@ -35,14 +35,13 @@ $canReturn = $order['status'] === 'delivered';
             <?php if ($canCancel): ?>
             <!-- The action sits right next to the status, so it can never be
                  missed at the bottom of a long page. -->
-            <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/cancel')) ?>"
-                  onsubmit="return confirm('<?= e(trans('cancel_order_confirm')) ?>')">
-                <?= csrf_field() ?>
-                <button class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    <?= e(trans('cancel_order')) ?>
-                </button>
-            </form>
+            <?php
+            $cancelOrderId     = (int)$order['id'];
+            $cancelAction      = locale_url('/account/orders/' . $order['id'] . '/cancel');
+            $cancelButtonClass = 'inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100';
+            $cancelLabel       = trans('cancel_order');
+            include views_path('account/partials/wsit_cancel_dialog.php');
+            ?>
             <?php elseif ($canReturn): ?>
             <span class="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-bold text-stone-600">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 109-9M3 4v5h5"/></svg>

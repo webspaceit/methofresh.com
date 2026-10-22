@@ -76,13 +76,13 @@ $statusColors = [
                             <?php if ($order['status'] === 'pending' && ($order['payment_method'] === 'cod' || empty($order['transaction_id']))): ?>
                             <!-- Cancel straight from the list, so nobody has to
                                  open the order first. -->
-                            <form method="post" action="<?= e(locale_url('/account/orders/' . $order['id'] . '/cancel')) ?>"
-                                  onsubmit="return confirm('<?= e(trans('cancel_order_confirm')) ?>')">
-                                <?= csrf_field() ?>
-                                <button class="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100">
-                                    <?= e(trans('cancel_order')) ?>
-                                </button>
-                            </form>
+                            <?php
+                            $cancelOrderId     = (int)$order['id'];
+                            $cancelAction      = locale_url('/account/orders/' . $order['id'] . '/cancel');
+                            $cancelButtonClass = 'inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 transition hover:bg-amber-100';
+                            $cancelLabel       = trans('cancel_order');
+                            include views_path('account/partials/wsit_cancel_dialog.php');
+                            ?>
                             <?php endif; ?>
                             <a href="<?= e(locale_url('/account/orders/' . $order['id'])) ?>" class="inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline"><?= e(trans('view')) ?> →</a>
                         </div>

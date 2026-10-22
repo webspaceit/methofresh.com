@@ -25,5 +25,6 @@ $locale = app_locale();
     <script src="<?= e(asset_url('js/app.js')) ?>" defer></script>
     <script src="<?= e(asset_url('js/alpine.min.js')) ?>" defer></script>
     <?php include views_path('partials/wsit_icons.php'); ?>
+    <style>[x-cloak]{display:none!important}</style>
 </body>
 </html>
