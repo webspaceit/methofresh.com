@@ -610,7 +610,32 @@ class wsit_AdminController extends wsit_Controller
             'pageTitle'     => trans('admin_settings') . ' | ' . trans('admin'),
             'globalLocale'  => $globalLocale,
             'contactEmail'  => $this->settingModel->get('contact_email', 'support@methofresh.com'),
+            'autoAccount'   => auto_create_account_on_order(),
+            'requireLogin'  => require_login_for_existing_account(),
         ], 'wsit_admin_material');
+    }
+
+    /**
+     * How accounts behave when a customer orders.
+     */
+    public function updateAccountSettings(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        $this->settingModel->set(
+            'auto_create_account_on_order',
+            (int)$request->input('auto_create_account_on_order', 0) === 1 ? '1' : '0'
+        );
+        $this->settingModel->set(
+            'require_login_for_existing_account',
+            (int)$request->input('require_login_for_existing_account', 0) === 1 ? '1' : '0'
+        );
+
+        $this->flash('success', trans('admin_settings_saved'));
+        $this->redirect('/mf-dashboard/settings');
     }
 
     public function seoSettings(): string

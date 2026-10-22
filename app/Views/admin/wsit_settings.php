@@ -223,6 +223,57 @@ $isUrlMismatch = $globalLocale !== app_locale();
         </div>
     </div>
 
+    <!-- ── Customer accounts at checkout ── -->
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
+        <div class="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
+            <!-- Person-add icon -->
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 8v6M22 11h-6"/>
+                </svg>
+            </span>
+            <div>
+                <h2 class="font-bold text-stone-900"><?= e(trans('admin_checkout_accounts')) ?></h2>
+                <p class="text-xs text-stone-500 mt-0.5"><?= e(trans('admin_checkout_accounts_desc')) ?></p>
+            </div>
+        </div>
+
+        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/account-settings')) ?>" class="p-5 space-y-4">
+            <?= csrf_field() ?>
+            <?php $autoAccount = $autoAccount ?? true; $requireLogin = $requireLogin ?? false; ?>
+
+            <label class="flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition
+                          <?= $autoAccount ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
+                <input type="checkbox" name="auto_create_account_on_order" value="1"
+                       <?= $autoAccount ? 'checked' : '' ?>
+                       class="w-5 h-5 rounded text-brand-600 focus:ring-brand-500 mt-0.5">
+                <div class="flex-1">
+                    <p class="font-bold text-stone-900 text-sm"><?= e(trans('admin_auto_create_account')) ?></p>
+                    <p class="text-xs text-stone-500 mt-0.5 leading-relaxed"><?= e(trans('admin_auto_create_account_hint')) ?></p>
+                </div>
+            </label>
+
+            <label class="flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition
+                          <?= $requireLogin ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
+                <input type="checkbox" name="require_login_for_existing_account" value="1"
+                       <?= $requireLogin ? 'checked' : '' ?>
+                       class="w-5 h-5 rounded text-brand-600 focus:ring-brand-500 mt-0.5">
+                <div class="flex-1">
+                    <p class="font-bold text-stone-900 text-sm"><?= e(trans('admin_require_login_existing')) ?></p>
+                    <p class="text-xs text-stone-500 mt-0.5 leading-relaxed"><?= e(trans('admin_require_login_existing_hint')) ?></p>
+                </div>
+            </label>
+
+            <div class="pt-1">
+                <button type="submit"
+                        class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 text-sm font-bold transition">
+                    <?= e(trans('admin_save')) ?>
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- ── Contact form captcha ── -->
     <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center gap-3">

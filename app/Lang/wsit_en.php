@@ -344,9 +344,7 @@ return [
 
     // Auto-registered account (created at checkout)
     'account_created_title' => 'Your account is ready',
-    'account_created_body'  => 'We created an account for you when you ordered, so your orders and delivery details stay in one place. Choose a password to sign in next time.',
-    'account_created_cta'   => 'Set your password',
-    'account_created_hint'  => 'You can also skip this - you can still order with this email.',
+    'account_created_body'  => 'We created an account for you while placing this order, so you do not need to register. Your sign-in details are in the e-mail we just sent you.',
 
     // Account & Orders
     'account'            => 'My Account',
@@ -518,6 +516,14 @@ return [
     'admin_users_guest_orders_confirm'=> 'Create an account for every e-mail that has orders but no account?',
     'admin_users_guest_orders_done'   => 'Done: {created} account(s) created, {linked} order(s) linked.',
     'admin_users_no_guest_orders'     => 'There are no guest orders without an account.',
+
+    // Checkout accounts
+    'admin_checkout_accounts'          => 'Customer Accounts',
+    'admin_checkout_accounts_desc'     => 'How customer accounts work when somebody places an order.',
+    'admin_auto_create_account'        => 'Create an account automatically on order',
+    'admin_auto_create_account_hint'   => 'When a customer orders with an e-mail that has no account, one is created for them with a strong random password. The sign-in details are sent with the order confirmation, so nobody has to register.',
+    'admin_require_login_existing'     => 'Ask returning customers to sign in before ordering',
+    'admin_require_login_existing_hint'=> 'When this is on, a customer whose e-mail already has an account is asked to sign in before the order is placed. When it is off, the order is simply attached to the account they already have.',
     'admin_user_create'            => 'Add User',
     'admin_user_create_sub'        => 'Create a new customer or staff account.',
     'admin_user_edit'              => 'Edit User',

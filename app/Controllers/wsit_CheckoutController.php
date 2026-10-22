@@ -133,30 +133,28 @@ class wsit_CheckoutController extends wsit_Controller
         }
 
         // ------------------------------------------------------------------
-        // One e-mail = one customer.
+        // Accounts are handled silently during the order.
         //
-        // Guest checkout used to accept any e-mail, so the same person could
-        // place endless guest orders that never appeared in their order
-        // history (and could never be password-reset, because no account
-        // existed). Now:
         //   • a signed-in customer always orders under their account e-mail
         //     — the form field is locked to match, so the two can never
         //     drift apart;
-        //   • a guest whose e-mail already has a real account is asked to
-        //     sign in first instead of quietly creating another guest order;
-        //   • a guest whose e-mail has no account gets one created for them
-        //     (see autoRegisterGuest below).
+        //   • a guest whose e-mail already has an account gets the order
+        //     attached to that account;
+        //   • a guest whose e-mail has no account gets one created, with a
+        //     strong random password that is e-mailed to them with the order
+        //     confirmation. They never have to register.
+        //
+        // The "ask existing customers to sign in" behaviour is a setting
+        // (Dashboard -> Settings) and is off by default.
         // ------------------------------------------------------------------
         $user = current_user();
         $accountId = $user ? (int)$user['id'] : 0;
+        $existingAccount = null;
 
         if ($user === null) {
-            $account = $this->userModel->findByEmail(strtolower(trim($data['email'])));
-            // An account that was auto-created for an earlier order and still
-            // has no password of its own is NOT a reason to stop the
-            // customer: they never asked for an account, so they must not be
-            // locked out of their own shop over it.
-            if ($account !== null && !$this->userModel->isAutoRegistered($account)) {
+            $existingAccount = $this->userModel->findByEmail(strtolower(trim($data['email'])));
+
+            if ($existingAccount !== null && require_login_for_existing_account()) {
                 // Keep what they typed — the form is restored after sign-in.
                 $_SESSION['checkout_pending'] = [
                     'name'        => $data['name'],
@@ -172,6 +170,11 @@ class wsit_CheckoutController extends wsit_Controller
                     '/login?redirect=' . urlencode('/checkout')
                     . '&email=' . urlencode($data['email'])
                 );
+            }
+
+            // The order belongs to the account they already have.
+            if ($existingAccount !== null) {
+                $accountId = (int)$existingAccount['id'];
             }
         } else {
             // The account e-mail wins over whatever was posted.
@@ -239,16 +242,15 @@ class wsit_CheckoutController extends wsit_Controller
             $this->redirect('/checkout');
         }
 
-        // ---- Auto-register the guest ------------------------------------
-        // A guest order with an e-mail that has no account gets one created,
-        // so the customer is a real customer from their very first order
-        // and their history follows them. They never chose a password, so
-        // one is set for them and a "set your password" link travels with
-        // the order confirmation.
-        $autoAccount = ['id' => 0, 'auto' => false];
-        if ($accountId === 0) {
-            $autoAccount = $this->autoRegisterGuest($data);
-            $accountId = (int)$autoAccount['id'];
+        // ---- Prepare the customer's account ------------------------------
+        // An account that does not exist yet gets one, with a strong random
+        // password that is e-mailed to the customer with the order. The
+        // password is generated here but the account is only created inside
+        // the order transaction below, so a failed order can never leave a
+        // half-finished account behind.
+        $newAccountPassword = null;
+        if ($accountId === 0 && $existingAccount === null && auto_create_account_on_order()) {
+            $newAccountPassword = mf_generate_password();
         }
 
         $accessToken = bin2hex(random_bytes(32));
@@ -275,6 +277,32 @@ class wsit_CheckoutController extends wsit_Controller
 
         $this->orderModel->beginTransaction();
         try {
+            // Create the account inside the transaction: if the order fails
+            // below, the account is rolled back with it.
+            if ($accountId === 0 && $newAccountPassword !== null) {
+                $newId = $this->userModel->createForGuestOrder($data, $newAccountPassword);
+                if ($newId > 0) {
+                    $accountId = $newId;
+                } else {
+                    // The address was taken while the order was being placed.
+                    // Attach to that account instead of creating a second one.
+                    $raced = $this->userModel->findByEmail(strtolower(trim($data['email'])));
+                    if ($raced !== null) {
+                        $accountId = (int)$raced['id'];
+                    }
+                    // Either way the customer did not get this password, so
+                    // it must not be mailed out.
+                    $newAccountPassword = null;
+                }
+                $orderData['user_id'] = $accountId > 0 ? $accountId : null;
+            }
+
+            // Adopt any earlier guest orders that were placed with this
+            // address, so the whole history sits on one customer.
+            if ($accountId > 0) {
+                $this->orderModel->linkGuestOrders($accountId, $data['email']);
+            }
+
             $orderId = $this->orderModel->create($orderData);
 
             foreach ($cart as $item) {
@@ -321,28 +349,43 @@ class wsit_CheckoutController extends wsit_Controller
         // shop owner. Also deferred: sendmail can be slow or unavailable, and
         // neither case should delay or break checkout.
         //
-        // The confirmation also carries the "set your password" link when the
-        // account was created automatically for this order.
+        // The confirmation carries the sign-in details when an account was
+        // created for this order, and a "set your password" link for
+        // accounts that exist but still have no password of their own.
         $setupLink = null;
-        if ($accountId > 0 && !empty($autoAccount['auto'])) {
-            $setupLink = account_setup_link($accountId);
-            if ($setupLink !== null) {
-                // Shown on the order success page as well, so the customer
-                // can set a password without waiting for the e-mail.
-                $_SESSION['account_setup_link'] = $setupLink;
+        $credentials = null;
+
+        if ($accountId > 0) {
+            if ($newAccountPassword !== null) {
+                // Brand new account: the customer gets the password by mail.
+                $credentials = [
+                    'email'    => $data['email'],
+                    'password' => $newAccountPassword,
+                ];
+                // A link so they can replace the generated password with one
+                // of their own without waiting for a reset e-mail.
+                $setupLink = account_setup_link($accountId);
+                // The sign-in details travel by e-mail only, never on the
+                // order page. The page just says the e-mail is on its way.
+                $_SESSION['order_account_created'] = true;
+            } elseif ($existingAccount !== null && $this->userModel->isAutoRegistered($existingAccount)) {
+                // An account from an earlier order that never got a password.
+                $setupLink = account_setup_link($accountId);
+                $_SESSION['order_account_created'] = false;
             }
         }
 
         try {
             $emailOrderId = $orderId;
             $setupLink = $setupLink;
-            \App\Services\Messaging\MessagingDispatcher::defer(static function () use ($emailOrderId, $setupLink): void {
+            $credentials = $credentials;
+            \App\Services\Messaging\MessagingDispatcher::defer(static function () use ($emailOrderId, $setupLink, $credentials): void {
                 $order = (new \App\Models\wsit_Order())->findWithItems($emailOrderId);
                 if ($order === null) {
                     return;
                 }
                 try {
-                    send_customer_order_confirmation_email($order, $setupLink);
+                    send_customer_order_confirmation_email($order, $setupLink, $credentials);
                 } catch (\Throwable) {
                 }
                 try {
@@ -360,44 +403,6 @@ class wsit_CheckoutController extends wsit_Controller
 
         $this->flash('success', trans('order_placed'));
         $this->redirect('/order/success/' . $orderNumber . '?access=' . $accessToken);
-    }
-
-    /**
-     * Make sure the guest who is ordering ends up with an account.
-     *
-     * - No account for this e-mail: create one (flagged auto_registered, so
-     *   we know the customer still has to choose a password) and link the
-     *   order to it.
-     * - An account that was auto-created on an earlier order and still has
-     *   no password: reuse it and link the order to it, so the whole history
-     *   ends up on one customer.
-     *
-     * Returns ['id' => 0, 'auto' => false] when no account could be made.
-     * The order then goes through as a plain guest order, exactly as before -
-     * a failure to create an account must never break checkout.
-     */
-    private function autoRegisterGuest(array $data): array
-    {
-        $email = strtolower(trim((string)($data['email'] ?? '')));
-        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return ['id' => 0, 'auto' => false];
-        }
-
-        try {
-            $existing = $this->userModel->findByEmail($email);
-            if ($existing !== null) {
-                $id = (int)$existing['id'];
-                // Pick up any other guest orders they placed with this
-                // address before the account existed.
-                $this->orderModel->linkGuestOrders($id, $email);
-                return ['id' => $id, 'auto' => $this->userModel->isAutoRegistered($existing)];
-            }
-
-            $id = $this->userModel->createForGuestOrder($data);
-            return ['id' => $id, 'auto' => $id > 0];
-        } catch (\Throwable) {
-            return ['id' => 0, 'auto' => false];
-        }
     }
 
     public function success(wsit_Request $request, string $orderNumber): string
@@ -423,15 +428,15 @@ class wsit_CheckoutController extends wsit_Controller
             return $this->view('errors/wsit_404', ['pageTitle' => '404']);
         }
 
-        // The "set your password" link for an account that was created
-        // automatically for this order. Read once and cleared.
-        $setupLink = $_SESSION['account_setup_link'] ?? null;
-        unset($_SESSION['account_setup_link']);
+        // Whether an account was created for this order. The sign-in details
+        // themselves are only ever sent by e-mail.
+        $accountCreated = !empty($_SESSION['order_account_created']);
+        unset($_SESSION['order_account_created']);
 
         return $this->view('checkout/wsit_success', [
-            'pageTitle' => trans('order_success'),
-            'order'     => $order,
-            'setupLink' => is_string($setupLink) ? $setupLink : null,
+            'pageTitle'      => trans('order_success'),
+            'order'          => $order,
+            'accountCreated' => $accountCreated,
         ]);
     }
 

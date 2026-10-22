@@ -2095,6 +2095,71 @@ function account_setup_link(int $userId, int $hours = 168): ?string
     }
 }
 
+/**
+ * Generate a strong random password for an account that is created for the
+ * customer automatically when they order.
+ *
+ * At least 12 characters, always containing a lower-case letter, an upper-
+ * case letter, a digit and a symbol. Ambiguous characters (l, I, O, 0, 1)
+ * are left out so the password can be read out or copied from an e-mail
+ * without confusion, and the symbols are limited to ones that survive being
+ * pasted around (no quotes, slashes or backslashes).
+ *
+ * random_int() is a CSPRNG, so the result is not predictable.
+ */
+function mf_generate_password(int $length = 14): string
+{
+    $length = max(12, min(64, $length));
+
+    $lower   = 'abcdefghijkmnopqrstuvwxyz';
+    $upper   = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    $digits  = '23456789';
+    $symbols = '!@#%*+-_=?';
+    $all     = $lower . $upper . $digits . $symbols;
+
+    $pick = static function (string $set): string {
+        return $set[random_int(0, strlen($set) - 1)];
+    };
+
+    // One of each class first, so the password always has all four.
+    $chars = [$pick($lower), $pick($upper), $pick($digits), $pick($symbols)];
+    for ($i = count($chars); $i < $length; $i++) {
+        $chars[] = $pick($all);
+    }
+
+    // Fisher-Yates with a CSPRNG, so the class of each position is not
+    // predictable either.
+    for ($i = count($chars) - 1; $i > 0; $i--) {
+        $j = random_int(0, $i);
+        [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+    }
+
+    return implode('', $chars);
+}
+
+/**
+ * Create the customer's account automatically when they place an order.
+ *
+ * On by default: a guest order with an e-mail that has no account creates
+ * one, so the customer never has to register and their order history
+ * follows them.
+ */
+function auto_create_account_on_order(): bool
+{
+    return site_setting('auto_create_account_on_order', '1') !== '0';
+}
+
+/**
+ * Ask a customer who already has an account to sign in before ordering.
+ *
+ * Off by default: the order is simply attached to the existing account.
+ * Turn it on to make one e-mail address behave as exactly one customer.
+ */
+function require_login_for_existing_account(): bool
+{
+    return site_setting('require_login_for_existing_account', '0') === '1';
+}
+
 function send_order_status_email(array $order, string $oldStatus, string $newStatus): bool
 {
     $email = trim((string)($order['shipping_email'] ?? ''));
@@ -2182,18 +2247,21 @@ function send_order_status_email(array $order, string $oldStatus, string $newSta
 /**
  * Order confirmation to the customer.
  *
- * $setupLink is passed when the customer's account was created automatically
- * at checkout and they have not set a password yet; the mail then carries a
- * button that lets them choose one.
+ * $setupLink is a "set your own password" link, used for an account that
+ * exists but has no password yet.
+ *
+ * $credentials carries the sign-in details of an account that was just
+ * created for this order: ['email' => ..., 'password' => ...]. They are
+ * only ever delivered here, by e-mail.
  */
-function send_customer_order_confirmation_email(array $order, ?string $setupLink = null): bool
+function send_customer_order_confirmation_email(array $order, ?string $setupLink = null, ?array $credentials = null): bool
 {
     $email = trim((string)($order['shipping_email'] ?? ''));
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
 
-    $mail = order_confirmation_mail($order, $setupLink);
+    $mail = order_confirmation_mail($order, $setupLink, $credentials);
     return mf_send_mail($email, $mail['subject'], $mail['body'], '', 'support@methofresh.com');
 }
 
@@ -2203,7 +2271,7 @@ function send_customer_order_confirmation_email(array $order, ?string $setupLink
  * Kept apart from the sender so the layout can be inspected without
  * actually mailing anything.
  */
-function order_confirmation_mail(array $order, ?string $setupLink = null): array
+function order_confirmation_mail(array $order, ?string $setupLink = null, ?array $credentials = null): array
 {
     $siteName = app_name();
     $locale = app_locale();
@@ -2236,10 +2304,61 @@ function order_confirmation_mail(array $order, ?string $setupLink = null): array
         $cityLine .= ($cityLine !== '' ? ' - ' : '') . trim((string)$order['shipping_postal']);
     }
 
-    // "Set your password" block - shown when the account was created
-    // automatically for this order.
+    // Account block.
+    //
+    //  • $credentials: an account was just created for this order, so the
+    //    sign-in details travel with the confirmation.
+    //  • $setupLink only: the account exists but has no password yet, so the
+    //    customer gets a link to set one.
     $setupBlock = '';
-    if ($setupLink !== null && trim($setupLink) !== '') {
+
+    if (is_array($credentials) && trim((string)($credentials['email'] ?? '')) !== '') {
+        $loginUrl = rtrim((string)config('app.base_url', ''), '/') . '/' . $locale . '/login';
+        $setupBtn = '';
+        if ($setupLink !== null && trim($setupLink) !== '') {
+            $setupBtn = '
+                <a href="' . e($setupLink) . '" style="display:inline-block; background:#fff; color:#16a34a; border:2px solid #16a34a; padding:10px 18px; border-radius:8px; font-size:13px; font-weight:bold; text-decoration:none; margin-left:8px;">'
+                    . ($locale === 'bn' ? 'নিজের পাসওয়ার্ড সেট করুন' : 'Set your own password')
+                . '</a>';
+        }
+        $setupBlock = '
+            <div style="margin:24px 0 0; padding:18px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;">
+                <p style="font-size:15px; color:#166534; margin:0 0 4px; font-weight:bold;">'
+                    . ($locale === 'bn' ? 'আপনার অ্যাকাউন্ট তৈরি হয়েছে' : 'Your account is ready')
+                . '</p>
+                <p style="font-size:13px; color:#333; margin:0 0 14px; line-height:1.6;">'
+                    . ($locale === 'bn'
+                        ? 'আপনাকে আলাদা করে নিবন্ধন করতে হবে না — অর্ডারের সময়ই অ্যাকাউন্টটি তৈরি করে দেওয়া হয়েছে। নিচের তথ্য দিয়ে সাইন ইন করুন।'
+                        : 'No need to register — we created your account while placing this order. Sign in with the details below.')
+                . '</p>
+                <table style="width:100%; border-collapse:collapse; margin:0 0 14px;">
+                    <tr>
+                        <td style="padding:7px 0; width:110px; font-size:12px; color:#64748b; white-space:nowrap; vertical-align:top;">'
+                            . ($locale === 'bn' ? 'ইমেইল' : 'Email')
+                        . '</td>
+                        <td style="padding:7px 0; font-size:14px; color:#166534; font-weight:bold; font-family: Menlo, Consolas, monospace; word-break:break-all;">'
+                            . e((string)$credentials['email'])
+                        . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:7px 0; font-size:12px; color:#64748b; white-space:nowrap; vertical-align:top;">'
+                            . ($locale === 'bn' ? 'পাসওয়ার্ড' : 'Password')
+                        . '</td>
+                        <td style="padding:7px 0; font-size:14px; color:#166534; font-weight:bold; font-family: Menlo, Consolas, monospace; letter-spacing:0.5px;">'
+                            . e((string)($credentials['password'] ?? ''))
+                        . '</td>
+                    </tr>
+                </table>
+                <p style="font-size:12px; color:#475569; margin:0 0 14px; line-height:1.6;">'
+                    . ($locale === 'bn'
+                        ? 'এই পাসওয়ার্ড দিয়ে সাইন ইন করে যেকোনো সময় নিজের পাসওয়ার্ড পরিবর্তন করতে পারবেন। এই ইমেইলটি সুরক্ষিত রাখুন।'
+                        : 'Sign in with this password and change it any time from your account page. Please keep this e-mail safe.')
+                . '</p>
+                <a href="' . e($loginUrl) . '" style="display:inline-block; background:#16a34a; color:#fff; padding:11px 20px; border-radius:8px; font-size:14px; font-weight:bold; text-decoration:none;">'
+                    . ($locale === 'bn' ? 'সাইন ইন করুন' : 'Sign in')
+                . '</a>' . $setupBtn . '
+            </div>';
+    } elseif ($setupLink !== null && trim($setupLink) !== '') {
         $setupBlock = '
             <div style="margin:24px 0 0; padding:16px 18px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;">
                 <p style="font-size:14px; color:#166534; margin:0 0 6px; font-weight:bold;">'

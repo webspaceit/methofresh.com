@@ -87,6 +87,7 @@ $router->post('/mf-dashboard/settings/logo',               [wsit_AdminController
 $router->post('/mf-dashboard/settings/favicon',            [wsit_AdminController::class, 'updateFavicon']);
 $router->post('/mf-dashboard/settings/captcha',            [wsit_AdminController::class, 'updateContactCaptcha']);
 $router->post('/mf-dashboard/settings/contact-email',      [wsit_AdminController::class, 'updateContactEmail']);
+$router->post('/mf-dashboard/settings/account-settings',   [wsit_AdminController::class, 'updateAccountSettings']);
 $router->post('/mf-dashboard/settings/announcement',       [wsit_AdminController::class, 'updateAnnouncement']);
 $router->post('/mf-dashboard/settings/nav-menu',            [wsit_AdminController::class, 'updateNavMenu']);
 $router->post('/mf-dashboard/settings/cities',             [wsit_AdminController::class, 'updateCheckoutCities']);

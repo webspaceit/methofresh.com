@@ -46,34 +46,46 @@ class wsit_User extends wsit_Model
     /**
      * Create the account for a guest order.
      *
-     * The customer never picked a password, so a random one is stored that
-     * nobody knows and the account is flagged auto_registered. The shop then
-     * sends them a "set your password" link, and until they use it the
-     * account can still order without signing in (otherwise a customer who
-     * never chose a password would be locked out of their own shop).
+     * $password is the password the customer is given by e-mail. When it is
+     * left out the password is random and unknown to everybody, and the
+     * account is flagged auto_registered so the shop can see that it still
+     * needs a password.
      *
-     * Returns the new user id, or 0 when the account could not be created.
+     * The account is a normal customer account: is_admin = 0, so it counts
+     * as a customer and can sign in straight away.
+     *
+     * Returns the new user id, or 0 when the account could not be created
+     * (for example because the e-mail was taken in the meantime).
      */
-    public function createForGuestOrder(array $data): int
+    public function createForGuestOrder(array $data, ?string $password = null): int
     {
         $email = strtolower(trim((string)($data['email'] ?? '')));
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return 0;
         }
+        $known = ($password !== null && $password !== '');
         try {
-            return $this->create([
-                'name'            => trim((string)($data['name'] ?? '')),
-                'email'           => $email,
-                'phone'           => trim((string)($data['phone'] ?? '')),
-                'address'         => trim((string)($data['address'] ?? '')),
-                'city'            => trim((string)($data['city'] ?? '')),
-                'password'        => bin2hex(random_bytes(24)),
-                'is_admin'        => 0,
-                'auto_registered' => 1,
+            $id = $this->create([
+                'name'     => trim((string)($data['name'] ?? '')),
+                'email'    => $email,
+                'phone'    => trim((string)($data['phone'] ?? '')),
+                'address'  => trim((string)($data['address'] ?? '')),
+                'city'     => trim((string)($data['city'] ?? '')),
+                'password' => $known ? $password : bin2hex(random_bytes(24)),
+                'is_admin' => 0,
             ]);
         } catch (\Throwable) {
             return 0;
         }
+        if (!$known) {
+            // Nobody knows this password yet - flag the account so the shop
+            // can see that it still needs one.
+            try {
+                $this->query("UPDATE {$this->table} SET auto_registered = 1 WHERE id = ?", [$id]);
+            } catch (\Throwable) {
+            }
+        }
+        return $id;
     }
 
     /**
