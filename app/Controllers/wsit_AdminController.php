@@ -1634,10 +1634,13 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/payment-methods');
         }
 
-        $inputMethods = (array)$request->input('methods', []);
+        // These are nested arrays (methods[cod][enabled], remove_icon[cod]),
+        // so they have to be read with inputArray() - input() casts to a
+        // string and would turn every method off.
+        $inputMethods = $request->inputArray('methods');
         $defaults = payment_methods_config();
         $cleaned = [];
-        $removeIcons = (array)$request->input('remove_icon', []);
+        $removeIcons = $request->inputArray('remove_icon');
         $uploadDir = public_path('assets/img/uploads/payment-methods');
 
         // Ensure upload directory exists

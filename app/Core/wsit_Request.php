@@ -44,7 +44,14 @@ class wsit_Request
         if ($key === null) {
             return $this->post;
         }
-        return trim((string)($this->post[$key] ?? $default));
+        $value = $this->post[$key] ?? $default;
+        // A nested array (e.g. methods[cod][enabled]) must not be cast to a
+        // string: that silently turns it into the word "Array" and loses
+        // every value. Use inputArray() for those.
+        if (is_array($value)) {
+            return $value;
+        }
+        return trim((string)$value);
     }
 
     public function all(): array
