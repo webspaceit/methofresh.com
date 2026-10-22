@@ -510,6 +510,10 @@ class wsit_AdminController extends wsit_Controller
                 $this->redirect($back);
             }
             $data['password'] = password_hash($pass, PASSWORD_DEFAULT);
+            // A real password means the account is no longer waiting for
+            // the customer to pick one (it may have been created for them
+            // automatically at checkout).
+            $this->userModel->markPasswordSet($id);
         }
 
         $this->userModel->updateProfile($id, $data);

@@ -77,6 +77,23 @@ class wsit_User extends wsit_Model
     }
 
     /**
+     * Mark the account as having a password of its own.
+     *
+     * An account created automatically at checkout stays flagged until the
+     * customer (or the owner, from the dashboard) sets a real password.
+     */
+    public function markPasswordSet(int $id): void
+    {
+        if ($id <= 0) {
+            return;
+        }
+        try {
+            $this->query("UPDATE {$this->table} SET auto_registered = 0 WHERE id = ?", [$id]);
+        } catch (\Throwable) {
+        }
+    }
+
+    /**
      * True when the account was created automatically at checkout and the
      * customer still has no password of their own.
      */

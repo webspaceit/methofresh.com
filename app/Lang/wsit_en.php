@@ -511,6 +511,7 @@ return [
     'admin_users_customer'         => 'Customer',
     'admin_users_auto'             => 'Auto',
     'admin_users_auto_hint'        => 'Account was created automatically when the customer ordered. They have not set a password yet.',
+    'admin_user_auto_password_hint' => 'This account was created automatically when the customer ordered, so it has no password yet. Type a password below and the customer can sign in with it right away (or they can use "Forgot password" on the site).',
     'admin_users_guest_orders_title'  => 'Some orders have no customer yet',
     'admin_users_guest_orders_notice' => '{emails} e-mail address(es) have {orders} order(s) but no account. Create the accounts so the customers can see their order history.',
     'admin_users_guest_orders_btn'    => 'Create missing accounts',

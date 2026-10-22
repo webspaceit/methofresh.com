@@ -11,6 +11,7 @@ $fEmail  = (string)($user['email'] ?? '');
 $fPhone  = (string)($user['phone'] ?? '');
 $fCity   = (string)($user['city'] ?? '');
 $fAdmin  = (int)($user['is_admin'] ?? 0) === 1;
+$fAuto   = (int)($user['auto_registered'] ?? 0) === 1;
 ?>
 <div class="flex flex-col gap-space-lg max-w-2xl">
 <!-- Page header -->
@@ -30,6 +31,15 @@ $fAdmin  = (int)($user['is_admin'] ?? 0) === 1;
 
 <form method="post" action="<?= e($action) ?>" class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col gap-space-md">
     <?= csrf_field() ?>
+
+    <?php if ($fAuto): ?>
+    <!-- The account was created automatically when this customer ordered, so
+         it has no password of their own yet. -->
+    <div class="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+        <span class="material-symbols-outlined text-[20px] text-amber-700 shrink-0">key</span>
+        <p class="text-sm text-amber-900 leading-relaxed"><?= e(trans('admin_user_auto_password_hint')) ?></p>
+    </div>
+    <?php endif; ?>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
         <label class="flex flex-col gap-1.5">
