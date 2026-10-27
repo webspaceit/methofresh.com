@@ -237,15 +237,23 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ul class="hd-nav-inner flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-200 scrollbar-none whitespace-nowrap">
                 <li><a class="hd-nav-link <?= $pathIsHome ? 'hd-nav-active text-amber-400 font-semibold border-b-2 border-amber-400 pb-1' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
-                <li class="relative group">
-                    <a class="hd-nav-link hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>">
+                <!-- On a touch device :hover does not exist, so the dropdown
+                     is opened by tapping. On a hover-capable device the
+                     mouseenter/mouseleave still open and close it. -->
+                <li class="relative" x-data="{ open: false, canHover: window.matchMedia('(hover: hover)').matches }"
+                    @mouseenter="if (canHover) open = true"
+                    @mouseleave="if (canHover) open = false">
+                    <a class="hd-nav-link hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>"
+                       @click="if (!canHover) { $event.preventDefault(); open = !open; }">
                         <span><?= e(trans('nav_all_categories')) ?></span>
-                        <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-amber-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="w-3.5 h-3.5 text-stone-400 transition" :class="open ? 'rotate-180 text-amber-400' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </a>
                     <?php if (count($headerAllCategories) > 0): ?>
-                    <div class="absolute left-0 top-full hidden group-hover:block z-50">
+                    <div x-show="open" @click.outside="open = false" x-transition
+                         class="absolute left-0 top-full z-50">
                         <div class="pt-2">
                             <div class="w-64 rounded-xl border border-white/10 bg-[#0B1F16] shadow-xl p-2">
+                                <a href="<?= e(locale_url('/categories')) ?>" class="block px-3 py-2 rounded-lg text-sm font-semibold text-amber-400 hover:bg-white/10 transition"><?= e(trans('nav_all_categories')) ?> →</a>
                                 <?php foreach ($headerAllCategories as $cat): ?>
                                 <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-2 rounded-lg text-sm font-medium text-stone-200 hover:bg-white/10 hover:text-amber-400 transition"><?= e($cat['name']) ?></a>
                                 <?php endforeach; ?>
@@ -314,7 +322,19 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
         <nav class="px-4 py-3 space-y-1 text-sm font-medium">
             <a href="<?= e(locale_url('/')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_home')) ?></a>
             <a href="<?= e(locale_url('/products')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_products')) ?></a>
-            <a href="<?= e(locale_url('/categories')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_all_categories')) ?></a>
+            <div x-data="{ catsOpen: false }" class="rounded-lg">
+                <button type="button" @click="catsOpen = !catsOpen"
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-stone-50 text-left">
+                    <span><?= e(trans('nav_all_categories')) ?></span>
+                    <svg class="w-4 h-4 text-stone-500 transition" :class="catsOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div x-show="catsOpen" x-transition class="pl-4 pb-1 space-y-0.5">
+                    <a href="<?= e(locale_url('/categories')) ?>" class="block px-3 py-1.5 rounded-lg text-sm font-semibold text-brand-700 hover:bg-stone-50"><?= e(trans('nav_all_categories')) ?> →</a>
+                    <?php foreach ($headerAllCategories as $cat): ?>
+                    <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-1.5 rounded-lg text-sm hover:bg-stone-50"><?= e($cat['name']) ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
             <?php foreach ($headerQuick as $cat): ?>
             <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e($cat['name']) ?></a>
             <?php endforeach; ?>
