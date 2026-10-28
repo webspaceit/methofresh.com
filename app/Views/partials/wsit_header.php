@@ -324,7 +324,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 -translate-y-2"
-         class="lg:hidden fixed inset-x-0 top-0 z-[999] bg-white shadow-2xl overflow-y-auto"
+         class="lg:hidden fixed inset-0 z-[999] bg-white overflow-y-auto"
          style="max-height:100dvh">
         <!-- Close bar -->
         <div class="flex items-center justify-between px-4 py-3 bg-[#142e1c] text-white">
