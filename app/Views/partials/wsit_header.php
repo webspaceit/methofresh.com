@@ -317,8 +317,22 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
     </div>
 
     <!-- Mobile menu -->
-    <div x-show="openMobile" x-cloak x-transition.opacity
-         class="lg:hidden border-t border-stone-200 bg-white shadow-lg">
+    <div x-show="openMobile" x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-2"
+         class="lg:hidden fixed inset-x-0 top-0 z-[999] bg-white shadow-2xl overflow-y-auto"
+         style="max-height:100dvh">
+        <!-- Close bar -->
+        <div class="flex items-center justify-between px-4 py-3 bg-[#142e1c] text-white">
+            <span class="font-bold text-base"><?= e(trans('nav_menu')) ?></span>
+            <button @click="openMobile = false" class="p-1.5 rounded-lg hover:bg-white/10" aria-label="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
         <nav class="px-4 py-3 space-y-1 text-sm font-medium">
             <a href="<?= e(locale_url('/')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_home')) ?></a>
             <a href="<?= e(locale_url('/products')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_products')) ?></a>
