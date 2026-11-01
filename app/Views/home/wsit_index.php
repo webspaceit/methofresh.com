@@ -54,13 +54,17 @@ $tabCategories = array_values($categories ?? []);
     .hero-dot.active { background: #D97706; width: 1.5rem; }
     .faq-details { border: 1px solid #e7e5e4; border-radius: 1rem; background: #ffffff; overflow: hidden; }
     .faq-details[open] { box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+    @media (max-width: 639px) {
+        .hero-slider { min-height: 0 !important; }
+        .hero-slide { align-items: flex-start; }
+    }
     @media (prefers-reduced-motion: reduce) { .hero-slide { transition: none; } }
 </style>
 
 <!-- ============ TRUST BADGES ============ -->
 <section class="bg-amber-50/60 border-b border-amber-200/50 py-3" data-purpose="trust-badges">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-wrap items-center justify-around gap-4 text-xs sm:text-sm font-medium text-stone-700 text-center">
+        <div class="flex flex-wrap items-center justify-around gap-x-4 gap-y-1 text-xs sm:text-sm font-medium leading-tight text-stone-700 text-center">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                 <span><?= e(homepage_section('land_trust_1')) ?></span>
@@ -82,7 +86,7 @@ $tabCategories = array_values($categories ?? []);
 </section>
 
 <!-- ============ HERO ============ -->
-<section class="relative pt-8 pb-14 sm:py-16 overflow-hidden" data-purpose="hero-section">
+<section class="relative pt-0 pb-8 sm:py-16 overflow-hidden" data-purpose="hero-section">
     <div class="hero-slider relative" style="min-height:<?= (int)$heroHeight ?>px" data-interval="<?= (int)$heroSpeed ?>">
         <div class="absolute -top-6 -right-6 w-40 h-40 bg-amber-200/40 rounded-full blur-2xl -z-0"></div>
         <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-emerald-200/40 rounded-full blur-2xl -z-0"></div>
@@ -99,7 +103,7 @@ $tabCategories = array_values($categories ?? []);
             $btn2Link  = trim((string)($slide['btn2_link'] ?? '/categories'));
         ?>
         <div class="hero-slide <?= $i === 0 ? 'active' : '' ?> flex items-center" data-index="<?= $i ?>" role="group" aria-label="Slide <?= $i + 1 ?> of <?= $slideCount ?>">
-            <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="relative z-10 w-full max-w-7xl mx-auto px-4 py-0 sm:px-6 sm:py-10 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                     <!-- Hero Text Content -->
                     <div class="lg:col-span-7 space-y-5">
@@ -123,13 +127,13 @@ $tabCategories = array_values($categories ?? []);
                             <?= e($subtitle) ?>
                         </p>
                         <?php endif; ?>
-                        <div class="flex flex-wrap items-center gap-4 pt-1">
-                            <a href="<?= e(locale_url($btn1Link)) ?>" class="inline-flex items-center justify-center px-8 py-3.5 rounded-lg bg-brand-700 hover:bg-brand-800 text-white font-semibold text-base transition shadow-md hover:shadow-lg gap-2">
+                        <div class="flex flex-nowrap items-center gap-2 sm:gap-4 pt-1">
+                            <a href="<?= e(locale_url($btn1Link)) ?>" class="inline-flex items-center justify-center px-5 sm:px-8 py-3 sm:py-3.5 rounded-lg bg-brand-700 hover:bg-brand-800 text-white font-semibold text-sm sm:text-base transition shadow-md hover:shadow-lg gap-2 whitespace-nowrap">
                                 <?= e($btn1Text) ?>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                             </a>
                             <?php if ($btn2Text !== ''): ?>
-                            <a href="<?= e(locale_url($btn2Link)) ?>" class="inline-flex items-center justify-center px-7 py-3.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 font-semibold text-base transition">
+                            <a href="<?= e(locale_url($btn2Link)) ?>" class="inline-flex items-center justify-center px-4 sm:px-7 py-3 sm:py-3.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 font-semibold text-sm sm:text-base transition whitespace-nowrap">
                                 <?= e($btn2Text) ?>
                             </a>
                             <?php endif; ?>
@@ -274,7 +278,7 @@ $tabCategories = array_values($categories ?? []);
 
 <!-- ============ PRODUCTS ============ -->
 <?php if ($hasProductBlocks): ?>
-<section id="products" class="pt-14 sm:pt-16">
+<section id="products" class="pt-6 sm:pt-16">
     <div class="text-center max-w-2xl mx-auto px-4">
         <h2 class="text-3xl font-bold text-stone-900 tracking-tight"><?= e(homepage_section('land_products')) ?></h2>
         <p class="text-stone-600 mt-2 text-sm sm:text-base"><?= e(homepage_section('land_products_text')) ?></p>
@@ -307,7 +311,7 @@ $tabCategories = array_values($categories ?? []);
 <?php endif; ?>
 
 <!-- ============ OUR STORY ============ -->
-<section id="story" class="py-16 sm:py-20 bg-[#F4EFE6] border-y border-stone-200/80" data-purpose="our-story">
+<section id="story" class="py-6 sm:py-20 bg-[#F4EFE6] border-y border-stone-200/80" data-purpose="our-story">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div class="lg:col-span-5 order-2 lg:order-1">
@@ -339,7 +343,7 @@ $tabCategories = array_values($categories ?? []);
 </section>
 
 <!-- ============ WHY US ============ -->
-<section class="py-16 sm:py-20" data-purpose="why-choose-us">
+<section class="py-6 sm:py-20" data-purpose="why-choose-us">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-xl mx-auto mb-12">
             <h2 class="text-3xl font-bold text-stone-900"><?= e(homepage_section('land_why_title')) ?></h2>
@@ -366,7 +370,7 @@ $tabCategories = array_values($categories ?? []);
 </section>
 
 <!-- ============ HOW TO ORDER ============ -->
-<section id="how" class="py-14 sm:py-16 bg-stone-100/70 border-t border-stone-200" data-purpose="how-to-order">
+<section id="how" class="py-5 sm:py-16 bg-stone-100/70 border-t border-stone-200" data-purpose="how-to-order">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-xl mx-auto mb-10">
             <h2 class="text-2xl sm:text-3xl font-bold text-stone-900"><?= e(homepage_section('land_how_title')) ?></h2>
@@ -392,7 +396,7 @@ $tabCategories = array_values($categories ?? []);
 </section>
 
 <!-- ============ TESTIMONIALS ============ -->
-<section class="py-16 sm:py-20" data-purpose="customer-reviews">
+<section class="py-6 sm:py-20" data-purpose="customer-reviews">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-xl mx-auto mb-12">
             <h2 class="text-2xl sm:text-3xl font-bold text-stone-900"><?= e(homepage_section('land_testimonials')) ?></h2>
@@ -416,7 +420,7 @@ $tabCategories = array_values($categories ?? []);
 </section>
 
 <!-- ============ FAQ ============ -->
-<section id="faq" class="py-14 sm:py-16 bg-[#F8F5EE] border-t border-stone-200" data-purpose="faq-accordion">
+<section id="faq" class="py-5 sm:py-16 bg-[#F8F5EE] border-t border-stone-200" data-purpose="faq-accordion">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
         <div class="text-center mb-10">
             <h2 class="text-2xl sm:text-3xl font-bold text-stone-900"><?= e(homepage_section('land_faq_title')) ?></h2>

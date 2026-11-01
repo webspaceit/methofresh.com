@@ -2,7 +2,7 @@
 // Homepage "Featured Products" block.
 // Expects: $title (string), $featured (array of localized product rows).
 ?>
-<section class="max-w-7xl mx-auto px-4 py-8">
+<section class="max-w-7xl mx-auto px-4 py-4 sm:py-8">
     <div class="text-center max-w-2xl mx-auto mb-8">
         <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight"><?= e($title) ?></h2>
         <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
