@@ -234,7 +234,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
 
     <!-- Category Mega Navigation -->
     <?php if ($showNav): ?>
-    <nav class="hd-nav border-t border-white/10 bg-[#142e1c]" data-purpose="main-navigation">
+    <nav class="hd-nav border-t border-white/10 bg-[#142e1c] hidden lg:block" data-purpose="main-navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ul class="hd-nav-inner flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-200 scrollbar-none whitespace-nowrap">
                 <li><a class="hd-nav-link <?= $pathIsHome ? 'hd-nav-active text-amber-400 font-semibold border-b-2 border-amber-400 pb-1' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
