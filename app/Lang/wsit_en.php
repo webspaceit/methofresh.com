@@ -63,6 +63,7 @@ return [
     'land_products_text'    => 'Every product is sourced straight from the producer — no adulteration at all',
     'land_tab_all'          => 'All Products',
     'land_order_now'        => 'Order Now',
+    'land_order_now_short'  => 'Order',
     'land_view_products'    => 'View Products',
     'land_value_1_icon'     => '🌿',
     'land_value_1'          => 'No Chemicals',

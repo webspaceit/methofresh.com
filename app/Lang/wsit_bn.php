@@ -63,6 +63,7 @@ return [
     'land_products_text'    => 'প্রতিটি পণ্য সরাসরি উৎপাদনস্থল থেকে সংগৃহীত — যাতে কোনো ভেজাল নেই',
     'land_tab_all'          => 'সব পণ্য',
     'land_order_now'        => 'অর্ডার করুন',
+    'land_order_now_short'  => 'অর্ডার',
     'land_view_products'    => 'পণ্য দেখুন',
     'land_value_1_icon'     => '🌿',
     'land_value_1'          => 'কোনো কেমিক্যাল নেই',

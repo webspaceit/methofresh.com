@@ -154,17 +154,17 @@ $tabCategories = array_values($categories ?? []);
                         </div>
                     </div>
                     <!-- Hero Image Card with Stamp Badge -->
-                    <div class="lg:col-span-5 relative">
+                    <div class="lg:col-span-5 relative flex flex-col items-center lg:block">
                         <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white <?= $image !== '' ? 'bg-amber-900/10' : 'bg-gradient-to-br from-amber-100 via-white to-emerald-50' ?>">
                             <?php if ($image !== ''): ?>
-                            <img src="<?= e(image_url($image)) ?>" alt="<?= e($title) ?>" class="w-full h-[340px] sm:h-[420px] object-cover">
+                            <img src="<?= e(image_url($image)) ?>" alt="<?= e($title) ?>" class="w-full h-64 sm:h-[420px] object-cover">
                             <?php else: ?>
-                            <div class="w-full h-[340px] sm:h-[420px] flex items-center justify-center select-none">
-                                <span class="text-[8rem] sm:text-[10rem] opacity-90"><?= e($emoji) ?></span>
+                            <div class="w-full h-64 sm:h-96 flex items-center justify-center select-none">
+                                <span class="text-[7rem] sm:text-[10rem] opacity-90"><?= e($emoji) ?></span>
                             </div>
                             <?php endif; ?>
                         </div>
-                        <div class="absolute bottom-5 left-5 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-lg border border-amber-200 flex items-center gap-3">
+                        <div class="relative lg:absolute lg:bottom-5 lg:left-5 mt-3 lg:mt-0 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-lg border border-amber-200 flex items-center gap-3 max-w-full">
                             <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             </div>
@@ -345,7 +345,7 @@ $tabCategories = array_values($categories ?? []);
 <!-- ============ WHY US ============ -->
 <section class="py-6 sm:py-20" data-purpose="why-choose-us">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-xl mx-auto mb-12">
+        <div class="text-center max-w-xl mx-auto mb-1 sm:mb-12">
             <h2 class="text-3xl font-bold text-stone-900"><?= e(homepage_section('land_why_title')) ?></h2>
             <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
         </div>
@@ -372,7 +372,7 @@ $tabCategories = array_values($categories ?? []);
 <!-- ============ HOW TO ORDER ============ -->
 <section id="how" class="py-5 sm:py-16 bg-stone-100/70 border-t border-stone-200" data-purpose="how-to-order">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-xl mx-auto mb-10">
+        <div class="text-center max-w-xl mx-auto mb-4 sm:mb-10">
             <h2 class="text-2xl sm:text-3xl font-bold text-stone-900"><?= e(homepage_section('land_how_title')) ?></h2>
             <div class="w-12 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
         </div>
@@ -422,7 +422,7 @@ $tabCategories = array_values($categories ?? []);
 <!-- ============ FAQ ============ -->
 <section id="faq" class="py-5 sm:py-16 bg-[#F8F5EE] border-t border-stone-200" data-purpose="faq-accordion">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10">
+        <div class="text-center mb-4 sm:mb-10">
             <h2 class="text-2xl sm:text-3xl font-bold text-stone-900"><?= e(homepage_section('land_faq_title')) ?></h2>
             <div class="w-12 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
         </div>
