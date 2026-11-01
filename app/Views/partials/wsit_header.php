@@ -108,18 +108,17 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
 <?php endif; ?>
 <!-- END: AnnouncementBar -->
 <!-- BEGIN: MainHeader -->
-<header class="hd-bar bg-[#142e1c] border-b border-white/15 top-0 z-50 shadow-sm relative" data-purpose="primary-header">
+<header class="hd-bar bg-[#142e1c] border-b border-white/15 top-0 z-50 shadow-sm" data-purpose="primary-header">
     <div class="hd-bar-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
         <div class="flex items-center justify-between gap-4">
 
-            <!-- Mobile hamburger + dropdown menu -->
-            <div class="lg:hidden relative">
-                <button @click="openMobile = !openMobile" class="p-2 -ml-2 rounded-lg text-white hover:bg-white/10"
-                        aria-label="<?= e(trans('nav_menu')) ?>">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
+            <!-- Mobile hamburger -->
+            <button @click="openMobile = !openMobile" class="lg:hidden p-2 -ml-2 rounded-lg text-white hover:bg-white/10"
+                    aria-label="<?= e(trans('nav_menu')) ?>">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
 
             <!-- Logo -->
             <a href="<?= e(locale_url('/')) ?>" class="flex items-center gap-2 group shrink-0">
@@ -234,7 +233,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
 
     <!-- Category Mega Navigation -->
     <?php if ($showNav): ?>
-    <nav class="hd-nav border-t border-white/10 bg-[#142e1c] hidden lg:block" data-purpose="main-navigation">
+    <nav class="hd-nav border-t border-white/10 bg-[#142e1c]" data-purpose="main-navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ul class="hd-nav-inner flex items-center justify-start lg:justify-center space-x-6 sm:space-x-8 overflow-x-auto lg:overflow-x-visible py-2.5 text-sm font-medium text-stone-200 scrollbar-none whitespace-nowrap">
                 <li><a class="hd-nav-link <?= $pathIsHome ? 'hd-nav-active text-amber-400 font-semibold border-b-2 border-amber-400 pb-1' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/')) ?>"><?= e(trans('nav_home')) ?></a></li>
@@ -318,21 +317,8 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
     </div>
 
     <!-- Mobile menu -->
-    <div x-show="openMobile" x-cloak
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 -translate-y-1"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 -translate-y-1"
-         class="absolute top-full left-0 w-72 bg-white shadow-xl z-50 max-h-[80vh] overflow-y-auto rounded-b-xl">
-        <!-- Close bar -->
-        <div class="flex items-center justify-between px-4 py-3 bg-[#142e1c] text-white rounded-t-none">
-            <span class="font-bold text-base"><?= e(trans('nav_menu')) ?></span>
-            <button @click="openMobile = false" class="p-1.5 rounded-lg hover:bg-white/10" aria-label="Close">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
+    <div x-show="openMobile" x-cloak x-transition.opacity
+         class="lg:hidden border-t border-stone-200 bg-white shadow-lg">
         <nav class="px-4 py-3 space-y-1 text-sm font-medium">
             <a href="<?= e(locale_url('/')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_home')) ?></a>
             <a href="<?= e(locale_url('/products')) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50"><?= e(trans('nav_products')) ?></a>
@@ -375,7 +361,6 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
             <?php endif; ?>
         </nav>
     </div>
-            </div><!-- end mobile hamburger wrapper -->
 
     <!-- In-page toast (from AJAX add-to-cart) -->
     <template x-teleport="body">
