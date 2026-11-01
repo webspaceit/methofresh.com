@@ -240,18 +240,37 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                 <!-- On a touch device :hover does not exist, so the dropdown
                      is opened by tapping. On a hover-capable device the
                      mouseenter/mouseleave still open and close it. -->
-                <li class="relative" x-data="{ open: false, canHover: window.matchMedia('(hover: hover)').matches }"
+                <li class="relative" x-data="{
+                        open: false,
+                        canHover: window.matchMedia('(hover: hover)').matches,
+                        positionMenu() {
+                            const trigger = this.$refs.categoryTrigger;
+                            const menu = this.$refs.categoryMenu;
+                            if (!trigger || !menu) return;
+                            const rect = trigger.getBoundingClientRect();
+                            const mobile = window.innerWidth < 1024;
+                            const width = mobile ? Math.min(window.innerWidth - 32, 360) : 256;
+                            const left = mobile ? 16 : Math.max(16, Math.min(rect.left, window.innerWidth - width - 16));
+                            menu.style.left = left + 'px';
+                            menu.style.top = (rect.bottom + 8) + 'px';
+                            menu.style.width = width + 'px';
+                        }
+                    }"
                     @mouseenter="if (canHover) open = true"
-                    @mouseleave="if (canHover) open = false">
+                    @mouseleave="if (canHover) open = false"
+                    @resize.window="if (open) positionMenu()"
+                    @scroll.window="if (open) positionMenu()"
+                    x-effect="if (open) $nextTick(() => positionMenu())">
                     <a class="hd-nav-link hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>"
+                       x-ref="categoryTrigger"
                        @click="if (!canHover) { $event.preventDefault(); open = !open; }">
                         <span><?= e(trans('nav_all_categories')) ?></span>
                         <svg class="w-3.5 h-3.5 text-stone-400 transition" :class="open ? 'rotate-180 text-amber-400' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </a>
                     <?php if (count($headerAllCategories) > 0): ?>
-                    <div x-show="open" @click.outside="open = false" x-transition
-                         class="absolute left-0 top-full z-50">
-                        <div class="pt-2">
+                    <div x-show="open" x-cloak @click.outside="open = false" x-transition
+                         x-ref="categoryMenu" class="fixed z-[80]">
+                        <div>
                             <div class="w-64 rounded-xl border border-white/10 bg-[#0B1F16] shadow-xl p-2">
                                 <a href="<?= e(locale_url('/categories')) ?>" class="block px-3 py-2 rounded-lg text-sm font-semibold text-amber-400 hover:bg-white/10 transition"><?= e(trans('nav_all_categories')) ?> →</a>
                                 <?php foreach ($headerAllCategories as $cat): ?>
