@@ -477,7 +477,7 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
             <?= $catHeader($t['catStorefront'], 'palette', 'purple', '4') ?>
             <?php $hpOpen = $isNavActive('mf-dashboard/homepage') ? 'true' : 'false'; ?>
             <!-- Homepage Design with a collapsible list of its blocks -->
-            <div x-data="{ hpOpen: $hpOpen }" class="flex flex-col gap-0.5">
+            <div x-data="{ hpOpen: <?= $hpOpen ?> }" class="flex flex-col gap-0.5">
                 <button type="button" @click="hpOpen = !hpOpen"
                         class="group flex items-center justify-between w-full px-3 py-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 font-medium transition-all text-[13.5px]">
                     <span class="flex items-center gap-2.5 min-w-0 overflow-hidden">
