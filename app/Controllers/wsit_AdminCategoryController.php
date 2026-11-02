@@ -122,6 +122,7 @@ class wsit_AdminCategoryController extends wsit_Controller
             'description_en' => $request->input('description_en'),
             'description_bn' => $request->input('description_bn'),
             'active'         => $active === '1' ? 1 : 0,
+            'hide_price'     => $request->input('hide_price') === '1' ? 1 : 0,
         ];
     }
 

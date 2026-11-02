@@ -51,12 +51,17 @@ $formAction = $isEdit
             </div>
         </div>
 
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-6 flex-wrap">
             <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
                 <input type="checkbox" name="active" value="1" class="accent-brand-600" <?= $isEdit && (int)$c['active'] === 0 ? '' : 'checked' ?>>
                 <?= e(trans('admin_active')) ?>
             </label>
+            <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" name="hide_price" value="1" class="accent-brand-600" <?= $isEdit && (int)($c['hide_price'] ?? 0) === 1 ? 'checked' : '' ?>>
+                <?= e(trans('admin_hide_price')) ?>
+            </label>
         </div>
+        <p class="text-xs text-stone-400"><?= e(trans('admin_hide_price_hint')) ?></p>
 
         <div class="flex gap-3 pt-2">
             <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 text-sm font-bold"><?= e(trans('admin_save')) ?></button>

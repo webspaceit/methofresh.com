@@ -60,6 +60,15 @@ $currency = app_locale() === 'bn' ? 'BDT' : 'USD';
                 <?php endif; ?>
             </div>
 
+            <?php if (!empty($product['category_hide_price'])): ?>
+            <!-- The category is listed in the shop but its price and ordering
+                 are not live yet (coming soon / price on request). -->
+            <div class="mt-5 inline-flex items-center gap-2 rounded-xl bg-stone-100 text-stone-600 px-4 py-2.5 text-sm font-semibold">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <?= e(trans('price_on_request')) ?>
+            </div>
+            <p class="mt-3 text-sm text-stone-500"><?= e(trans('coming_soon_desc')) ?></p>
+            <?php else: ?>
             <!-- Price -->
             <div class="mt-5 flex items-baseline gap-3">
                 <span class="text-3xl font-extrabold text-brand-700"><?= e(format_price($priceInfo['current'])) ?></span>
@@ -90,6 +99,7 @@ $currency = app_locale() === 'bn' ? 'BDT' : 'USD';
                 </button>
                 <?php endif; ?>
             </div>
+            <?php endif; ?>
 
             <p class="mt-3 text-xs text-stone-400"><?= e(trans('promo_hint')) ?></p>
 

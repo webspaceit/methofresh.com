@@ -23,7 +23,7 @@ class wsit_Product extends wsit_Model
     public function findBySlug(string $slug): ?array
     {
         return $this->fetch(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.slug = ? AND p.active = 1",
@@ -53,7 +53,7 @@ class wsit_Product extends wsit_Model
         bool $inStock = false,
         bool $saleOnly = false
     ): array {
-        $sql = "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+        $sql = "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
                 FROM {$this->table} p
                 LEFT JOIN {$this->categories} c ON c.id = p.category_id
                 WHERE p.active = 1";
@@ -163,7 +163,7 @@ class wsit_Product extends wsit_Model
     public function featured(int $limit = 8): array
     {
         return $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1 AND p.featured = 1
@@ -174,7 +174,7 @@ class wsit_Product extends wsit_Model
     public function latest(int $limit = 8): array
     {
         return $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1
@@ -185,7 +185,7 @@ class wsit_Product extends wsit_Model
     public function newArrivals(int $limit = 8): array
     {
         $flagged = $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1 AND p.new_arrival = 1
@@ -200,7 +200,7 @@ class wsit_Product extends wsit_Model
     public function related(int $productId, int $categoryId, int $limit = 4): array
     {
         return $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1 AND p.category_id = ? AND p.id != ?
@@ -212,7 +212,7 @@ class wsit_Product extends wsit_Model
     public function byCategory(int $categoryId, int $limit = 12, int $offset = 0): array
     {
         return $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1 AND p.category_id = ?
@@ -237,7 +237,7 @@ class wsit_Product extends wsit_Model
     public function topSellers(int $limit = 5): array
     {
         return $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1 AND p.sold > 0
@@ -302,7 +302,7 @@ class wsit_Product extends wsit_Model
 
     public function search(string $q = ''): array
     {
-        $sql = "SELECT p.*, c.name_en AS category_name_en
+        $sql = "SELECT p.*, c.name_en AS category_name_en, c.hide_price AS category_hide_price
                 FROM {$this->table} p
                 LEFT JOIN {$this->categories} c ON c.id = p.category_id";
         $params = [];
@@ -427,7 +427,7 @@ class wsit_Product extends wsit_Model
     public function allActive(): array
     {
         return $this->fetchAll(
-            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn
+            "SELECT p.*, c.slug AS category_slug, c.name_en AS category_name_en, c.name_bn AS category_name_bn, c.hide_price AS category_hide_price
              FROM {$this->table} p
              LEFT JOIN {$this->categories} c ON c.id = p.category_id
              WHERE p.active = 1
