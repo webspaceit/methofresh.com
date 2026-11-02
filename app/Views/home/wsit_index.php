@@ -103,16 +103,16 @@ $tabCategories = array_values($categories ?? []);
             $btn2Link  = trim((string)($slide['btn2_link'] ?? '/categories'));
         ?>
         <div class="hero-slide <?= $i === 0 ? 'active' : '' ?> flex items-center" data-index="<?= $i ?>" role="group" aria-label="Slide <?= $i + 1 ?> of <?= $slideCount ?>">
-            <div class="relative z-10 w-full max-w-7xl mx-auto px-4 py-0 sm:px-6 sm:py-10 lg:px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div class="relative z-10 w-full max-w-7xl mx-auto px-4 py-0 sm:px-4 sm:py-6 lg:px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <!-- Hero Text Content -->
-                    <div class="lg:col-span-7 space-y-5">
+                    <div class="lg:col-span-8 space-y-5">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/70 border border-emerald-300 text-brand-800 text-xs sm:text-sm font-semibold">
                             <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"/></svg>
                             <span><?= e(site_setting('tagline_' . $locale, trans('tagline'))) ?></span>
                         </div>
                         <?php if ($i === 0): ?>
-                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
+                        <h1 class="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-stone-900 tracking-tight leading-tight lg:whitespace-nowrap">
                             <?= e($title) ?>
                             <span class="text-brand-700 block mt-1 sm:mt-2"><?= e(homepage_section('land_hero_highlight')) ?></span>
                         </h1>
@@ -154,13 +154,13 @@ $tabCategories = array_values($categories ?? []);
                         </div>
                     </div>
                     <!-- Hero Image Card with Stamp Badge -->
-                    <div class="lg:col-span-5 relative flex flex-col items-center lg:block">
+                    <div class="lg:col-span-4 relative flex flex-col items-center lg:block">
                         <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white <?= $image !== '' ? 'bg-amber-900/10' : 'bg-gradient-to-br from-amber-100 via-white to-emerald-50' ?>">
                             <?php if ($image !== ''): ?>
-                            <img src="<?= e(image_url($image)) ?>" alt="<?= e($title) ?>" class="w-full h-64 sm:h-[420px] object-cover">
+                            <img src="<?= e(image_url($image)) ?>" alt="<?= e($title) ?>" class="w-full h-56 sm:h-[360px] object-cover">
                             <?php else: ?>
-                            <div class="w-full h-64 sm:h-96 flex items-center justify-center select-none">
-                                <span class="text-[7rem] sm:text-[10rem] opacity-90"><?= e($emoji) ?></span>
+                            <div class="w-full h-56 sm:h-[360px] flex items-center justify-center select-none">
+                                <span class="text-[6rem] sm:text-[9rem] opacity-90"><?= e($emoji) ?></span>
                             </div>
                             <?php endif; ?>
                         </div>
