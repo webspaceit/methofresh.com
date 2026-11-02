@@ -3,6 +3,7 @@ $priceInfo = price_display($product);
 $name = $product['name'] ?? ($product['name_en'] ?? '');
 $image = $product['image'] ?? '';
 $imgUrl = image_url($image, $name);
+$askUrl = ask_for_price_url($product);
 ?>
 <div class="group flex flex-col bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-amber-400 hover:shadow-xl transition">
     <a href="<?= e(locale_url('/products/' . $product['slug'])) ?>" class="relative overflow-hidden bg-stone-100 h-52 sm:h-56 flex items-center justify-center p-4">
@@ -55,7 +56,11 @@ $imgUrl = image_url($image, $name);
         <?php elseif (empty($product['category_hide_price'])): ?>
         <span class="mt-5 block w-full py-2.5 px-4 rounded-lg bg-stone-100 text-stone-400 text-sm font-semibold text-center"><?= e(trans('out_of_stock')) ?></span>
         <?php else: ?>
-        <span class="mt-5 block w-full py-2.5 px-4 rounded-lg bg-stone-100 text-stone-500 text-sm font-semibold text-center"><?= e(trans('coming_soon')) ?></span>
+        <a href="<?= e($askUrl) ?>"
+           class="mt-5 w-full py-2.5 px-2 sm:px-4 rounded-lg bg-brand-700 hover:bg-brand-800 text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            <span class="text-white"><?= e(trans('ask_for_price')) ?></span>
+        </a>
         <?php endif; ?>
     </div>
 </div>

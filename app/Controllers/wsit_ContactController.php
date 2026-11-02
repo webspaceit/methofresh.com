@@ -17,10 +17,21 @@ class wsit_ContactController extends wsit_Controller
         $this->contactModel = new wsit_ContactMessage();
     }
 
-    public function show(): string
+    public function show(wsit_Request $request): string
     {
         $captchaEnabled = contact_captcha_enabled();
         $captcha = $captchaEnabled ? $this->generateCaptcha() : null;
+
+        // "Ask for Price" buttons link here with the product name already in
+        // the subject/message, so the customer only has to add their details.
+        $prefillSubject = trim((string)$request->query('subject', ''));
+        $prefillMessage = trim((string)$request->query('message', ''));
+        if (mb_strlen($prefillSubject) > 200) {
+            $prefillSubject = mb_substr($prefillSubject, 0, 200);
+        }
+        if (mb_strlen($prefillMessage) > 2000) {
+            $prefillMessage = mb_substr($prefillMessage, 0, 2000);
+        }
 
         $crumbs = [
             ['name' => trans('nav_home'), 'url' => locale_url('/')],
@@ -39,6 +50,8 @@ class wsit_ContactController extends wsit_Controller
             'jsonLd'          => $schemas,
             'captcha'         => $captcha,
             'captchaEnabled'  => $captchaEnabled,
+            'prefillSubject'  => $prefillSubject,
+            'prefillMessage'  => $prefillMessage,
         ], 'wsit_main');
     }
 

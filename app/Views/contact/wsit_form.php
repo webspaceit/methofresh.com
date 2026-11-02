@@ -1,4 +1,9 @@
-<?php $captchaEnabled = $captchaEnabled ?? true; $contactRedirect = $contactRedirect ?? '/contact'; ?>
+<?php
+$captchaEnabled = $captchaEnabled ?? true;
+$contactRedirect = $contactRedirect ?? '/contact';
+$prefillSubject = $prefillSubject ?? '';
+$prefillMessage = $prefillMessage ?? '';
+?>
 <form method="post" action="<?= e(locale_url('/contact/submit')) ?>" class="space-y-5">
     <?= csrf_field() ?>
     <input type="hidden" name="_redirect" value="<?= e($contactRedirect) ?>">
@@ -26,7 +31,7 @@
 
     <div>
         <label class="block text-sm font-semibold text-stone-700 mb-1.5"><?= e(trans('subject')) ?></label>
-        <input type="text" name="subject" required value="<?= e($_POST['subject'] ?? '') ?>"
+        <input type="text" name="subject" required value="<?= e($_POST['subject'] ?? $prefillSubject) ?>"
                class="w-full rounded-xl border border-honey-600/15 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
                placeholder="<?= e(trans('contact_subject_placeholder')) ?>">
     </div>
@@ -35,7 +40,7 @@
         <label class="block text-sm font-semibold text-stone-700 mb-1.5"><?= e(trans('message')) ?></label>
         <textarea name="message" rows="5" required
                   class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none resize-y"
-                  placeholder="<?= e(trans('contact_message_placeholder')) ?>"><?= e($_POST['message'] ?? '') ?></textarea>
+                  placeholder="<?= e(trans('contact_message_placeholder')) ?>"><?= e($_POST['message'] ?? $prefillMessage) ?></textarea>
     </div>
 
     <?php if ($captchaEnabled): ?>

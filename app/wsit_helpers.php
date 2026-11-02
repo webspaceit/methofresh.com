@@ -2670,6 +2670,29 @@ function whatsapp_order_url(): string
     return 'https://wa.me/' . ltrim($phone, '+');
 }
 
+/**
+ * Link to the contact page with the product name already filled in.
+ *
+ * Used by "Ask for Price" buttons for products whose price is not shown
+ * (a category with hide_price = 1). Pre-filling the subject and message
+ * means the owner immediately knows which product the customer is asking
+ * about, without the customer having to type it.
+ */
+function ask_for_price_url(array $product): string
+{
+    $name = (string)($product['name'] ?? ($product['name_en'] ?? ''));
+    $url  = locale_url('/contact');
+
+    $subject = trans('ask_price_subject') . ': ' . $name;
+    $message = trans('ask_price_message') . ' ' . $name;
+    if (!empty($product['slug'])) {
+        $message .= "\n" . locale_url('/products/' . $product['slug']);
+    }
+
+    return $url . '?subject=' . rawurlencode($subject)
+        . '&message=' . rawurlencode($message);
+}
+
 function homepage_sections(): array
 {
     static $cache = null;

@@ -6,6 +6,7 @@ $imgUrl = image_url($image, $productName, 600);
 $inStock = (int)($product['stock'] ?? 0) > 0;
 $productPrice = $priceInfo['current'];
 $currency = app_locale() === 'bn' ? 'BDT' : 'USD';
+$askUrl = ask_for_price_url($product);
 ?>
 <section class="max-w-7xl mx-auto px-4 py-8">
     <nav class="text-xs text-stone-400 mb-6">
@@ -61,13 +62,21 @@ $currency = app_locale() === 'bn' ? 'BDT' : 'USD';
             </div>
 
             <?php if (!empty($product['category_hide_price'])): ?>
-            <!-- The category is listed in the shop but its price and ordering
-                 are not live yet (coming soon / price on request). -->
+            <!-- The category is listed in the shop but its price is not live
+                 yet. Instead of an order button, customers can ask for the
+                 price by contacting us; the product name is pre-filled. -->
             <div class="mt-5 inline-flex items-center gap-2 rounded-xl bg-stone-100 text-stone-600 px-4 py-2.5 text-sm font-semibold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <?= e(trans('price_on_request')) ?>
             </div>
-            <p class="mt-3 text-sm text-stone-500"><?= e(trans('coming_soon_desc')) ?></p>
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+                <a href="<?= e($askUrl) ?>"
+                   class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold px-8 py-3.5 text-sm transition shadow-lg shadow-brand-600/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    <?= e(trans('ask_for_price')) ?>
+                </a>
+            </div>
+            <p class="mt-3 text-sm text-stone-500"><?= e(trans('ask_for_price_desc')) ?></p>
             <?php else: ?>
             <!-- Price -->
             <div class="mt-5 flex items-baseline gap-3">
