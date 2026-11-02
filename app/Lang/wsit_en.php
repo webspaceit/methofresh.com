@@ -430,6 +430,7 @@ return [
     'admin_yes'          => 'Yes',
     'admin_no'           => 'No',
     'admin_search'       => 'Search...',
+    'menu_search_ph'     => 'Search menu...',
     'admin_orders_count' => 'orders',
     'admin_products_count' => 'products',
     'admin_customers_count' => 'customers',

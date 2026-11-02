@@ -433,6 +433,7 @@ return [
     'admin_yes'          => 'হ্যাঁ',
     'admin_no'           => 'না',
     'admin_search'       => 'খুঁজুন...',
+    'menu_search_ph'     => 'মেনু খুঁজুন...',
     'admin_orders_count' => 'টি অর্ডার',
     'admin_products_count' => 'টি পণ্য',
     'admin_customers_count' => 'জন গ্রাহক',
