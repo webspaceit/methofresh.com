@@ -180,7 +180,7 @@ $heroCount = count($heroRows);
     <?php
         $sectionLabel = $section['label_key'] ?? trans($section['label_key']);
     ?>
-    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden" id="<?= e($sectionId) ?>">
         <div class="px-5 py-4 border-b border-stone-100">
             <h2 class="font-bold text-stone-900 flex items-center gap-2">
                 <?php if (!empty($section['icon'])): ?><span class="text-lg"><?= e($section['icon']) ?></span><?php endif; ?>

@@ -475,7 +475,32 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
         <!-- 4. Storefront CMS -->
         <div class="flex flex-col gap-0.5">
             <?= $catHeader($t['catStorefront'], 'palette', 'purple', '4') ?>
-            <?= $navLink($homepageUrl, 'storefront', $t['homepage'], $isNavActive('mf-dashboard/homepage')) ?>
+            <?php $hpOpen = $isNavActive('mf-dashboard/homepage') ? 'true' : 'false'; ?>
+            <!-- Homepage Design with a collapsible list of its blocks -->
+            <div x-data="{ hpOpen: $hpOpen }" class="flex flex-col gap-0.5">
+                <button type="button" @click="hpOpen = !hpOpen"
+                        class="group flex items-center justify-between w-full px-3 py-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 font-medium transition-all text-[13.5px]">
+                    <span class="flex items-center gap-2.5 min-w-0 overflow-hidden">
+                        <span class="material-symbols-outlined text-[19px] text-stone-400 group-hover:text-primary transition-colors shrink-0">storefront</span>
+                        <span class="truncate leading-tight"><?= e($t['homepage']) ?></span>
+                    </span>
+                    <span class="material-symbols-outlined text-[16px] text-stone-400 transition-transform" :class="hpOpen ? 'rotate-180' : ''">expand_more</span>
+                </button>
+                <div x-show="hpOpen" x-transition x-cloak class="pl-3 space-y-0.5">
+                <a href="/en/mf-dashboard/homepage#section_land_trust" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">🛡️</span><span class="truncate leading-tight">Home Trust Badges</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_value" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">🚚</span><span class="truncate leading-tight">Home Value Cards</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_story" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">📖</span><span class="truncate leading-tight">Home Story</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_why" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">🏆</span><span class="truncate leading-tight">Home Why Us</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_how" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">📦</span><span class="truncate leading-tight">Home How To Order</span></a>
+                <a href="/en/mf-dashboard/homepage#section_hero_content" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">🌟</span><span class="truncate leading-tight">Hero Content</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_products" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">🛒</span><span class="truncate leading-tight">Products Heading</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_testimonials" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">⭐</span><span class="truncate leading-tight">Home Testimonials</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_faq" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">❓</span><span class="truncate leading-tight">Home FAQ</span></a>
+                <a href="/en/mf-dashboard/homepage#section_land_cta" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">🔔</span><span class="truncate leading-tight">Home CTA Banner</span></a>
+                <a href="/en/mf-dashboard/homepage#section_footer_newsletter" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12.5px] text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 transition-colors"><span class="text-[14px] leading-none">📰</span><span class="truncate leading-tight">Home Newsletter</span></a>
+                </div>
+            </div>
+
             <?= $navLink($pagesUrl, 'article', $t['pages'], $isNavActive('mf-dashboard/pages')) ?>
             <?= $navLink($headerUrl, 'web_asset', $t['header'], $isNavActive('mf-dashboard/header')) ?>
             <?= $navLink($footerUrl, 'view_day', $t['footer'], $isNavActive('mf-dashboard/footer')) ?>
