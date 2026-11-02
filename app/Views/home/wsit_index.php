@@ -117,7 +117,7 @@ $tabCategories = array_values($categories ?? []);
                             <span class="text-brand-700 block mt-1 sm:mt-2"><?= e(homepage_section('land_hero_highlight')) ?></span>
                         </h1>
                         <?php else: ?>
-                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
+                        <h2 class="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-stone-900 tracking-tight leading-tight lg:whitespace-nowrap">
                             <?= e($title) ?>
                             <span class="text-brand-700 block mt-1 sm:mt-2"><?= e(homepage_section('land_hero_highlight')) ?></span>
                         </h2>
