@@ -23,11 +23,17 @@ $imgUrl = image_url($image, $name);
             <a href="<?= e(locale_url('/products/' . $product['slug'])) ?>" class="mt-1 block text-base font-bold text-stone-900 leading-snug line-clamp-2 group-hover:text-brand-700 transition">
                 <?= e($name) ?>
             </a>
-            <div class="flex items-center gap-2 mt-3">
-                <span class="text-lg font-bold text-stone-900"><?= e(format_price($priceInfo['current'])) ?></span>
+            <div class="mt-3 min-w-0">
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span class="text-base sm:text-lg font-bold text-stone-900"><?= e(format_price($priceInfo['current'])) ?></span>
                 <?php if ($priceInfo['sale'] !== null): ?>
-                    <span class="text-sm text-stone-400 line-through"><?= e(format_price($priceInfo['price'])) ?></span>
-                    <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded"><?= e(trans('discount_pill')) ?></span>
+                    <span class="text-xs sm:text-sm text-stone-400 line-through"><?= e(format_price($priceInfo['price'])) ?></span>
+                <?php endif; ?>
+                </div>
+                <?php if ($priceInfo['sale'] !== null): ?>
+                    <div class="mt-1">
+                        <span class="inline-flex text-[10px] sm:text-xs font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md"><?= e(trans('discount_pill')) ?></span>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

@@ -167,7 +167,7 @@ $heroCount = count($heroRows);
         'land_value_1_icon', 'land_value_2_icon', 'land_value_3_icon', 'land_value_4_icon',
         'land_why_1_icon',   'land_why_2_icon',   'land_why_3_icon',   'land_why_4_icon',
         'land_how_1_num',    'land_how_2_num',     'land_how_3_num',
-        'land_testimonial_1_stars', 'land_testimonial_2_stars', 'land_testimonial_3_stars',
+        'land_testimonial_1_stars', 'land_testimonial_2_stars', 'land_testimonial_3_stars', 'land_testimonial_4_stars',
     ];
     $contentSections = homepage_sections()['sections'] ?? [];
     $fieldLabels     = homepage_sections()['field_labels'] ?? [];

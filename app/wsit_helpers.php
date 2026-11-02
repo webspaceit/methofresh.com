@@ -2749,6 +2749,7 @@ function homepage_sections(): array
                 'land_testimonial_1_stars', 'land_testimonial_1', 'land_testimonial_1_by', 'land_testimonial_1_loc',
                 'land_testimonial_2_stars', 'land_testimonial_2', 'land_testimonial_2_by', 'land_testimonial_2_loc',
                 'land_testimonial_3_stars', 'land_testimonial_3', 'land_testimonial_3_by', 'land_testimonial_3_loc',
+        'land_testimonial_4_stars', 'land_testimonial_4', 'land_testimonial_4_by', 'land_testimonial_4_loc',
             ],
         ],
         'section_land_faq' => [
@@ -2854,6 +2855,10 @@ function homepage_sections(): array
         'land_testimonial_3'      => 'Testimonial 3 – Text',
         'land_testimonial_3_by'   => 'Testimonial 3 – Author',
         'land_testimonial_3_loc'  => 'Testimonial 3 – Location',
+        'land_testimonial_4_stars' => 'Testimonial 4 – Stars',
+        'land_testimonial_4'      => 'Testimonial 4 – Text',
+        'land_testimonial_4_by'   => 'Testimonial 4 – Author',
+        'land_testimonial_4_loc'  => 'Testimonial 4 – Location',
         // Home FAQ
         'land_faq_title'          => 'FAQ Heading',
         'land_faq_1_q'            => 'FAQ 1 – Question',

@@ -402,8 +402,8 @@ $tabCategories = array_values($categories ?? []);
             <h2 class="text-2xl sm:text-3xl font-bold text-stone-900"><?= e(homepage_section('land_testimonials')) ?></h2>
             <div class="w-12 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <?php for ($t = 1; $t <= 3; $t++): ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <?php for ($t = 1; $t <= 4; $t++): ?>
             <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
                 <div>
                     <div class="text-amber-500 text-sm mb-3"><?= e(homepage_section('land_testimonial_' . $t . '_stars')) ?></div>

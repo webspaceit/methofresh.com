@@ -121,6 +121,11 @@ return [
     'land_testimonial_3'    => 'The sharpness of the mustard oil proves it is real kachi ghani oil. It brings a wonderful taste to cooking.',
     'land_testimonial_3_by' => 'Sharmin Sultana',
     'land_testimonial_3_loc' => 'Sylhet',
+
+    'land_testimonial_4_stars' => '★★★★★',
+    'land_testimonial_4'    => 'The turmeric and chili powder are incredibly fresh — you can smell the difference! My biryani has never tasted this good.',
+    'land_testimonial_4_by' => 'Rafiqul Islam',
+    'land_testimonial_4_loc' => 'Uttara, Dhaka',
     'land_faq_title'        => 'Frequently Asked Questions',
     'land_faq_1_q'          => 'Is the gur completely adulteration-free?',
     'land_faq_1_a'          => 'Yes, 100% pure and adulteration-free. We never use chemical colouring, hydrogen or sugar. The sap is collected straight from the tree and boiled the traditional way.',
