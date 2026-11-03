@@ -381,16 +381,25 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
         </nav>
     </div>
 
-    <!-- In-page toast (from AJAX add-to-cart) -->
+    <!-- In-page alert dialog (from AJAX cart actions) -->
     <template x-teleport="body">
-        <div class="fixed top-20 right-4 z-[60] space-y-2 w-[calc(100%-2rem)] max-w-sm">
-            <div x-show="toast.show" x-transition.opacity.duration.300ms
-                 class="flex items-start gap-3 px-4 py-3 rounded-xl shadow-lg text-white text-sm font-medium"
-                 :class="toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'">
-                <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs"
-                      x-text="toast.type === 'success' ? '✓' : '!'"></span>
-                <span x-text="toast.message"></span>
-                <button type="button" @click="toast.show = false" class="ml-auto text-white/80 hover:text-white">✕</button>
+        <div>
+            <div x-show="toast.show" x-cloak
+                 class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-4"
+                 @keydown.escape.window="toast.show = false" role="presentation">
+                <section role="alertdialog" aria-modal="true" aria-live="assertive"
+                         class="w-full max-w-md rounded-lg bg-white px-6 py-7 text-center shadow-2xl sm:px-8">
+                    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-[3px] text-3xl font-light"
+                         :class="toast.type === 'success' ? 'border-emerald-300 text-emerald-500' : 'border-red-300 text-red-500'"
+                         x-text="toast.type === 'success' ? '✓' : '×'"></div>
+                    <h2 class="mb-2 text-xl font-semibold text-slate-700"
+                        x-text="toast.type === 'success' ? <?= e(json_encode($locale === 'bn' ? 'সফল!' : 'Success!')) ?> : <?= e(json_encode($locale === 'bn' ? 'দুঃখিত!' : 'Oops!')) ?>"></h2>
+                    <p class="text-sm leading-6 text-slate-600" x-text="toast.message"></p>
+                    <button type="button" @click="toast.show = false"
+                            class="mt-6 min-w-20 rounded bg-sky-600 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+                        <?= $locale === 'bn' ? 'ঠিক আছে' : 'OK' ?>
+                    </button>
+                </section>
             </div>
         </div>
     </template>

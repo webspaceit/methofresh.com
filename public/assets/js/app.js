@@ -39,7 +39,6 @@
             showToast(ok, message) {
                 if (!message) return;
                 this.toast = { show: true, type: ok === false ? 'error' : 'success', message: message };
-                setTimeout(() => { this.toast.show = false; }, 3500);
             },
 
             addToCart(productId, quantity = 1) {
