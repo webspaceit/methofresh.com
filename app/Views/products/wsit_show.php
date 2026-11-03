@@ -108,6 +108,13 @@ $askUrl = ask_for_price_url($product);
                 </button>
                 <?php endif; ?>
             </div>
+            <?php if (!$inStock): ?>
+            <a href="<?= e($askUrl) ?>"
+               class="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white hover:border-brand-600 hover:text-brand-700 text-stone-700 font-bold px-8 py-3.5 text-sm transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                <?= e(trans('ask_for_price')) ?>
+            </a>
+            <?php endif; ?>
             <?php endif; ?>
 
             <p class="mt-3 text-xs text-stone-400"><?= e(trans('promo_hint')) ?></p>

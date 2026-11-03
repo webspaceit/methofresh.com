@@ -55,6 +55,11 @@ $askUrl = ask_for_price_url($product);
         </button>
         <?php elseif (empty($product['category_hide_price'])): ?>
         <span class="mt-5 block w-full py-2.5 px-4 rounded-lg bg-stone-100 text-stone-400 text-sm font-semibold text-center"><?= e(trans('out_of_stock')) ?></span>
+        <a href="<?= e($askUrl) ?>"
+           class="mt-2 w-full py-2.5 px-2 sm:px-4 rounded-lg border border-stone-300 bg-white hover:border-brand-600 hover:text-brand-700 text-stone-700 text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            <span><?= e(trans('ask_for_price')) ?></span>
+        </a>
         <?php else: ?>
         <a href="<?= e($askUrl) ?>"
            class="mt-5 w-full py-2.5 px-2 sm:px-4 rounded-lg bg-brand-700 hover:bg-brand-800 text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap">
