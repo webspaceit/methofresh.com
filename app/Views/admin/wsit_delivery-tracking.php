@@ -125,7 +125,7 @@ $statusLabels = [
     <p class="py-12 text-center font-body-md text-body-md text-on-surface-variant"><?= e(trans('admin_no_queue')) ?></p>
     <?php else: ?>
     <div class="w-full overflow-x-auto mt-space-sm">
-        <table class="w-full text-left border-collapse font-body-md text-body-md">
+        <table class="w-full text-left border-collapse font-body-md text-body-md admin-table">
             <thead>
                 <tr class="border-b border-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                     <th class="py-3 px-4 font-semibold"><?= e(trans('order_number_col')) ?></th>
@@ -193,7 +193,7 @@ $statusLabels = [
     <p class="py-12 text-center font-body-md text-body-md text-on-surface-variant"><?= e(trans('admin_no_delivered')) ?></p>
     <?php else: ?>
     <div class="w-full overflow-x-auto mt-space-sm">
-        <table class="w-full text-left border-collapse font-body-md text-body-md">
+        <table class="w-full text-left border-collapse font-body-md text-body-md admin-table">
             <thead>
                 <tr class="border-b border-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                     <th class="py-3 px-4 font-semibold"><?= e(trans('order_number_col')) ?></th>

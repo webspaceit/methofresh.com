@@ -72,6 +72,14 @@ $adminPath = current_page_path();
     </script>
     <?php if ($locale === 'bn'): ?>
     <style>body{font-family:'Noto Sans Bengali',sans-serif;}</style>
+    <style>
+    .admin-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .admin-table thead th { background: linear-gradient(to bottom, #f8fafc, #f1f5f9); color: #475569; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: .875rem 1rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    .admin-table tbody td { padding: .875rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+    .admin-table tbody tr:nth-child(even) { background: #fcfdff; }
+    .admin-table tbody tr:hover { background: #f1f5f9; }
+    .admin-table tbody tr:last-child td { border-bottom: 0; }
+    </style>
     <?php endif; ?>
 </head>
 <body class="bg-cream text-brand-900 font-sans" x-data="{ sidebarOpen: false }">

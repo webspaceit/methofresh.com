@@ -1288,7 +1288,7 @@ $searchNums = $searchPages <= 7
         </div>
     </div>
     <div class="w-full overflow-x-auto mt-space-sm">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse admin-table">
             <thead>
                 <tr class="border-b border-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                     <th class="py-3 px-4 font-semibold"><?= e($t['thOrderId']) ?></th>

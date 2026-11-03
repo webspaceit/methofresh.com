@@ -118,7 +118,7 @@ $cityBarPct = static fn(int $n) => $maxCityCustomers > 0 ? (int)round(($n / $max
         <p class="py-10 text-center font-body-sm text-body-sm text-on-surface-variant"><?= e(trans('admin_no_customers')) ?></p>
         <?php else: ?>
         <div class="w-full overflow-x-auto mt-space-sm">
-            <table class="w-full text-left border-collapse font-body-md text-body-md">
+            <table class="w-full text-left border-collapse font-body-md text-body-md admin-table">
                 <thead>
                     <tr class="border-b border-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                         <th class="py-3 px-4 font-semibold"><?= e(trans('admin_customer')) ?></th>

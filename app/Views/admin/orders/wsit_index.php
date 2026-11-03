@@ -42,7 +42,7 @@ $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 </div>
 
 <div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto">
-    <table class="w-full text-sm">
+    <table class="w-full text-sm admin-table">
         <thead>
             <tr class="text-left text-xs text-stone-500 border-b border-stone-100 uppercase">
                 <th class="px-4 py-3 font-semibold"><?= e(trans('order_number_col')) ?></th>
