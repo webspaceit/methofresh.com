@@ -61,7 +61,7 @@ $pageUrl = static function (int $n) use ($baseUrl, $search): string {
         </div>
     </div>
     <form method="post" action="<?= e(locale_url('/mf-dashboard/users/guest-accounts')) ?>"
-          onsubmit="return confirm('<?= e(trans('admin_users_guest_orders_confirm')) ?>')">
+          data-confirm="<?= e(trans('admin_users_guest_orders_confirm')) ?>">
         <?= csrf_field() ?>
         <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-label-md font-label-md font-bold transition-colors">
             <span class="material-symbols-outlined text-[18px]">person_add</span><?= e(trans('admin_users_guest_orders_btn')) ?>
@@ -154,7 +154,7 @@ $pageUrl = static function (int $n) use ($baseUrl, $search): string {
                    class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-primary-fixed/40 hover:text-primary transition-colors">
                     <span class="material-symbols-outlined text-[16px]">edit</span><?= e(trans('admin_edit')) ?>
                 </a>
-                <form method="post" action="<?= e(locale_url('/mf-dashboard/users/' . $uId . '/delete')) ?>" onsubmit="return confirm('<?= e(trans('admin_user_delete_confirm')) ?>')">
+                <form method="post" action="<?= e(locale_url('/mf-dashboard/users/' . $uId . '/delete')) ?>" data-confirm="<?= e(trans('admin_user_delete_confirm')) ?>">
                     <?= csrf_field() ?>
                     <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-error-container hover:text-on-error-container transition-colors">
                         <span class="material-symbols-outlined text-[16px]">delete</span><?= e(trans('admin_delete')) ?>

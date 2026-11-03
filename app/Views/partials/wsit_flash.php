@@ -24,13 +24,14 @@ $flashTitle = [
              role="alertdialog" aria-modal="true" aria-live="assertive"
              aria-labelledby="flash-title-<?= e($type) ?>" aria-describedby="flash-message-<?= e($type) ?>">
         <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-[3px] text-3xl font-light
-                    <?= $type === 'success' ? 'border-emerald-300 text-emerald-500' : ($type === 'error' ? 'border-red-300 text-red-500' : 'border-sky-300 text-sky-500') ?>">
+                    <?= $type === 'success' ? 'border-[#002819] text-[#002819]' : ($type === 'error' ? 'border-red-300 text-red-500' : 'border-sky-300 text-sky-500') ?>">
             <?= $type === 'success' ? '✓' : ($type === 'error' ? '×' : 'i') ?>
         </div>
         <h2 id="flash-title-<?= e($type) ?>" class="mb-2 text-xl font-semibold text-slate-700"><?= e($flashTitle[$type]) ?></h2>
         <p id="flash-message-<?= e($type) ?>" class="text-sm leading-6 text-slate-600"><?= e($message) ?></p>
         <button type="button" @click="open = false"
-                class="mt-6 min-w-20 rounded bg-sky-600 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+                class="mt-6 min-w-20 rounded px-5 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                style="background-color:#002819;color:#fff">
             <?= $locale === 'bn' ? 'ঠিক আছে' : 'OK' ?>
         </button>
     </section>

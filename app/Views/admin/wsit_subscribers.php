@@ -81,7 +81,7 @@ $pageUrl = static function (int $n) use ($baseUrl): string {
                 <span class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap"><?= e(format_date((string)($s['created_at'] ?? ''), 'd M Y, H:i')) ?></span>
             </div>
             <div class="col-span-1 pl-12 sm:pl-0 text-right">
-                <form method="post" action="<?= e(locale_url('/mf-dashboard/subscribers/' . (int)$s['id'] . '/delete')) ?>" onsubmit="return confirm('<?= e(trans('admin_delete_confirm')) ?>')">
+                <form method="post" action="<?= e(locale_url('/mf-dashboard/subscribers/' . (int)$s['id'] . '/delete')) ?>" data-confirm="<?= e(trans('admin_delete_confirm')) ?>">
                     <?= csrf_field() ?>
                     <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-error-container hover:text-on-error-container transition-colors">
                         <span class="material-symbols-outlined text-[16px]">delete</span><?= e(trans('admin_delete')) ?>

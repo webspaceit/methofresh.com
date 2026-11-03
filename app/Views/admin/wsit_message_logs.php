@@ -224,7 +224,7 @@ $statusClass = static function (string $status): string {
     <p class="font-body-sm text-body-sm text-on-surface-variant">
         <?= e($L('Logs older than 30 days can be deleted to keep the table small.', 'টেবিল ছোট রাখতে ৩০ দিনের পুরনো লগ মুছে ফেলতে পারেন।')) ?>
     </p>
-    <form method="post" action="<?= e(locale_url('/mf-dashboard/message-logs/clear')) ?>" class="flex items-center gap-2">
+    <form method="post" action="<?= e(locale_url('/mf-dashboard/message-logs/clear')) ?>" class="flex items-center gap-2" data-confirm="<?= e(trans('admin_delete_confirm')) ?>">
         <?= csrf_field() ?>
         <input type="hidden" name="mode" value="older">
         <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold hover:bg-surface-container-highest transition-colors">

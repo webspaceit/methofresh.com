@@ -160,7 +160,7 @@ $isUrlMismatch = $globalLocale !== app_locale();
                             <?= e(trans('admin_save')) ?>
                         </button>
                         <?php if ($logo !== ''): ?>
-                        <button type="submit" name="remove_logo" value="1"
+                        <button type="submit" name="remove_logo" value="1" data-confirm="<?= e(trans('admin_delete_confirm')) ?>"
                                 class="rounded-xl border border-red-200 text-red-600 hover:bg-red-50 px-5 py-2.5 text-sm font-bold transition">
                             <?= e(trans('admin_logo_remove')) ?>
                         </button>
@@ -212,7 +212,7 @@ $isUrlMismatch = $globalLocale !== app_locale();
                             <?= e(trans('admin_favicon_save')) ?>
                         </button>
                         <?php if ($favicon !== ''): ?>
-                        <button type="submit" name="remove_favicon" value="1"
+                        <button type="submit" name="remove_favicon" value="1" data-confirm="<?= e(trans('admin_delete_confirm')) ?>"
                                 class="rounded-xl border border-red-200 text-red-600 hover:bg-red-50 px-5 py-2.5 text-sm font-bold transition">
                             <?= e(trans('admin_favicon_remove')) ?>
                         </button>
@@ -380,7 +380,8 @@ $isUrlMismatch = $globalLocale !== app_locale();
                         <?= e(trans('admin_announcement_offer')) ?> <span class="ann-n"><?= $key + 1 ?></span>
                     </span>
                     <button type="button"
-                            class="ann-remove inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 focus:outline-none">
+                            class="ann-remove inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 focus:outline-none"
+                            data-confirm-click="<?= e(trans('admin_delete_confirm')) ?>">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         <?= e(trans('admin_announcement_remove')) ?>
                     </button>
@@ -534,7 +535,7 @@ $isUrlMismatch = $globalLocale !== app_locale();
                     <span class="text-xs font-bold text-brand-700 uppercase tracking-wide">
                         <?= e(trans('admin_cities_city')) ?> <span class="city-n"><?= $key + 1 ?></span>
                     </span>
-                    <button type="button" data-city-remove
+                    <button type="button" data-city-remove data-confirm-click="<?= e(trans('admin_delete_confirm')) ?>"
                             class="text-xs font-semibold text-red-600 hover:text-red-700 focus:outline-none">
                         <?= e(trans('admin_shipping_remove')) ?>
                     </button>

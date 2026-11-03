@@ -45,7 +45,7 @@
                 <td class="px-4 py-3 text-right whitespace-nowrap">
                     <a href="<?= e(locale_url('/pages/' . $page['slug'])) ?>" target="_blank" class="inline-block rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold hover:border-brand-600 hover:text-brand-700 mr-1"><?= e(trans('admin_view')) ?></a>
                     <a href="<?= e(locale_url('/mf-dashboard/pages/' . $page['id'] . '/edit')) ?>" class="inline-block rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold hover:border-brand-600 hover:text-brand-700"><?= e(trans('admin_edit')) ?></a>
-                    <form method="post" action="<?= e(locale_url('/mf-dashboard/pages/' . $page['id'] . '/delete')) ?>" class="inline" onsubmit="return confirm('<?= e(trans('admin_delete_confirm')) ?>')">
+                    <form method="post" action="<?= e(locale_url('/mf-dashboard/pages/' . $page['id'] . '/delete')) ?>" class="inline" data-confirm="<?= e(trans('admin_delete_confirm')) ?>">
                         <?= csrf_field() ?>
                         <button type="submit" class="rounded-lg border border-red-200 text-red-600 px-3 py-1.5 text-xs font-semibold hover:bg-red-50"><?= e(trans('admin_delete')) ?></button>
                     </form>

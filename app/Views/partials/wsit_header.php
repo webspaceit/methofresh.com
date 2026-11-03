@@ -390,13 +390,14 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                 <section role="alertdialog" aria-modal="true" aria-live="assertive"
                          class="w-full max-w-md rounded-lg bg-white px-6 py-7 text-center shadow-2xl sm:px-8">
                     <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-[3px] text-3xl font-light"
-                         :class="toast.type === 'success' ? 'border-emerald-300 text-emerald-500' : 'border-red-300 text-red-500'"
+                     :class="toast.type === 'success' ? 'border-[#002819] text-[#002819]' : 'border-red-300 text-red-500'"
                          x-text="toast.type === 'success' ? '✓' : '×'"></div>
                     <h2 class="mb-2 text-xl font-semibold text-slate-700"
                         x-text="toast.type === 'success' ? <?= e(json_encode($locale === 'bn' ? 'সফল!' : 'Success!')) ?> : <?= e(json_encode($locale === 'bn' ? 'দুঃখিত!' : 'Oops!')) ?>"></h2>
                     <p class="text-sm leading-6 text-slate-600" x-text="toast.message"></p>
                     <button type="button" @click="toast.show = false"
-                            class="mt-6 min-w-20 rounded bg-sky-600 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+                        class="mt-6 min-w-20 rounded px-5 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        style="background-color:#002819;color:#fff">
                         <?= $locale === 'bn' ? 'ঠিক আছে' : 'OK' ?>
                     </button>
                 </section>

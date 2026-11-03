@@ -183,7 +183,8 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                     <div class="border-2 border-dashed border-stone-300 rounded-xl p-3 min-h-[200px]" data-column="<?= $colIndex ?>">
                         <div class="flex items-center justify-between mb-2 pb-2 border-b border-stone-200">
                             <span class="text-xs font-bold text-stone-500 uppercase">Column <?= $colIndex + 1 ?></span>
-                            <button type="button" class="remove-column-btn text-red-500 hover:text-red-700 text-xs" title="Remove column">×</button>
+                            <button type="button" class="remove-column-btn text-red-500 hover:text-red-700 text-xs" title="Remove column"
+                                    data-confirm-click="<?= e(trans('admin_delete_confirm')) ?>">×</button>
                         </div>
                         <ul class="space-y-2 min-h-[100px]" data-column-blocks>
                             <?php foreach ($column as $blockKey): ?>
@@ -562,7 +563,8 @@ $inputCls = 'w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm foc
                     <div class="border-2 border-dashed border-stone-300 rounded-xl p-3 min-h-[200px]" data-column="${columnCount}">
                         <div class="flex items-center justify-between mb-2 pb-2 border-b border-stone-200">
                             <span class="text-xs font-bold text-stone-500 uppercase">Column ${columnCount + 1}</span>
-                            <button type="button" class="remove-column-btn text-red-500 hover:text-red-700 text-xs" title="Remove column">×</button>
+                            <button type="button" class="remove-column-btn text-red-500 hover:text-red-700 text-xs" title="Remove column"
+                                    data-confirm-click="<?= e(trans('admin_delete_confirm')) ?>">×</button>
                         </div>
                         <ul class="space-y-2 min-h-[100px]" data-column-blocks></ul>
                     </div>

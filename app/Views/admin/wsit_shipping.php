@@ -29,7 +29,7 @@ $shipRowHtml = static function (int $key, array $row): string {
             <span class="text-xs font-bold text-stone-700 uppercase tracking-wide">
                 <?= e(trans('admin_shipping_method')) ?> <span class="ship-n"><?= $key + 1 ?></span>
             </span>
-            <button type="button" data-ship-remove
+            <button type="button" data-ship-remove data-confirm-click="<?= e(trans('admin_delete_confirm')) ?>"
                     class="text-xs font-semibold text-red-600 hover:text-red-700 focus:outline-none">
                 <?= e(trans('admin_shipping_remove')) ?>
             </button>

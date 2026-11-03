@@ -662,6 +662,7 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
     </main>
 </div>
 <style>[x-cloak]{display:none!important}</style>
+<?php include views_path('partials/wsit_admin_confirm.php'); ?>
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('headerSearch', () => ({
