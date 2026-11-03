@@ -25,6 +25,7 @@ $paymentLabels = [
         <p class="font-medium text-stone-800"><?= e(customer_display_name($order['shipping_name'], $order['shipping_email'] ?? null)) ?></p>
         <p class="text-[11px] text-stone-400"><?= e($order['shipping_phone']) ?></p>
     </td>
+    <td class="px-4 py-3 font-semibold text-stone-800"><?= e(format_price((float)$order['total'])) ?></td>
     <td class="px-4 py-3">
         <span class="text-xs font-semibold text-stone-700"><?= e(payment_method_label($order['payment_method'])) ?></span>
         <?php if (!empty($order['transaction_id'])): ?>
