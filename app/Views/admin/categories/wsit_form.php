@@ -63,6 +63,13 @@ $formAction = $isEdit
         </div>
         <p class="text-xs text-stone-400"><?= e(trans('admin_hide_price_hint')) ?></p>
 
+        <div>
+            <label class="block text-xs font-semibold text-stone-500 mb-1"><?= e(trans('admin_home_order')) ?></label>
+            <input type="number" name="sort_order" min="0" max="999" value="<?= (int)($c['sort_order'] ?? 0) ?>"
+                   class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <p class="text-xs text-stone-400 mt-1"><?= app_locale() === 'bn' ? e('কম সংখ্যা আগে দেখাবে। সমান হলে নাম অনুযায়ী।') : e('Lower numbers appear first. Ties are sorted by name.') ?></p>
+        </div>
+
         <div class="flex gap-3 pt-2">
             <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 text-sm font-bold"><?= e(trans('admin_save')) ?></button>
             <a href="<?= e(locale_url('/mf-dashboard/categories')) ?>" class="rounded-xl border border-stone-300 px-6 py-3 text-sm font-semibold text-stone-600 hover:border-stone-400"><?= e(trans('admin_cancel')) ?></a>

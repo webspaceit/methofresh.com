@@ -112,6 +112,26 @@ class wsit_AdminCategoryController extends wsit_Controller
         $this->redirect('/mf-dashboard/categories');
     }
 
+    public function reorder(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/categories');
+        }
+        $order = $request->input('order', []);
+        if (is_array($order)) {
+            foreach ($order as $id => $value) {
+                $id = (int)$id;
+                if ($id <= 0) {
+                    continue;
+                }
+                $this->categoryModel->update($id, ['sort_order' => (int)$value]);
+            }
+        }
+        $this->flash('success', trans('admin_category_saved'));
+        $this->redirect('/mf-dashboard/categories');
+    }
+
     private function collectData(wsit_Request $request): array
     {
         $active = $request->input('active');
@@ -123,6 +143,7 @@ class wsit_AdminCategoryController extends wsit_Controller
             'description_bn' => $request->input('description_bn'),
             'active'         => $active === '1' ? 1 : 0,
             'hide_price'     => $request->input('hide_price') === '1' ? 1 : 0,
+            'sort_order'     => (int)$request->input('sort_order', 0),
         ];
     }
 

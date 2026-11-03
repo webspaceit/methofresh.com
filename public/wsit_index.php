@@ -115,6 +115,7 @@ $router->post('/mf-dashboard/categories',                  [wsit_AdminCategoryCo
 $router->get('/mf-dashboard/categories/{id}/edit',         [wsit_AdminCategoryController::class, 'edit']);
 $router->post('/mf-dashboard/categories/{id}/update',      [wsit_AdminCategoryController::class, 'update']);
 $router->post('/mf-dashboard/categories/{id}/delete',      [wsit_AdminCategoryController::class, 'destroy']);
+$router->post('/mf-dashboard/categories/reorder',           [wsit_AdminCategoryController::class, 'reorder']);
 $router->post('/mf-dashboard/categories/{id}/toggle',      [wsit_AdminCategoryController::class, 'toggle']);
 $router->get('/mf-dashboard/pages',                        [wsit_AdminPageController::class, 'index']);
 $router->get('/mf-dashboard/pages/create',                 [wsit_AdminPageController::class, 'create']);

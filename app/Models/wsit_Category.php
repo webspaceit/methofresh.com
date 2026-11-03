@@ -21,7 +21,7 @@ class wsit_Category extends wsit_Model
         if ($onlyActive) {
             $sql .= ' WHERE active = 1';
         }
-        $sql .= ' ORDER BY name_en ASC';
+        $sql .= ' ORDER BY sort_order ASC, name_en ASC, id ASC';
         return $this->fetchAll($sql);
     }
 
@@ -33,7 +33,7 @@ class wsit_Category extends wsit_Model
         if ($onlyActive) {
             $sql .= ' WHERE c.active = 1';
         }
-        $sql .= ' GROUP BY c.id ORDER BY c.name_en ASC';
+        $sql .= ' GROUP BY c.id ORDER BY c.sort_order ASC, c.name_en ASC, c.id ASC';
         return $this->fetchAll($sql);
     }
 

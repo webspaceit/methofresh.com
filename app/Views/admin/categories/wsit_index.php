@@ -18,6 +18,7 @@
                 <th class="px-4 py-3 font-semibold"><?= e(trans('admin_slug')) ?></th>
                 <th class="px-4 py-3 font-semibold"><?= e(trans('admin_products')) ?></th>
                 <th class="px-4 py-3 font-semibold"><?= e(trans('admin_active')) ?></th>
+                <th class="px-4 py-3 font-semibold"><?= e(trans('admin_home_order')) ?></th>
                 <th class="px-4 py-3 font-semibold text-right"><?= e(trans('action')) ?></th>
             </tr>
         </thead>
@@ -39,6 +40,12 @@
                         <button type="submit" class="text-sm font-bold <?= (int)$category['active'] === 1 ? 'text-green-600' : 'text-red-500' ?>"><?= (int)$category['active'] === 1 ? e(trans('admin_yes')) : e(trans('admin_no')) ?></button>
                     </form>
                 </td>
+                <td class="px-4 py-3">
+                    <input form="category-order-form" type="number" min="0" max="999"
+                           name="order[<?= (int)$category['id'] ?>]"
+                           value="<?= (int)($category['sort_order'] ?? 0) ?>"
+                           class="w-16 rounded-lg border border-stone-200 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </td>
                 <td class="px-4 py-3 text-right whitespace-nowrap">
                     <a href="<?= e(locale_url('/mf-dashboard/categories/' . $category['id'] . '/edit')) ?>" class="inline-block rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold hover:border-brand-600 hover:text-brand-700"><?= e(trans('admin_edit')) ?></a>
                     <form method="post" action="<?= e(locale_url('/mf-dashboard/categories/' . $category['id'] . '/delete')) ?>" class="inline" data-confirm="<?= e(trans('admin_delete_confirm')) ?>">
@@ -51,4 +58,9 @@
         </tbody>
     </table>
     <?php endif; ?>
+    <form id="category-order-form" method="post" action="<?= e(locale_url('/mf-dashboard/categories/reorder')) ?>" class="px-4 py-3 border-t border-stone-100 flex items-center justify-between gap-3">
+        <?= csrf_field() ?>
+        <p class="text-xs text-stone-500"><?= app_locale() === 'bn' ? e('ক্যাটেগরির ক্রম পরিবর্তন করতে নম্বর বসিয়ে “ক্রম সংরক্ষণ” চাপুন।') : e('Set the order numbers above, then press “Save order”.') ?></p>
+        <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 text-sm font-bold"><?= app_locale() === 'bn' ? e('ক্রম সংরক্ষণ') : e('Save order') ?></button>
+    </form>
 </div>
