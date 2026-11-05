@@ -54,6 +54,35 @@ class wsit_AdminCategoryController extends wsit_Controller
         ], 'wsit_admin_material');
     }
 
+    public function duplicate(wsit_Request $request, int $id): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/categories');
+        }
+
+        $category = $this->categoryModel->find($id);
+        if ($category === null) {
+            $this->flash('error', trans('admin_not_found'));
+            $this->redirect('/mf-dashboard/categories');
+        }
+
+        $data = $category;
+        unset($data['id'], $data['created_at']);
+        $data['name_en']    = trim((string)$category['name_en']) . ' (Copy)';
+        $data['name_bn']    = trim((string)($category['name_bn'] ?? '')) !== ''
+            ? $category['name_bn'] . ' (কপি)'
+            : $category['name_bn'];
+        $data['slug']       = $this->uniqueSlug(slugify($data['name_en']), null);
+        $data['active']     = 0;
+        $data['hide_price'] = (int)($category['hide_price'] ?? 0);
+        $data['sort_order'] = 0;
+
+        $this->categoryModel->create($data);
+        $this->flash('success', trans('admin_category_saved'));
+        $this->redirect('/mf-dashboard/categories');
+    }
+
     public function store(wsit_Request $request): void
     {
         if (!verify_csrf($request->input('_token'))) {
