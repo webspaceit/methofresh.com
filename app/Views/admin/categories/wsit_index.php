@@ -33,7 +33,13 @@
                     <p class="text-[11px] text-stone-400"><?= e($category['name_bn']) ?></p>
                 </td>
                 <td class="px-4 py-3 text-stone-600 font-mono text-xs"><?= e($category['slug']) ?></td>
-                <td class="px-4 py-3"><span class="inline-block rounded-full bg-brand-50 text-brand-700 px-2.5 py-1 text-[11px] font-bold"><?= e(format_number((int)$category['product_count'])) ?></span></td>
+                <td class="px-4 py-3">
+                    <a href="<?= e(locale_url('/mf-dashboard/products?category=' . (int)$category['id'])) ?>"
+                       class="inline-block rounded-full bg-brand-50 text-brand-700 px-2.5 py-1 text-[11px] font-bold hover:bg-brand-100 hover:text-brand-800 transition"
+                       title="<?= e(trans('admin_products')) ?>">
+                        <?= e(format_number((int)$category['product_count'])) ?>
+                    </a>
+                </td>
                 <td class="px-4 py-3">
                     <form method="post" action="<?= e(locale_url('/mf-dashboard/categories/' . $category['id'] . '/toggle')) ?>">
                         <?= csrf_field() ?>
