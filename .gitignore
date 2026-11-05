@@ -1,40 +1,4 @@
-# Dependencies
-/vendor/
-/node_modules/
-
-# Local configuration (contains credentials)
-/app/config/wsit_config.php
-/app/config/wsit_config.production.php
-
-# User uploads (runtime content)
-/public/assets/img/uploads/*
-!/public/assets/img/uploads/.gitkeep
-
-# Local tooling / editors
-/.kilo/
-/.idea/
-/.vscode/
-
-# Local agent/tooling temp dirs (one-off scripts, never part of the app)
-/.opencode-*/
-/.opencode_tmp/
-/app/.opencode-*/
-/app/.opencode_tmp/
-
-# One-off archive (image backup, not referenced by the app)
-/public/assets/img.zip
-
-# Deploy scripts (never commit credentials or one-off helpers)
-/ftp_deploy.ps1
-/public/mf_deploy.php
-/tempdiff.txt
-
-# Environment & logs
-.env
-.env.*
-*.log
-
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
+push-project.bat
+deploy-live.py
+_mf_*
+_mf-*
