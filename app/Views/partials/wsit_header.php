@@ -291,8 +291,16 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                 <?php $navLabel = trim((string)($navItem['label_' . $locale] ?? '')) ?: trim((string)($navItem['label_en'] ?? '')); ?>
                 <?php $navUrl = trim((string)($navItem['url'] ?? '')); ?>
                 <?php if ($navLabel === '' || $navUrl === '') continue; ?>
+                <?php
+                $navIsActive = false;
+                if ($navUrl !== '' && !str_starts_with($navUrl, 'http://') && !str_starts_with($navUrl, 'https://')
+                    && !str_starts_with($navUrl, '#') && !str_starts_with($navUrl, 'mailto:') && !str_starts_with($navUrl, 'tel:')) {
+                    $navTargetPath = ltrim($navUrl, '/');
+                    $navIsActive = ($navTargetPath === '' ? $path === '' : $navTargetPath === $path);
+                }
+                ?>
                 <li>
-                    <a class="hd-nav-link hover:text-amber-400 py-1 flex items-center gap-1.5" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
+                    <a class="hd-nav-link py-1 flex items-center gap-1.5 <?= $navIsActive ? 'text-amber-400 font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
                         <?php if (!empty($navItem['icon']) && nav_icon_valid($navItem['icon'])): ?><span class="material-symbols-outlined text-[16px]"><?= e($navItem['icon']) ?></span><?php endif; ?>
                         <?= e($navLabel) ?>
                     </a>
@@ -363,7 +371,15 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
             <?php $navLabel = trim((string)($navItem['label_' . $locale] ?? '')) ?: trim((string)($navItem['label_en'] ?? '')); ?>
             <?php $navUrl = trim((string)($navItem['url'] ?? '')); ?>
             <?php if ($navLabel === '' || $navUrl === '') continue; ?>
-            <a href="<?= e(nav_menu_url($navUrl)) ?>" class="block px-3 py-2 rounded-lg hover:bg-stone-50 flex items-center gap-2"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
+            <?php
+            $navIsActive = false;
+            if ($navUrl !== '' && !str_starts_with($navUrl, 'http://') && !str_starts_with($navUrl, 'https://')
+                && !str_starts_with($navUrl, '#') && !str_starts_with($navUrl, 'mailto:') && !str_starts_with($navUrl, 'tel:')) {
+                $navTargetPath = ltrim($navUrl, '/');
+                $navIsActive = ($navTargetPath === '' ? $path === '' : $navTargetPath === $path);
+            }
+            ?>
+            <a href="<?= e(nav_menu_url($navUrl)) ?>" class="block px-3 py-2 rounded-lg flex items-center gap-2 <?= $navIsActive ? 'bg-stone-100 text-amber-600 font-semibold' : 'hover:bg-stone-50' ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
                 <?php if (!empty($navItem['icon']) && nav_icon_valid($navItem['icon'])): ?><span class="material-symbols-outlined text-[16px]"><?= e($navItem['icon']) ?></span><?php endif; ?>
                 <?= e($navLabel) ?>
             </a>
