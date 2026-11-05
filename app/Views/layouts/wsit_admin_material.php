@@ -542,7 +542,7 @@ setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }
 
         <?= $navLink(locale_url('/mf-dashboard/support'), 'support_agent', $t['help'], $isNavActive('mf-dashboard/support')) ?>
         
-        <a class="group flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 font-medium transition-all text-[13px]" href="<?= e(locale_url('/')) ?>" target="_blank" rel="noopener">
+        <a class="group flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100/90 font-medium transition-all text-[13px]" href="<?= e(public_url(default_locale('frontend') . '/')) ?>" target="_blank" rel="noopener">
             <div class="flex items-center gap-2.5">
                 <span class="material-symbols-outlined text-[19px] text-stone-400 group-hover:text-primary transition-colors shrink-0">open_in_new</span>
                 <span><?= e($t['viewSite']) ?></span>

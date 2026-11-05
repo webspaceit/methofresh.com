@@ -100,7 +100,7 @@ $adminPath = current_page_path();
             <?= e(trans('admin')) ?>
         </a>
         <div class="flex items-center gap-2">
-            <a href="<?= e(locale_url('/')) ?>" target="_blank" rel="noopener" class="text-xs px-3 py-2 rounded-lg bg-brand-800 hover:bg-brand-700">🏠</a>
+            <a href="<?= e(public_url(default_locale('frontend') . '/')) ?>" target="_blank" rel="noopener" class="text-xs px-3 py-2 rounded-lg bg-brand-800 hover:bg-brand-700">🏠</a>
             <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg bg-brand-800 hover:bg-brand-700">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
@@ -190,7 +190,7 @@ $adminPath = current_page_path();
 
             <!-- Bottom Menu: View Website & Admin User -->
             <div class="mt-auto px-5 py-4 border-t border-brand-800 space-y-3">
-                <a href="<?= e(locale_url('/')) ?>" target="_blank" rel="noopener" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:bg-brand-800 hover:text-white transition group" title="<?= e(trans('admin_view_website')) ?>">
+                <a href="<?= e(public_url(default_locale('frontend') . '/')) ?>" target="_blank" rel="noopener" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:bg-brand-800 hover:text-white transition group" title="<?= e(trans('admin_view_website')) ?>">
                     <svg class="w-4 h-4 text-stone-400 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
                     <span><?= e(trans('admin_view_website')) ?></span>
                     <span class="ml-auto text-[10px] text-brand-400/70 group-hover:text-brand-200">↗</span>
