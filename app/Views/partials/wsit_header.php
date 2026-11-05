@@ -261,7 +261,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                     @resize.window="if (open) positionMenu()"
                     @scroll.window="if (open) positionMenu()"
                     x-effect="if (open) $nextTick(() => positionMenu())">
-                    <a class="hd-nav-link flex items-center gap-1 py-1 <?= str_starts_with($path, 'categories') ? 'text-amber-400 font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/categories')) ?>"
+                    <a class="hd-nav-link flex items-center gap-1 py-1 <?= str_starts_with($path, 'categories') ? 'hd-nav-active font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/categories')) ?>"
                        x-ref="categoryTrigger"
                        @click="if (!canHover) { $event.preventDefault(); open = !open; }">
                         <span><?= e(trans('nav_all_categories')) ?></span>
@@ -282,7 +282,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                     <?php endif; ?>
                 </li>
                 <?php foreach ($headerQuick as $cat): ?>
-                <li><a class="hd-nav-link py-1 <?= $path === 'categories/' . $cat['slug'] ? 'text-amber-400 font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
+                <li><a class="hd-nav-link py-1 <?= $path === 'categories/' . $cat['slug'] ? 'hd-nav-active font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
                 <?php endforeach; ?>
                 <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/#story')) ?>"><?= e(trans('land_story_badge')) ?></a></li>
                 <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/#faq')) ?>"><?= e(trans('land_faq_title')) ?></a></li>
@@ -300,7 +300,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                 }
                 ?>
                 <li>
-                    <a class="hd-nav-link py-1 flex items-center gap-1.5 <?= $navIsActive ? 'text-amber-400 font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
+                    <a class="hd-nav-link py-1 flex items-center gap-1.5 <?= $navIsActive ? 'hd-nav-active font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(nav_menu_url($navUrl)) ?>"<?= !empty($navItem['target']) ? ' target="_blank" rel="noopener"' : '' ?>>
                         <?php if (!empty($navItem['icon']) && nav_icon_valid($navItem['icon'])): ?><span class="material-symbols-outlined text-[16px]"><?= e($navItem['icon']) ?></span><?php endif; ?>
                         <?= e($navLabel) ?>
                     </a>
