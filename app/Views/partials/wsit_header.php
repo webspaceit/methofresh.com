@@ -261,7 +261,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                     @resize.window="if (open) positionMenu()"
                     @scroll.window="if (open) positionMenu()"
                     x-effect="if (open) $nextTick(() => positionMenu())">
-                    <a class="hd-nav-link hover:text-amber-400 flex items-center gap-1 py-1" href="<?= e(locale_url('/categories')) ?>"
+                    <a class="hd-nav-link flex items-center gap-1 py-1 <?= str_starts_with($path, 'categories') ? 'text-amber-400 font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/categories')) ?>"
                        x-ref="categoryTrigger"
                        @click="if (!canHover) { $event.preventDefault(); open = !open; }">
                         <span><?= e(trans('nav_all_categories')) ?></span>
@@ -272,9 +272,9 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                          x-ref="categoryMenu" class="fixed z-[80]">
                         <div>
                             <div class="w-64 rounded-xl border border-white/10 bg-[#0B1F16] shadow-xl p-2">
-                                <a href="<?= e(locale_url('/categories')) ?>" class="block px-3 py-2 rounded-lg text-sm font-semibold text-amber-400 hover:bg-white/10 transition"><?= e(trans('nav_all_categories')) ?> →</a>
+                                <a href="<?= e(locale_url('/categories')) ?>" class="block px-3 py-2 rounded-lg text-sm font-semibold <?= $path === 'categories' ? 'bg-white/10 text-amber-400' : 'text-amber-400 hover:bg-white/10' ?> transition"><?= e(trans('nav_all_categories')) ?> →</a>
                                 <?php foreach ($headerAllCategories as $cat): ?>
-                                <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-2 rounded-lg text-sm font-medium text-stone-200 hover:bg-white/10 hover:text-amber-400 transition"><?= e($cat['name']) ?></a>
+                                <a href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>" class="block px-3 py-2 rounded-lg text-sm font-medium <?= $path === 'categories/' . $cat['slug'] ? 'bg-white/10 text-amber-400' : 'text-stone-200 hover:bg-white/10 hover:text-amber-400' ?> transition"><?= e($cat['name']) ?></a>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -282,7 +282,7 @@ $showNav = site_setting('header_show_nav', '1') !== '0';
                     <?php endif; ?>
                 </li>
                 <?php foreach ($headerQuick as $cat): ?>
-                <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
+                <li><a class="hd-nav-link py-1 <?= $path === 'categories/' . $cat['slug'] ? 'text-amber-400 font-semibold' : 'hover:text-amber-400' ?>" href="<?= e(locale_url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></li>
                 <?php endforeach; ?>
                 <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/#story')) ?>"><?= e(trans('land_story_badge')) ?></a></li>
                 <li><a class="hd-nav-link hover:text-amber-400 py-1" href="<?= e(locale_url('/#faq')) ?>"><?= e(trans('land_faq_title')) ?></a></li>
