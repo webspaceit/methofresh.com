@@ -300,16 +300,24 @@ class wsit_Product extends wsit_Model
         ];
     }
 
-    public function search(string $q = ''): array
+    public function search(string $q = '', int $categoryId = 0): array
     {
         $sql = "SELECT p.*, c.name_en AS category_name_en, c.hide_price AS category_hide_price
                 FROM {$this->table} p
                 LEFT JOIN {$this->categories} c ON c.id = p.category_id";
         $params = [];
+        $conditions = [];
+        if ($categoryId > 0) {
+            $conditions[] = 'p.category_id = ?';
+            $params[] = $categoryId;
+        }
         if ($q !== '') {
-            $sql .= ' WHERE p.name_en LIKE ? OR p.name_bn LIKE ? OR p.sku LIKE ?';
+            $conditions[] = '(p.name_en LIKE ? OR p.name_bn LIKE ? OR p.sku LIKE ?)';
             $like = "%{$q}%";
             array_push($params, $like, $like, $like);
+        }
+        if ($conditions !== []) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
         $sql .= ' ORDER BY p.created_at DESC';
         return $this->fetchAll($sql, $params);

@@ -34,20 +34,25 @@ class wsit_AdminProductController extends wsit_Controller
             ]);
         }
 
-        $search = trim((string)$request->query('q', ''));
-        $products = $this->productModel->search($search);
+        $search      = trim((string)$request->query('q', ''));
+        $categoryId  = (int)$request->query('category', 0);
+        $products    = $this->productModel->search($search, $categoryId);
+        $categories  = $this->categoryModel->localized($this->categoryModel->all(), app_locale());
 
         return $this->view('admin/products/wsit_index', [
-            'pageTitle' => trans('admin_products') . ' | ' . trans('admin'),
-            'products'  => $products,
-            'search'    => $search,
+            'pageTitle'  => trans('admin_products') . ' | ' . trans('admin'),
+            'products'   => $products,
+            'search'     => $search,
+            'categoryId' => $categoryId,
+            'categories' => $categories,
         ], 'wsit_admin_material');
     }
 
     public function searchJson(wsit_Request $request): void
     {
-        $search = trim((string)$request->query('q', ''));
-        $products = $this->productModel->search($search);
+        $search     = trim((string)$request->query('q', ''));
+        $categoryId = (int)$request->query('category', 0);
+        $products   = $this->productModel->search($search, $categoryId);
         $html = $this->render('admin/products/wsit__rows', ['products' => $products]);
 
         $this->json([
