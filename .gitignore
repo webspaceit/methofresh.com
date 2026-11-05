@@ -1,4 +1,21 @@
+# Local tooling
 push-project.bat
 deploy-live.py
 _mf_*
 _mf-*
+
+# Dependencies
+node_modules/
+vendor/
+
+# Temp / scratch files
+.opencode-tmp/
+app/.opencode_tmp/
+app/.opencode-shim/
+tempdiff.txt
+ftp_deploy.ps1
+
+# Uploads and local config (never commit)
+public/assets/img/uploads/
+app/config/wsit_config.php
+app/config/wsit_config.production.php
