@@ -22,7 +22,6 @@ unset($currentQuery['page']);
     </select>
     <input type="text" name="q" id="adminQ" value="<?= e($search) ?>" placeholder="<?= e(trans('admin_search')) ?>"
            class="flex-1 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
-    <button type="submit" class="rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-4 py-2.5 text-sm font-semibold"><?= e(trans('nav_search')) ?></button>
 </form>
 
 <div class="bg-card rounded-2xl border border-honey-600/15 overflow-x-auto">
