@@ -41,6 +41,10 @@
         </form>
     </td>
     <td class="px-4 py-3 text-right whitespace-nowrap">
+        <form method="post" action="<?= e(locale_url('/mf-dashboard/products/' . $product['id'] . '/duplicate')) ?>" class="inline">
+            <?= csrf_field() ?>
+            <button type="submit" class="inline-block rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold hover:border-brand-600 hover:text-brand-700">Duplicate</button>
+        </form>
         <a href="<?= e(locale_url('/mf-dashboard/products/' . $product['id'] . '/edit')) ?>" class="inline-block rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold hover:border-brand-600 hover:text-brand-700"><?= e(trans('admin_edit')) ?></a>
         <form method="post" action="<?= e(locale_url('/mf-dashboard/products/' . $product['id'] . '/delete')) ?>" class="inline" data-confirm="<?= e(trans('admin_delete_confirm')) ?>">
             <?= csrf_field() ?>

@@ -87,6 +87,38 @@ class wsit_AdminProductController extends wsit_Controller
         ], 'wsit_admin_material');
     }
 
+    public function duplicate(wsit_Request $request, int $id): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/products');
+        }
+
+        $product = $this->productModel->find($id);
+        if ($product === null) {
+            $this->flash('error', trans('admin_not_found'));
+            $this->redirect('/mf-dashboard/products');
+        }
+
+        $data = $product;
+        unset($data['id'], $data['created_at']);
+        $data['name_en']     = trim((string)$product['name_en']) . ' (Copy)';
+        $data['name_bn']     = trim((string)($product['name_bn'] ?? '')) !== ''
+            ? $product['name_bn'] . ' (কপি)'
+            : $product['name_bn'];
+        $data['slug']        = $product['slug'] . '-copy-' . time();
+        $data['sku']         = $product['sku'] . '-COPY';
+        $data['stock']       = 0;
+        $data['sold']        = 0;
+        $data['active']      = 0;
+        $data['featured']    = 0;
+        $data['new_arrival'] = 0;
+
+        $this->productModel->create($data);
+        $this->flash('success', trans('admin_product_saved'));
+        $this->redirect('/mf-dashboard/products');
+    }
+
     public function store(wsit_Request $request): void
     {
         if (!verify_csrf($request->input('_token'))) {

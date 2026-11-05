@@ -105,6 +105,7 @@ $router->get('/mf-dashboard/products/search',              [wsit_AdminProductCon
 $router->get('/mf-dashboard/products/create',              [wsit_AdminProductController::class, 'create']);
 $router->post('/mf-dashboard/products',                    [wsit_AdminProductController::class, 'store']);
 $router->get('/mf-dashboard/products/{id}/edit',           [wsit_AdminProductController::class, 'edit']);
+$router->post('/mf-dashboard/products/{id}/duplicate',     [wsit_AdminProductController::class, 'duplicate']);
 $router->post('/mf-dashboard/products/{id}/update',        [wsit_AdminProductController::class, 'update']);
 $router->post('/mf-dashboard/products/{id}/delete',        [wsit_AdminProductController::class, 'destroy']);
 $router->post('/mf-dashboard/products/{id}/toggle',        [wsit_AdminProductController::class, 'toggle']);
