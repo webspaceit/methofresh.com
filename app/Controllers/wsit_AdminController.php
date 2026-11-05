@@ -707,6 +707,18 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/settings');
         }
 
+        // Pick an already-uploaded image from the server.
+        $selectLogo = trim((string)$request->input('select_logo', ''));
+        if ($selectLogo !== '') {
+            if (str_starts_with($selectLogo, 'assets/img/uploads/') && is_file(public_path($selectLogo))) {
+                $this->settingModel->set('site_logo', $selectLogo);
+                $this->flash('success', trans('admin_logo_saved'));
+            } else {
+                $this->flash('error', trans('admin_logo_upload_error'));
+            }
+            $this->redirect('/mf-dashboard/settings');
+        }
+
         // Remove the current logo.
         if ($request->input('remove_logo') === '1') {
             $this->removeStoredLogo();
@@ -782,6 +794,18 @@ class wsit_AdminController extends wsit_Controller
     {
         if (!verify_csrf($request->input('_token'))) {
             $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        // Pick an already-uploaded image from the server.
+        $selectFavicon = trim((string)$request->input('select_favicon', ''));
+        if ($selectFavicon !== '') {
+            if (str_starts_with($selectFavicon, 'assets/img/uploads/') && is_file(public_path($selectFavicon))) {
+                $this->settingModel->set('site_favicon', $selectFavicon);
+                $this->flash('success', trans('admin_favicon_saved'));
+            } else {
+                $this->flash('error', trans('admin_favicon_upload_error'));
+            }
             $this->redirect('/mf-dashboard/settings');
         }
 

@@ -252,6 +252,42 @@ function site_logo_style(): string
 }
 
 /**
+ * List of images already uploaded to the server (for the Settings picker).
+ * Returns an array of relative paths like 'assets/img/uploads/foo.png',
+ * newest first.
+ */
+function uploaded_images(): array
+{
+    $dir = public_path('assets/img/uploads');
+    if (!is_dir($dir)) {
+        return [];
+    }
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'];
+    $files = [];
+    foreach (scandir($dir) as $name) {
+        if ($name === '.' || $name === '..') {
+            continue;
+        }
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowed, true)) {
+            continue;
+        }
+        $full = $dir . DIRECTORY_SEPARATOR . $name;
+        if (!is_file($full)) {
+            continue;
+        }
+        $files[] = [
+            'name' => $name,
+            'path' => 'assets/img/uploads/' . $name,
+            'url'  => asset_url('img/uploads/' . $name),
+            'mtime'=> filemtime($full) ?: 0,
+        ];
+    }
+    usort($files, static fn(array $a, array $b): int => $b['mtime'] <=> $a['mtime']);
+    return $files;
+}
+
+/**
  * URL of the custom favicon uploaded from the admin Settings page.
  * Returns '' when no custom favicon is set (views then fall back to the
  * built-in emoji icon).
