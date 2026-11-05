@@ -305,18 +305,29 @@ class wsit_CheckoutController extends wsit_Controller
 
             $orderId = $this->orderModel->create($orderData);
 
-            foreach ($cart as $item) {
+            // Claim stock in product-id order so two overlapping orders
+            // lock the same rows in the same sequence and cannot deadlock.
+            $lines = array_values($cart);
+            usort($lines, static fn(array $a, array $b): int => ((int)$a['product_id']) <=> ((int)$b['product_id']));
+
+            foreach ($lines as $item) {
+                $productId = (int)$item['product_id'];
+                $qty = (int)$item['quantity'];
+                if (!$this->productModel->decrementStock($productId, $qty)) {
+                    $this->orderModel->rollBack();
+                    $this->flash('error', trans('stock_insufficient'));
+                    $this->redirect('/cart');
+                }
                 $this->orderItemModel->create([
                     'order_id'        => $orderId,
-                    'product_id'      => (int)$item['product_id'],
+                    'product_id'      => $productId,
                     'product_name'    => $item['name'],
-                    'product_name_bn' => $this->productNameBn((int)$item['product_id']),
+                    'product_name_bn' => $this->productNameBn($productId),
                     'price'           => $item['current_price'],
-                    'quantity'        => (int)$item['quantity'],
+                    'quantity'        => $qty,
                     'total'           => round($item['current_price'] * (int)$item['quantity'], 2),
                 ]);
-                $this->productModel->decrementStock((int)$item['product_id'], (int)$item['quantity']);
-                $this->productModel->incrementSold((int)$item['product_id'], (int)$item['quantity']);
+                $this->productModel->incrementSold($productId, $qty);
             }
 
             $this->orderModel->commit();

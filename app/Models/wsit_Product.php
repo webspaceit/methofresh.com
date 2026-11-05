@@ -382,9 +382,23 @@ class wsit_Product extends wsit_Model
         $this->deleteRecord($this->table, ['id' => $id]);
     }
 
-    public function decrementStock(int $id, int $qty): void
+    /**
+     * Take $qty units off the shelf for an order. The stock check is in the
+     * UPDATE itself, so two checkouts cannot both buy the last unit.
+     * Returns false when the product is missing or stock is short — the
+     * caller must roll the order back. A successful call always changes the
+     * row, so rowCount() is reliable with PDO's default "changed rows" mode.
+     */
+    public function decrementStock(int $id, int $qty): bool
     {
-        $this->query("UPDATE {$this->table} SET stock = stock - ? WHERE id = ?", [$qty, $id]);
+        if ($id <= 0 || $qty < 1) {
+            return false;
+        }
+        $stmt = $this->query(
+            "UPDATE {$this->table} SET stock = stock - ? WHERE id = ? AND stock >= ?",
+            [$qty, $id, $qty]
+        );
+        return $stmt->rowCount() > 0;
     }
 
     public function incrementSold(int $id, int $qty): void

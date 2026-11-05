@@ -105,9 +105,11 @@ class wsit_Order extends wsit_Model
         if ($userId <= 0 || $email === '') {
             return 0;
         }
+        // Collation is utf8mb4_unicode_ci, so this match is already
+        // case-insensitive and can use idx_orders_shipping_email.
         return (int)$this->query(
             "UPDATE {$this->table} SET user_id = ?
-             WHERE user_id IS NULL AND LOWER(shipping_email) = LOWER(?)",
+             WHERE user_id IS NULL AND shipping_email = ?",
             [$userId, $email]
         )->rowCount();
     }
