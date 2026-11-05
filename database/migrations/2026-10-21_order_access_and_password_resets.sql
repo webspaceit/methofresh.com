@@ -1,6 +1,20 @@
 -- Apply once to an existing installation before deploying the matching code.
-ALTER TABLE wsit_orders
-    ADD COLUMN access_token_hash CHAR(64) DEFAULT NULL AFTER transaction_id;
+-- Safe to re-run: the column is only added when it is missing.
+
+SET @col := (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME   = 'wsit_orders'
+      AND COLUMN_NAME  = 'access_token_hash'
+);
+
+SET @sql := IF(@col = 0,
+    'ALTER TABLE wsit_orders ADD COLUMN access_token_hash CHAR(64) DEFAULT NULL AFTER transaction_id',
+    'DO 0');
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS wsit_password_resets (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
