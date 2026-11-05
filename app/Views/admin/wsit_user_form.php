@@ -6,7 +6,8 @@ $action  = $isEdit
     ? locale_url('/mf-dashboard/users/' . (int)$user['id'] . '/edit')
     : locale_url('/mf-dashboard/users/create');
 
-$fName   = (string)($user['name'] ?? '');
+$fName    = (string)($user['name'] ?? '');
+$fNameBn  = (string)($user['name_bn'] ?? '');
 $fEmail  = (string)($user['email'] ?? '');
 $fPhone  = (string)($user['phone'] ?? '');
 $fCity   = (string)($user['city'] ?? '');
@@ -43,9 +44,17 @@ $fAuto   = (int)($user['auto_registered'] ?? 0) === 1;
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
         <label class="flex flex-col gap-1.5">
-            <span class="font-label-md text-label-md text-on-surface font-semibold"><?= e(trans('admin_user_name')) ?> *</span>
+            <span class="font-label-md text-label-md text-on-surface font-semibold"><?= e(trans('admin_user_name')) ?> (EN) *</span>
             <input type="text" name="name" value="<?= e($fName) ?>" required
                    class="rounded-xl border border-surface-container-high bg-surface px-4 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/40">
+        </label>
+        <label class="flex flex-col gap-1.5">
+            <span class="font-label-md text-label-md text-on-surface font-semibold"><?= e(trans('admin_user_name')) ?> (BN)</span>
+            <div class="flex items-center gap-2">
+                <input type="text" name="name_bn" value="<?= e($fNameBn ?? '') ?>"
+                       class="flex-1 rounded-xl border border-surface-container-high bg-surface px-4 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <?php $source = '[name=name]'; $target = '[name=name_bn]'; include views_path('admin/partials/wsit_translate_btn.php'); ?>
+            </div>
         </label>
         <label class="flex flex-col gap-1.5">
             <span class="font-label-md text-label-md text-on-surface font-semibold"><?= e(trans('admin_user_email')) ?> *</span>

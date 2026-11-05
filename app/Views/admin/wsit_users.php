@@ -105,7 +105,7 @@ $pageUrl = static function (int $n) use ($baseUrl, $search): string {
     <div class="divide-y divide-surface-container">
         <?php foreach ($users as $u):
             $uId     = (int)($u['id'] ?? 0);
-            $uName   = (string)($u['name'] ?? '');
+            $uName   = user_display_name($u);
             $uEmail  = (string)($u['email'] ?? '');
             $uPhone  = (string)($u['phone'] ?? '');
             $uCity   = (string)($u['city'] ?? '');

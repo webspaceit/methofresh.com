@@ -408,11 +408,12 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/users/create');
         }
 
-        $name  = trim((string)$request->input('name', ''));
-        $email = strtolower(trim((string)$request->input('email', '')));
-        $phone = trim((string)$request->input('phone', ''));
-        $city  = trim((string)$request->input('city', ''));
-        $pass  = (string)$request->input('password', '');
+        $name    = trim((string)$request->input('name', ''));
+        $nameBn  = trim((string)$request->input('name_bn', ''));
+        $email   = strtolower(trim((string)$request->input('email', '')));
+        $phone   = trim((string)$request->input('phone', ''));
+        $city    = trim((string)$request->input('city', ''));
+        $pass    = (string)$request->input('password', '');
         $isAdmin = (int)$request->input('is_admin', 0) === 1;
 
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($pass) < 6) {
@@ -426,6 +427,7 @@ class wsit_AdminController extends wsit_Controller
 
         $newId = $this->userModel->create([
             'name'     => $name,
+            'name_bn'  => $nameBn !== '' ? $nameBn : null,
             'email'    => $email,
             'phone'    => $phone,
             'city'     => $city,
@@ -472,11 +474,12 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/users');
         }
 
-        $name  = trim((string)$request->input('name', ''));
-        $email = strtolower(trim((string)$request->input('email', '')));
-        $phone = trim((string)$request->input('phone', ''));
-        $city  = trim((string)$request->input('city', ''));
-        $pass  = (string)$request->input('password', '');
+        $name    = trim((string)$request->input('name', ''));
+        $nameBn  = trim((string)$request->input('name_bn', ''));
+        $email   = strtolower(trim((string)$request->input('email', '')));
+        $phone   = trim((string)$request->input('phone', ''));
+        $city    = trim((string)$request->input('city', ''));
+        $pass    = (string)$request->input('password', '');
         $isAdmin = (int)$request->input('is_admin', 0) === 1;
         $current = current_user();
 
@@ -499,6 +502,7 @@ class wsit_AdminController extends wsit_Controller
 
         $data = [
             'name'     => $name,
+            'name_bn'  => $nameBn !== '' ? $nameBn : null,
             'email'    => $email,
             'phone'    => $phone,
             'city'     => $city,

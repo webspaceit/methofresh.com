@@ -13,6 +13,7 @@ USE methofresh;
 CREATE TABLE IF NOT EXISTS wsit_users (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(120) NOT NULL,
+    name_bn     VARCHAR(190) DEFAULT NULL,
     email       VARCHAR(190) NOT NULL UNIQUE,
     password    VARCHAR(255) NOT NULL,
     phone       VARCHAR(30)  DEFAULT NULL,
@@ -77,7 +78,10 @@ CREATE TABLE IF NOT EXISTS wsit_products (
       FOREIGN KEY (category_id) REFERENCES wsit_categories(id) ON DELETE CASCADE,
     INDEX idx_products_category_active (category_id, active),
     INDEX idx_products_active (active),
-    INDEX idx_products_featured (featured, active)
+    INDEX idx_products_featured (featured, active),
+    INDEX idx_products_active_created (active, created_at),
+    INDEX idx_products_active_sold (active, sold),
+    INDEX idx_products_sku (sku)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
@@ -105,7 +109,10 @@ CREATE TABLE IF NOT EXISTS wsit_orders (
     notes           TEXT DEFAULT NULL,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_orders_user (user_id),
-    INDEX idx_orders_status (status)
+    INDEX idx_orders_status (status),
+    INDEX idx_orders_created (created_at),
+    INDEX idx_orders_status_created (status, created_at),
+    INDEX idx_orders_shipping_email (shipping_email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
@@ -175,7 +182,8 @@ CREATE TABLE IF NOT EXISTS wsit_order_items (
     quantity        INT NOT NULL DEFAULT 1,
     total           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     CONSTRAINT fk_items_order
-      FOREIGN KEY (order_id) REFERENCES wsit_orders(id) ON DELETE CASCADE
+      FOREIGN KEY (order_id) REFERENCES wsit_orders(id) ON DELETE CASCADE,
+    INDEX idx_order_items_product (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------

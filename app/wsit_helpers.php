@@ -1054,7 +1054,11 @@ function user_display_name(?array $user = null, ?string $locale = null): string
     if (!$user) {
         return '';
     }
-    $name = trim((string)($user['name'] ?? ''));
+    $nameBn = trim((string)($user['name_bn'] ?? ''));
+    $name   = trim((string)($user['name'] ?? ''));
+    if ($locale === 'bn' && $nameBn !== '') {
+        return $nameBn;
+    }
     if ($name === 'মেঠোফ্রেশ অ্যাডমিন' || $name === 'MethoFresh Admin' || ($user['email'] ?? '') === 'admin@methofresh.com') {
         return $locale === 'bn' ? 'মেঠোফ্রেশ অ্যাডমিন' : 'MethoFresh Admin';
     }

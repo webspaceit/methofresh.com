@@ -18,6 +18,17 @@ class wsit_User extends wsit_Model
         return $this->fetch("SELECT * FROM {$this->table} WHERE id = ?", [$id]);
     }
 
+    public function name(array $user, ?string $locale = null): string
+    {
+        $locale = $locale ?? app_locale();
+        $col = $locale === 'bn' ? 'name_bn' : 'name';
+        $value = trim((string)($user[$col] ?? ''));
+        if ($value === '' && $col === 'name_bn') {
+            $value = trim((string)($user['name'] ?? ''));
+        }
+        return $value !== '' ? $value : trim((string)($user['name'] ?? ''));
+    }
+
     public function verifyPassword(string $password, string $hash): bool
     {
         return password_verify($password, $hash);
@@ -143,11 +154,11 @@ class wsit_User extends wsit_Model
 
     public function all(string $search = '', string $orderBy = 'id DESC'): array
     {
-        $sql = "SELECT id, name, email, phone, city, is_admin, created_at FROM {$this->table}";
+        $sql = "SELECT id, name, name_bn, email, phone, city, is_admin, created_at FROM {$this->table}";
         $params = [];
         if ($search !== '') {
-            $sql .= ' WHERE name LIKE ? OR email LIKE ?';
-            $params = ["%{$search}%", "%{$search}%"];
+            $sql .= ' WHERE name LIKE ? OR name_bn LIKE ? OR email LIKE ?';
+            $params = ["%{$search}%", "%{$search}%", "%{$search}%"];
         }
         $sql .= " ORDER BY {$orderBy}";
         return $this->fetchAll($sql, $params);
@@ -155,11 +166,11 @@ class wsit_User extends wsit_Model
 
     public function allPaginated(string $search = '', int $limit = 20, int $offset = 0): array
     {
-        $sql = "SELECT id, name, email, phone, city, is_admin, auto_registered, created_at FROM {$this->table}";
+        $sql = "SELECT id, name, name_bn, email, phone, city, is_admin, auto_registered, created_at FROM {$this->table}";
         $params = [];
         if ($search !== '') {
-            $sql .= ' WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?';
-            $params = ["%{$search}%", "%{$search}%", "%{$search}%"];
+            $sql .= ' WHERE name LIKE ? OR name_bn LIKE ? OR email LIKE ? OR phone LIKE ?';
+            $params = ["%{$search}%", "%{$search}%", "%{$search}%", "%{$search}%"];
         }
         $sql .= ' ORDER BY is_admin DESC, id DESC LIMIT ' . (int)$limit . ' OFFSET ' . (int)$offset;
         return $this->fetchAll($sql, $params);
@@ -170,8 +181,8 @@ class wsit_User extends wsit_Model
         $sql = "SELECT COUNT(*) FROM {$this->table}";
         $params = [];
         if ($search !== '') {
-            $sql .= ' WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?';
-            $params = ["%{$search}%", "%{$search}%", "%{$search}%"];
+            $sql .= ' WHERE name LIKE ? OR name_bn LIKE ? OR email LIKE ? OR phone LIKE ?';
+            $params = ["%{$search}%", "%{$search}%", "%{$search}%", "%{$search}%"];
         }
         return (int)$this->fetchColumn($sql, $params);
     }
