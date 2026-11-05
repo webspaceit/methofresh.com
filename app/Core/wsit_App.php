@@ -72,16 +72,22 @@ class wsit_App
             // the admin dashboard setting applies to everyone equally.
             // ------------------------------------------------------------------
 
-            // Load the site-wide default from DB and apply it immediately.
+            // Load the default for this area (frontend vs. dashboard) from DB.
             // This replaces whatever requested_locale() resolved in __construct
             // (which only had access to the cookie/URL at that point).
-            $stmt = $db->get()->prepare(
-                "SELECT `value` FROM " . table('settings') . " WHERE `key` = 'default_locale' LIMIT 1"
-            );
-            $stmt->execute();
-            $row = $stmt->fetch();
-            if ($row && is_locale($row['value'])) {
-                self::setLocale($row['value']);
+            $urlPath  = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+            $base     = base_url_path();
+            if ($base !== '' && str_starts_with($urlPath, $base . '/')) {
+                $urlPath = substr($urlPath, strlen($base));
+            }
+            $segments = explode('/', trim($urlPath, '/'));
+            if (in_array($segments[0] ?? '', locales(), true)) {
+                $segments = array_slice($segments, 1);
+            }
+            $scope  = (($segments[0] ?? '') === 'mf-dashboard') ? 'dashboard' : 'frontend';
+            $locale = default_locale($scope);
+            if (is_locale($locale)) {
+                self::setLocale($locale);
             }
 
             // If the URL carries an explicit locale prefix, that takes priority

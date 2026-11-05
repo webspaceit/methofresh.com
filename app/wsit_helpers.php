@@ -587,14 +587,22 @@ function locales(): array
     return (array) config('app.locales');
 }
 
-function default_locale(): string
+function default_locale(string $scope = 'frontend'): string
 {
-    // Prefer the site-wide setting stored in DB when a connection is available.
+    $scope = in_array($scope, ['frontend', 'dashboard'], true) ? $scope : 'frontend';
+    $keys  = ['default_locale_' . $scope];
+    // Older installs stored a single site-wide default; keep honouring it as
+    // a fallback so nothing changes until the admin saves the new settings.
+    $keys[] = 'default_locale';
+
+    // Prefer the DB setting when a connection is available.
     $db = \App\Core\wsit_App::get('db');
     if ($db !== null) {
-        $row = $db->fetch("SELECT `value` FROM " . table('settings') . " WHERE `key` = 'default_locale' LIMIT 1");
-        if ($row && is_locale($row['value'])) {
-            return $row['value'];
+        foreach ($keys as $key) {
+            $row = $db->fetch("SELECT `value` FROM " . table('settings') . " WHERE `key` = ? LIMIT 1", [$key]);
+            if ($row && is_locale($row['value'])) {
+                return $row['value'];
+            }
         }
     }
     // Fall back to config file (used before DB connects, e.g. in App::__construct).

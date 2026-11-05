@@ -608,14 +608,16 @@ class wsit_AdminController extends wsit_Controller
 
     public function settings(): string
     {
-        $globalLocale = $this->settingModel->get('default_locale', default_locale());
+        $frontendLocale = $this->settingModel->get('default_locale_frontend', default_locale('frontend'));
+        $dashboardLocale = $this->settingModel->get('default_locale_dashboard', default_locale('dashboard'));
 
         return $this->view('admin/wsit_settings', [
-            'pageTitle'     => trans('admin_settings') . ' | ' . trans('admin'),
-            'globalLocale'  => $globalLocale,
-            'contactEmail'  => $this->settingModel->get('contact_email', 'support@methofresh.com'),
-            'autoAccount'   => auto_create_account_on_order(),
-            'requireLogin'  => require_login_for_existing_account(),
+            'pageTitle'       => trans('admin_settings') . ' | ' . trans('admin'),
+            'frontendLocale'  => $frontendLocale,
+            'dashboardLocale' => $dashboardLocale,
+            'contactEmail'    => $this->settingModel->get('contact_email', 'support@methofresh.com'),
+            'autoAccount'     => auto_create_account_on_order(),
+            'requireLogin'    => require_login_for_existing_account(),
         ], 'wsit_admin_material');
     }
 
@@ -679,21 +681,22 @@ class wsit_AdminController extends wsit_Controller
             $this->redirect('/mf-dashboard/settings');
         }
 
-        $locale = $request->input('locale', 'en');
+        $frontend  = (string)$request->input('locale_frontend', '');
+        $dashboard = (string)$request->input('locale_dashboard', '');
+        $changed   = false;
 
-        if (is_locale($locale)) {
-            $this->settingModel->set('default_locale', $locale);
-            restore_locale($locale);
-            $this->flash('success', trans('admin_settings_saved'));
-            // Redirect to the settings page under the newly selected locale URL
-            // so the URL prefix in the browser matches the saved default.
-            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $path   = locale_url_for($locale, '/mf-dashboard/settings');
-            header('Location: ' . $scheme . '://' . $host . $path);
-            exit;
+        if (is_locale($frontend)) {
+            $this->settingModel->set('default_locale_frontend', $frontend);
+            $changed = true;
+        }
+        if (is_locale($dashboard)) {
+            $this->settingModel->set('default_locale_dashboard', $dashboard);
+            $changed = true;
         }
 
+        if ($changed) {
+            $this->flash('success', trans('admin_settings_saved'));
+        }
         $this->redirect('/mf-dashboard/settings');
     }
 

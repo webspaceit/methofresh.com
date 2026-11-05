@@ -183,7 +183,7 @@ $adminPath = current_page_path();
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                     </svg>
                     <?= e(trans('admin_site_language')) ?>:
-                    <?php $dbLocale = default_locale(); ?>
+                    <?php $dbLocale = default_locale('dashboard'); ?>
                     <span class="ml-auto font-bold text-brand-400 font-bengali"><?= $dbLocale === 'bn' ? 'বাংলা' : 'English' ?></span>
                 </a>
             </div>

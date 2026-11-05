@@ -19,10 +19,9 @@ $isUrlMismatch = $globalLocale !== app_locale();
 
 <div class="max-w-xl space-y-6">
 
-    <!-- ── Site-wide default language ── -->
+    <!-- ── Default site language: frontend ── -->
     <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
         <div class="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
-            <!-- Globe icon -->
             <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10"/>
@@ -30,67 +29,95 @@ $isUrlMismatch = $globalLocale !== app_locale();
                 </svg>
             </span>
             <div>
-                <h2 class="font-bold text-stone-900"><?= e(trans('admin_site_language')) ?></h2>
+                <h2 class="font-bold text-stone-900"><?= e(trans('admin_site_language')) ?> (Frontend)</h2>
                 <p class="text-xs text-stone-500 mt-0.5"><?= e(trans('admin_site_language_current')) ?>:
-                    <span class="font-semibold text-brand-700 <?= $globalLocale === 'bn' ? 'font-bengali' : '' ?>"><?= $globalLocale === 'bn' ? 'বাংলা' : 'English' ?></span>
+                    <span class="font-semibold text-brand-700 <?= $frontendLocale === 'bn' ? 'font-bengali' : '' ?>"><?= $frontendLocale === 'bn' ? 'বাংলা' : 'English' ?></span>
                 </p>
             </div>
         </div>
-
-        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings')) ?>" class="p-5" id="lang-form">
+        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings')) ?>" class="p-5" id="lang-form-frontend">
             <?= csrf_field() ?>
+            <input type="hidden" name="locale_dashboard" value="<?= e($dashboardLocale) ?>">
             <div class="space-y-3">
-                <!-- English option -->
-                <label id="label-en" class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition
-                              <?= $globalLocale === 'en' ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
-                    <input type="radio" name="locale" value="en"
-                           <?= $globalLocale === 'en' ? 'checked' : '' ?>
-                           onchange="submitLangForm(this)"
-                           class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                <label id="label-frontend-en" class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition <?= $frontendLocale === 'en' ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
+                    <input type="radio" name="locale_frontend" value="en" <?= $frontendLocale === 'en' ? 'checked' : '' ?> onchange="submitLangForm('frontend', this)" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
                     <div class="flex-1">
                         <p class="font-bold text-stone-900">English</p>
                         <p class="text-xs text-stone-500 mt-0.5">New visitors will see the site in English by default</p>
                     </div>
-                    <span id="badge-en" class="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-brand-600 text-white px-2 py-0.5 rounded-full <?= $globalLocale === 'en' ? '' : 'hidden' ?>">Active</span>
+                    <span id="badge-frontend-en" class="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-brand-600 text-white px-2 py-0.5 rounded-full <?= $frontendLocale === 'en' ? '' : 'hidden' ?>">Active</span>
                 </label>
-
-                <!-- Bengali option -->
-                <label id="label-bn" class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition
-                              <?= $globalLocale === 'bn' ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
-                    <input type="radio" name="locale" value="bn"
-                           <?= $globalLocale === 'bn' ? 'checked' : '' ?>
-                           onchange="submitLangForm(this)"
-                           class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                <label id="label-frontend-bn" class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition <?= $frontendLocale === 'bn' ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
+                    <input type="radio" name="locale_frontend" value="bn" <?= $frontendLocale === 'bn' ? 'checked' : '' ?> onchange="submitLangForm('frontend', this)" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
                     <div class="flex-1">
                         <p class="font-bold text-stone-900 font-bengali" style="font-family: 'Noto Sans Bengali', sans-serif;">বাংলা <span class="font-normal text-stone-500 text-sm font-sans">(Bengali)</span></p>
                         <p class="text-xs text-stone-500 mt-0.5 font-bengali" style="font-family: 'Noto Sans Bengali', sans-serif;">নতুন দর্শকরা ডিফল্টভাবে সাইটটি বাংলায় দেখবেন</p>
                     </div>
-                    <span id="badge-bn" class="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-brand-600 text-white px-2 py-0.5 rounded-full font-bengali <?= $globalLocale === 'bn' ? '' : 'hidden' ?>">সক্রিয়</span>
+                    <span id="badge-frontend-bn" class="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-brand-600 text-white px-2 py-0.5 rounded-full font-bengali <?= $frontendLocale === 'bn' ? '' : 'hidden' ?>">সক্রিয়</span>
                 </label>
             </div>
         </form>
-        <script>
-        function submitLangForm(radio) {
-            // Update label highlight immediately for instant visual feedback
-            ['en','bn'].forEach(function(loc) {
-                var lbl = document.getElementById('label-' + loc);
-                var bdg = document.getElementById('badge-' + loc);
-                if (!lbl) return;
-                if (loc === radio.value) {
-                    lbl.classList.add('border-brand-500', 'bg-brand-50');
-                    lbl.classList.remove('border-stone-200');
-                    if (bdg) bdg.classList.remove('hidden');
-                } else {
-                    lbl.classList.remove('border-brand-500', 'bg-brand-50');
-                    lbl.classList.add('border-stone-200');
-                    if (bdg) bdg.classList.add('hidden');
-                }
-            });
-            // Submit the form
-            document.getElementById('lang-form').submit();
-        }
-        </script>
     </div>
+
+    <!-- ── Default site language: dashboard ── -->
+    <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
+        <div class="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+            </span>
+            <div>
+                <h2 class="font-bold text-stone-900"><?= e(trans('admin_site_language')) ?> (Dashboard)</h2>
+                <p class="text-xs text-stone-500 mt-0.5"><?= e(trans('admin_site_language_current')) ?>:
+                    <span class="font-semibold text-brand-700 <?= $dashboardLocale === 'bn' ? 'font-bengali' : '' ?>"><?= $dashboardLocale === 'bn' ? 'বাংলা' : 'English' ?></span>
+                </p>
+            </div>
+        </div>
+        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings')) ?>" class="p-5" id="lang-form-dashboard">
+            <?= csrf_field() ?>
+            <input type="hidden" name="locale_frontend" value="<?= e($frontendLocale) ?>">
+            <div class="space-y-3">
+                <label id="label-dashboard-en" class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition <?= $dashboardLocale === 'en' ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
+                    <input type="radio" name="locale_dashboard" value="en" <?= $dashboardLocale === 'en' ? 'checked' : '' ?> onchange="submitLangForm('dashboard', this)" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                    <div class="flex-1">
+                        <p class="font-bold text-stone-900">English</p>
+                        <p class="text-xs text-stone-500 mt-0.5">Dashboard will open in English by default</p>
+                    </div>
+                    <span id="badge-dashboard-en" class="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-brand-600 text-white px-2 py-0.5 rounded-full <?= $dashboardLocale === 'en' ? '' : 'hidden' ?>">Active</span>
+                </label>
+                <label id="label-dashboard-bn" class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition <?= $dashboardLocale === 'bn' ? 'border-brand-500 bg-brand-50' : 'border-stone-200 hover:border-stone-300' ?>">
+                    <input type="radio" name="locale_dashboard" value="bn" <?= $dashboardLocale === 'bn' ? 'checked' : '' ?> onchange="submitLangForm('dashboard', this)" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                    <div class="flex-1">
+                        <p class="font-bold text-stone-900 font-bengali" style="font-family: 'Noto Sans Bengali', sans-serif;">বাংলা <span class="font-normal text-stone-500 text-sm font-sans">(Bengali)</span></p>
+                        <p class="text-xs text-stone-500 mt-0.5 font-bengali" style="font-family: 'Noto Sans Bengali', sans-serif;">ড্যাশবোর্ড ডিফল্টভাবে বাংলায় খুলবে</p>
+                    </div>
+                    <span id="badge-dashboard-bn" class="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-brand-600 text-white px-2 py-0.5 rounded-full font-bengali <?= $dashboardLocale === 'bn' ? '' : 'hidden' ?>">সক্রিয়</span>
+                </label>
+            </div>
+        </form>
+    </div>
+    <script>
+    function submitLangForm(scope, radio) {
+        var prefix = scope === 'dashboard' ? 'dashboard' : 'frontend';
+        ['en','bn'].forEach(function(loc) {
+            var lbl = document.getElementById('label-' + prefix + '-' + loc);
+            var bdg = document.getElementById('badge-' + prefix + '-' + loc);
+            if (!lbl) return;
+            if (loc === radio.value) {
+                lbl.classList.add('border-brand-500', 'bg-brand-50');
+                lbl.classList.remove('border-stone-200');
+                if (bdg) bdg.classList.remove('hidden');
+            } else {
+                lbl.classList.remove('border-brand-500', 'bg-brand-50');
+                lbl.classList.add('border-stone-200');
+                if (bdg) bdg.classList.add('hidden');
+            }
+        });
+        document.getElementById('lang-form-' + scope).submit();
+    }
+    </script>
 
     <!-- ── Site logo ── -->
     <div class="bg-card rounded-2xl border border-honey-600/15 overflow-hidden">
