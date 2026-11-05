@@ -436,9 +436,9 @@ $toItem = min($total, $page * $perPage);
         const toStr = toBengaliDigits(Math.min(totalProducts, loadedCount));
         const totalStr = toBengaliDigits(totalProducts);
         summaryText.innerHTML = '<?= e(trans('showing_products')) ?>'
-            .replace(':from', fromStr)
-            .replace(':to', toStr)
-            .replace(':total', totalStr);
+            .replace(/:total\b/g, totalStr)
+            .replace(/:from\b/g, fromStr)
+            .replace(/:to\b/g, toStr);
     }
 
     function fetchNextPage() {
