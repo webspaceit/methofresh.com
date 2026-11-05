@@ -778,6 +778,32 @@ class wsit_AdminController extends wsit_Controller
         $this->redirect('/mf-dashboard/settings');
     }
 
+    public function deleteUploadedImage(wsit_Request $request): void
+    {
+        if (!verify_csrf($request->input('_token'))) {
+            $this->flash('error', trans('validate_token'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        $path = trim((string)$request->input('image_path', ''));
+        if ($path === '' || !str_starts_with($path, 'assets/img/uploads/') || !is_file(public_path($path))) {
+            $this->flash('error', trans('admin_logo_upload_error'));
+            $this->redirect('/mf-dashboard/settings');
+        }
+
+        // Keep the setting consistent if the deleted file was in use.
+        if ($this->settingModel->get('site_logo', '') === $path) {
+            $this->settingModel->set('site_logo', '');
+        }
+        if ($this->settingModel->get('site_favicon', '') === $path) {
+            $this->settingModel->set('site_favicon', '');
+        }
+
+        @unlink(public_path($path));
+        $this->flash('success', trans('admin_deleted'));
+        $this->redirect('/mf-dashboard/settings');
+    }
+
     private function removeStoredLogo(): void
     {
         $current = $this->settingModel->get('site_logo', '');

@@ -160,14 +160,23 @@ $isUrlMismatch = $globalLocale !== app_locale();
                 <p class="text-xs font-semibold text-stone-500 mb-2">Choose from uploaded images</p>
                 <div class="flex flex-wrap gap-2">
                     <?php foreach ($uploadedImages as $img): ?>
-                    <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/logo')) ?>" class="inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="select_logo" value="<?= e($img['path']) ?>">
-                        <button type="submit" title="<?= e($img['name']) ?>"
-                                class="block rounded-lg overflow-hidden border-2 <?= $logo === $img['url'] ? 'border-brand-500' : 'border-stone-200 hover:border-brand-400' ?> transition">
-                            <img src="<?= e($img['url']) ?>" alt="" class="w-16 h-16 object-cover">
-                        </button>
-                    </form>
+                    <div class="relative">
+                        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/logo')) ?>" class="inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="select_logo" value="<?= e($img['path']) ?>">
+                            <button type="submit" title="<?= e($img['name']) ?>"
+                                    class="block rounded-lg overflow-hidden border-2 <?= $logo === $img['url'] ? 'border-brand-500' : 'border-stone-200 hover:border-brand-400' ?> transition">
+                                <img src="<?= e($img['url']) ?>" alt="" class="w-16 h-16 object-cover">
+                            </button>
+                        </form>
+                        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/delete-image')) ?>" class="absolute -top-1 -right-1">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="image_path" value="<?= e($img['path']) ?>">
+                            <button type="submit" data-confirm="<?= e(trans('admin_delete_confirm')) ?>"
+                                    class="flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold shadow hover:bg-red-700"
+                                    title="<?= e(trans('admin_delete')) ?>">×</button>
+                        </form>
+                    </div>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -251,14 +260,23 @@ $isUrlMismatch = $globalLocale !== app_locale();
                 <p class="text-xs font-semibold text-stone-500 mb-2">Choose from uploaded images</p>
                 <div class="flex flex-wrap gap-2">
                     <?php foreach ($uploadedImages as $img): ?>
-                    <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/favicon')) ?>" class="inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="select_favicon" value="<?= e($img['path']) ?>">
-                        <button type="submit" title="<?= e($img['name']) ?>"
-                                class="block rounded-lg overflow-hidden border-2 <?= $favicon === $img['url'] ? 'border-brand-500' : 'border-stone-200 hover:border-brand-400' ?> transition">
-                            <img src="<?= e($img['url']) ?>" alt="" class="w-12 h-12 object-contain bg-stone-50">
-                        </button>
-                    </form>
+                    <div class="relative">
+                        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/favicon')) ?>" class="inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="select_favicon" value="<?= e($img['path']) ?>">
+                            <button type="submit" title="<?= e($img['name']) ?>"
+                                    class="block rounded-lg overflow-hidden border-2 <?= $favicon === $img['url'] ? 'border-brand-500' : 'border-stone-200 hover:border-brand-400' ?> transition">
+                                <img src="<?= e($img['url']) ?>" alt="" class="w-12 h-12 object-contain bg-stone-50">
+                            </button>
+                        </form>
+                        <form method="post" action="<?= e(locale_url('/mf-dashboard/settings/delete-image')) ?>" class="absolute -top-1 -right-1">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="image_path" value="<?= e($img['path']) ?>">
+                            <button type="submit" data-confirm="<?= e(trans('admin_delete_confirm')) ?>"
+                                    class="flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold shadow hover:bg-red-700"
+                                    title="<?= e(trans('admin_delete')) ?>">×</button>
+                        </form>
+                    </div>
                     <?php endforeach; ?>
                 </div>
             </div>
