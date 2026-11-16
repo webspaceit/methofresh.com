@@ -2255,7 +2255,7 @@ function send_order_status_email(array $order, string $oldStatus, string $newSta
     $itemsHtml = '';
     foreach (($order['items'] ?? []) as $item) {
         $itemsHtml .= '<tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . '</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . (($item['product_name_bn'] ?? '') !== '' ? '<br><span style="font-size:11px;color:#888;">' . e($item['product_name_bn']) . '</span>' : '') . '</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:center;">' . (int)$item['quantity'] . '</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:right;">' . e(format_price((float)$item['total'])) . '</td>
         </tr>';
@@ -2354,7 +2354,7 @@ function order_confirmation_mail(array $order, ?string $setupLink = null, ?array
     $itemsHtml = '';
     foreach (($order['items'] ?? []) as $item) {
         $itemsHtml .= '<tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . '</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . (($item['product_name_bn'] ?? '') !== '' ? '<br><span style="font-size:11px;color:#888;">' . e($item['product_name_bn']) . '</span>' : '') . '</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:center;">' . (int)$item['quantity'] . '</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:right;">' . e(format_price((float)$item['total'])) . '</td>
         </tr>';
@@ -2542,7 +2542,7 @@ function send_admin_new_order_email(array $order): bool
     $itemsHtml = '';
     foreach (($order['items'] ?? []) as $item) {
         $itemsHtml .= '<tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . '</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;">' . e($item['product_name']) . (($item['product_name_bn'] ?? '') !== '' ? '<br><span style="font-size:11px;color:#888;">' . e($item['product_name_bn']) . '</span>' : '') . '</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:center;">' . (int)$item['quantity'] . '</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#444;text-align:right;">' . e(format_price((float)$item['total'])) . '</td>
         </tr>';
