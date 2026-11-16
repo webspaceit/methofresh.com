@@ -10,6 +10,9 @@ require_once dirname(__DIR__) . '/app/autoload.php';
 
 require_once dirname(__DIR__) . '/app/wsit_helpers.php';
 
+// Bangladesh time (UTC+6) for all date/time display and logic.
+date_default_timezone_set('Asia/Dhaka');
+
 use App\Core\wsit_App;
 use App\Core\wsit_Session;
 use App\Core\wsit_Validator;
